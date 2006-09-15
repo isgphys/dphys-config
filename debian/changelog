@@ -1,0 +1,5 @@
+dphys-config (20060915-1) unstable; urgency=low
+
+  * Initial release (Closes: #387633)
+
+ -- Gürkan Sengün <gurkan@linuks.mine.nu>  Fri, 15 Sep 2006 16:37:40 +0200

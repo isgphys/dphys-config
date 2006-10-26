@@ -1,9 +1,9 @@
 .\" /usr/share/man/man1/dphys-config.1(.gz)
-.\" author Neil Franklin, last modification 2006.09.15
+.\" author Neil Franklin, last modification 2006.10.12
 .\" copyright ETH Zuerich Physics Departement
 .\"   use under either modified/non-advertising BSD or GPL license
 
-.TH DPHYS-CONFIG 1 "2006.09.15" "D-PHYS Configuration Tools"
+.TH DPHYS-CONFIG 1 "2006.10.12" "D-PHYS Configuration Tools"
 
 .SH NAME
 
@@ -55,9 +55,9 @@ help: Output help text, and then abort operation.
 
 .SH CONFIG
 
-The config files \fI/etc/dphys-config\fP (sitewide), \fI~/.dphys-config\fP
-(personal) and \fI./dphys-config\fP (particular project) allow the admin  and
-users to set up the working environment for \fBdphys-config\fP.
+The config files \fI/etc/dphys-config\fP (sitewide) and \fI~/.dphys-config\fP
+(personal) allow the admin and users to set up the working environment for
+\fBdphys-config\fP.
 .PP
 These config files are sh script fragments full of assignments, which are
 sourced, in above row, later config files assignments overriding earlier ones.
@@ -71,12 +71,23 @@ can fetch an file from. It defaults to the error message generating invalid
 \fIhttp://not-configured-server/not/configured/directory\fP, as there is no
 sensible default possible. You must set this to where ever your config files
 should be taken from.
+.TP
+.B CONF_LINEFILTER
+Sets an regexp which selects which lines from the config file list are
+processed. Defaults to \fI.*\fP (all).
+.TP
+.B CONF_LOG_DONE
+Log to syslog that dphys-config has run. Good to see if cron and/or init.d
+have done their job. Defaults to \fIyes\fP.
+
+
 .PP
-The config file list file \fI/etc/dphys-config.list\fP, which is found via
-above settings, then allows the admin to list what config files are to be
-fetched and installed/updated or removed, and what scripts to run for them.
-These can be given for the entire site and/or group and/or each host, or even
-merged from site+group+host subsections.
+The config file list \fIdphys-config.list\fP, which is found via above
+settings, and is downloaded to \fI/etc/dphys-config.list\fP or
+\fI~/.dphys-config.list\fP, then allows the admin to list what config files are
+to be fetched and installed/updated or removed, and what scripts to run for
+them. These can be each given for the entire site (= all hosts) and/or group
+and/or each host, or even merged from site+group+host subsections.
 
 .SH FILES
 
@@ -87,12 +98,15 @@ site admin config
 .B ~/.dphys-config
 users personal config
 .TP
-.B ./dphys-config
-individual projects config
+.B /etc/dphys-config.list
+roots config file list gets stored here
+.TP
+.B ~/.dphys-config.list
+users config file list gets stored here
 .TP
 .B $CONF_BASEURL/`hostname`/dphys-config.list
-site-global common (usually, or group-global or host specific) config file
-list
+site-global (all hosts) common (usually, or group-global or host specific)
+config file list
 .TP
 .B $CONF_BASEURL/`hostname`/dphys-config.list.*
 facultative host-specific (usually) or group-specific include-able
@@ -101,7 +115,7 @@ use *.group (one per group of users) and *.host (per host), sometimes also
 *.base (all host types) and *.workstation (only workstation hosts) subsections
 .B $CONF_BASEURL/`hostname`/<file-name>
 actual config files referred to in config file list, common section (usually
-only section)
+the only section)
 .B $CONF_BASEURL/`hostname`/<file-name>.*
 facultative host-specific (usually) or group-specific include-able
 subsection(s) to be added to above config file <file-name>
@@ -157,7 +171,7 @@ same applies for empty lines.
 
 .SH PREPROCESSOR
 
-If the first line of the config list file, or any config file fetched on its
+If the first line of the config file list, or any config file fetched on its
 behalf, has the special format \fB#@dphys-config-preprocess\fP
 [\fBaction...\fP] then this line will be stripped, and the rest of the
 file will be preprocessed. Depending on the list of \fBaction\fPs present and
@@ -270,11 +284,11 @@ motd:/etc/                       # this will be assembled group specific
 inetd.conf:/etc/:/etc/init.d/inetd restart  # needs an command to reload
 sendmail.cf:/etc/mail/:/etc/init.d/sendmail restart  # not in /etc
 # ssh restart only after last file, and ensure file modes for each file
-ssh_host_key:/etc/ssh/:/bin/chown root:root {}; /bin/chmod 600 {}
-ssh_host_rsa_key:/etc/ssh/:/bin/chown root:root {}; /bin/chmod 600 {}
-ssh_host_dsa_key:/etc/ssh/:/bin/chown root:root {}; /bin/chmod 600 {}; /etc/init.d/sshd restart
+ssh_host_key:/etc/ssh/:chown root:root {}; chmod 600 {}
+ssh_host_rsa_key:/etc/ssh/:chown root:root {}; chmod 600 {}
+ssh_host_dsa_key:/etc/ssh/:chown root:root {}; chmod 600 {}; /etc/init.d/sshd restart
 # load stuff into an existing database file
-seed.debconf:/etc/:/usr/bin/debconf-set-selections {}
+seed.debconf:/etc/:debconf-set-selections {}
 # other stuff
 daemon1-conf:/etc/daemon1/conf   # rename so names can differ on server
 daemon2-conf:/etc/daemon2/conf
@@ -313,7 +327,7 @@ there (such as \fI../SITE/local/sbin/dphys-config-<whatever>\fP), and symlink
 the scripts, with the command to trigger them, giving something like this:
 .PP
 .nf
-local/sbin/dphys-config-<whatever>:/usr/:/bin/chmod 755 {}; {}  # chmod and run
+local/sbin/dphys-config-<whatever>:/usr/:chmod 755 {}; {}  # chmod and run
 .fi
 .PP
 It this script processes an config file your will want it to be run if either

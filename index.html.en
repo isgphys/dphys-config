@@ -27,8 +27,8 @@
 
     This project is aimed at installing (and keeping update) the site specific
     config files we want, after preprocessing them (conditional content and
-    include files and include sections). It also triggers postinstall scripts
-    whenever their associated config file has been changed. It can also remove
+    include files and include sections). It also triggers an postinstall script
+    whenever its associated config file has been changed. It can also remove
     config files, including running an preremove script before doing so. All
     this is driven by an simple config file list.
     <p>
@@ -40,8 +40,8 @@
     This project was spawned from the <a href="../dphys-admin/">dphys-admin
     project</a>, aimed at automatically installing Debian packages onto our
     systems, but is itsself independant of dphys-admin or any other Debian
-    stuff. It should work on any Unix system, but is only tested on our Debian
-    Linux 3.1 (sarge) systems.
+    stuff. It should work on any Unix system, but has only been tested on our
+    Debian Linux 3.1 (sarge) systems and on FreeBSD 6.1.
 
 
     <a name=status></a>
@@ -62,10 +62,20 @@
       <li>Run an postinstall script if config file was installed/updated</li>
       <li>Run an preremove script if a config file shall disappear</li>
       <li>Remove unwanted config files</li>
+      <li>Allow non-root to use dphys-config to distribute dot files</li>
+    </ul>
+    Milestone/Release 2 (2006.10.20):
+    <ul>
+      <li>Bugfix non-root mode to actually work, no writing into /etc/</li>
+      <li>Changed to also work with newer sed comming with in Debian sid</li>
+      <li>Linked to official Debian package in sid (will become etch)</li>
+      <li>Code and documentation tidy ups, some from early feedback</li>
+      <li>Extensive quoting improvements against possible escaping bugs</li>
+      <li>Path handling and other changes to work also on FreeBSD 6.1</li>
     </ul>
     Current (= development, = may be broken):
     <ul>
-      <li>Nothing done</li>
+      <li>Nothing yet</li>
     </ul>
     <h4>Todo are:</h4>
     <ul>
@@ -94,38 +104,65 @@
           dphys-config.example</a>, example config file, containing only the
           default settings as comments, to adapt to your site</li>
         <li><a href="site.example">
-          site.example</a>, example list of files to process, together with
-          example files used in this list, some of which are quite usefull:
-          <ul>
-            <li><a href="site.example/dphys-config.list">
-              dphys-config.list</a>, list of files to process</li>
-            <li><a href="site.example/local/sbin/dphys-config-x">
-              local/sbin/dphys-config-x</a>, script to generate XFree config
-              from an simple feature list config file</li>
-            <li><a href="site.example/dphys-config-x">
-              dphys-config-x</a>, config file for above</li>
-            <li><a href="site.example/local/sbin/dphys-config-filesys">
-              dphys-config-filesys</a>, script to expand /etc/fstab and make
-              the stuff it points to</li>
-            <li><a href="site.example/dphys-config-filesys.list">
-              dphys-config-filesys.list</a>, config file for above</li>
-            <li><a href="site.example/local/sbin/dphys-config-quota">
-              dphys-config-quota</a>, set up quota, but only for tracing which
-              user ist using how much disk space, no quota enforcement</li>
-            <li><a href="site.example/dphys-config-quota.list">
-              dphys-config-quota.list</a>, config file for above</li>
-            <li><a href="site.example/local/sbin/dphys-config-alternatives">
-              dphys-config-alternatives</a>, set up /etc/alternatives</li>
-            <li><a href="site.example/usb-storage.dev">
-              usb-storage.dev</a>, auto mount/umount USB storage devices when
-              their udev events happen, use filesystem label as mountpoint</li>
-            <li><a href="site.example/local/sbin/dphys-config-usb-storage">
-              dphys-config-usb-storage</a>, load modules for above</li>
-          </ul></li>
+          site.example</a>, example site config, containing an <a
+          href="site.example/dphys-config.list"
+          >list of files to process</a>, together with example files used in
+          this list, some of which are quite usefull scripts (<a
+          href="site.example/dphys-config-filesys.list"
+          >expand /etc/fstab</a>, <a
+          href="site.example/local/sbin/dphys-config-exports"
+          >generate /etc/exports from fstab</a>, <a
+          href="site.example/local/sbin/dphys-config-quota"
+          >setup quota from fstab</a>, <a
+          href="site.example/local/sbin/dphys-config-usb-storage"
+          >expand /etc/modules for USB storage</a>, <a
+          href="site.example/local/sbin/dphys-config-x"
+          >generate XFree config from simple description</a>)</li>
         <li><a href="cron.d.example">
           cron.d.example</a>, example cron job to run dphys-config every night,
           for automatic updates</li>
         <li><a href="init.d.example">
+          init.d.example</a>, example init.d script to run dphys-config every
+          boot, to catchup on missed automatic updates</li>
+      </ul></li>
+    </ul>
+
+    Milestone/Release 2 (2006.10.20):
+    <ul>
+      <li><a href="../dphys-config-20061020/INSTALL">
+         Installation Guide</a></li>
+      <li>entire project: <a href="../dphys-config-20061020.tar.gz">
+        dphys-config.tar.gz</a></li>
+      <li>single files:<ul>
+        <li><a href="../dphys-config-20061020/Makefile">
+          Makefile</a>, control process</li>
+        <li><a href="../dphys-config-20061020/dphys-config">
+          dphys-config</a>, automatically install/update config files and run
+          scripts, run by cron or init</li>
+        <li><a href="../dphys-config-20061020/dphys-config.1">
+          dphys-config.1</a>, man page for dphys-config</li>
+        <li><a href="../dphys-config-20061020/dphys-config.example">
+          dphys-config.example</a>, example config file, containing only the
+          default settings as comments, to adapt to your site</li>
+        <li><a href="../dphys-config-20061020/site.example">
+          site.example</a>, example site config, containing an <a
+          href="../dphys-config-20061020/site.example/dphys-config.list"
+          >list of files to process</a>, together with example files used in
+          this list, some of which are quite usefull scripts (<a
+         href="../dphys-config-20061020/site.example/dphys-config-filesys.list"
+          >expand /etc/fstab</a>, <a
+   href="../dphys-config-20061020/site.example/local/sbin/dphys-config-exports"
+          >generate /etc/exports from fstab</a>, <a
+     href="../dphys-config-20061020/site.example/local/sbin/dphys-config-quota"
+          >setup quota from fstab</a>, <a
+          href="../dphys-config-20061020/site.example/local/sbin/dphys-config-usb-storage"
+          >expand /etc/modules for USB storage</a>, <a
+         href="../dphys-config-20061020/site.example/local/sbin/dphys-config-x"
+          >generate XFree config from simple description</a>)</li>
+        <li><a href="../dphys-config-20061020/cron.d.example">
+          cron.d.example</a>, example cron job to run dphys-config every night,
+          for automatic updates</li>
+        <li><a href="../dphys-config-20061020/init.d.example">
           init.d.example</a>, example init.d script to run dphys-config every
           boot, to catchup on missed automatic updates</li>
       </ul></li>
@@ -149,34 +186,18 @@
           dphys-config.example</a>, example config file, containing only the
           default settings as comments, to adapt to your site</li>
         <li><a href="../dphys-config-20060915/site.example">
-          site.example</a>, example list of files to process, together with
-          example files used in this list, some of which are quite usefull:
-          <ul>
-            <li><a href="../dphys-config-20060915/site.example/dphys-config.list">
-              dphys-config.list</a>, list of files to process</li>
-            <li><a href="../dphys-config-20060915/site.example/local/sbin/dphys-config-x">
-              local/sbin/dphys-config-x</a>, script to generate XFree config
-              from an simple feature list config file</li>
-            <li><a href="../dphys-config-20060915/site.example/dphys-config-x">
-              dphys-config-x</a>, config file for above</li>
-            <li><a href="../dphys-config-20060915/site.example/local/sbin/dphys-config-filesys">
-              dphys-config-filesys</a>, script to expand /etc/fstab and make
-              the stuff it points to</li>
-            <li><a href="../dphys-config-20060915/site.example/dphys-config-filesys.list">
-              dphys-config-filesys.list</a>, config file for above</li>
-            <li><a href="../dphys-config-20060915/site.example/local/sbin/dphys-config-quota">
-              dphys-config-quota</a>, set up quota, but only for tracing which
-              user ist using how much disk space, no quota enforcement</li>
-            <li><a href="../dphys-config-20060915/site.example/dphys-config-quota.list">
-              dphys-config-quota.list</a>, config file for above</li>
-            <li><a href="../dphys-config-20060915/site.example/local/sbin/dphys-config-alternatives">
-              dphys-config-alternatives</a>, set up /etc/alternatives</li>
-            <li><a href="../dphys-config-20060915/site.example/usb-storage.dev">
-              usb-storage.dev</a>, auto mount/umount USB storage devices when
-              their udev events happen, use filesystem label as mountpoint</li>
-            <li><a href="../dphys-config-20060915/site.example/local/sbin/dphys-config-usb-storage">
-              dphys-config-usb-storage</a>, load modules for above</li>
-          </ul></li>
+          site.example</a>, example site config, containing an <a
+          href="../dphys-config-20060915/site.example/dphys-config.list"
+          >list of files to process</a>, together with example files used in
+          this list, some of which are quite usefull scripts (<a
+         href="../dphys-config-20060915/site.example/dphys-config-filesys.list"
+          >expand /etc/fstab</a>, <a
+     href="../dphys-config-20060915/site.example/local/sbin/dphys-config-quota"
+          >setup quota</a>, <a
+          href="../dphys-config-20060915/site.example/local/sbin/dphys-config-usb-storage"
+          >expand /etc/modules for USB storage</a>, <a
+         href="../dphys-config-20060915/site.example/local/sbin/dphys-config-x"
+          >generate XFree config from simple description</a>)</li>
         <li><a href="../dphys-config-20060915/cron.d.example">
           cron.d.example</a>, example cron job to run dphys-config every night,
           for automatic updates</li>
@@ -194,6 +215,8 @@
     <ul>
       <li><a href="http://www.phys.ethz.ch/~franklin/Projects/dphys-admin/">
         dphys-admin project this project was spawned from</a></li>
+      <li><a href="http://packages.debian.org/dphys-config">
+        official Debian Package of dphys-config</a></li>
     </ul>
 
 
@@ -202,6 +225,6 @@
     <a href="../../index.html.en">Home</a> |
     <a href="../index.html.en">Projects</a> | dphys-config
     <p>
-    This page is by Neil Franklin, last modification 2006.09.15
+    This page is by Neil Franklin, last modification 2006.10.20
   </body>
 </html>

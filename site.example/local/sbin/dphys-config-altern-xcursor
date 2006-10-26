@@ -1,0 +1,44 @@
+#!/bin/sh
+# /usr/local/sbin/dphys-config-altern-xcursor - set /etc/alternatives/*
+# author Neil Franklin, last modification 2006.10.12
+# copyright ETH Zuerich Physics Departement,
+#   use under either modified/non-advertising BSD or GPL license
+
+# this script is called by dphys-config, once on each install/update
+#   no parameters or env vars for this script
+# it requires in /etc/dphys-config.list 1 line:
+#   local/sbin/dphys-config-altern-xcursor:/usr/:chmod 755 {}; {}
+
+# this will only work on Debian, as /etc/alternatives/* is Debian specific
+
+set -e
+
+# get ready to work
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+export PATH
+
+
+# --- main stuff
+
+if [ -f /etc/X11/cursors/core.theme ] ; then
+  update-alternatives --set x-cursor-theme /etc/X11/cursors/core.theme
+else
+  MISSING_PACKAGE=yes
+fi
+
+
+# --- avoid problem with not running on install, because packages not yet here
+
+if [ "${MISSING_PACKAGE}" = yes ] ; then
+  # remove this script to force rerun and reinstall on next dphys-config run
+  #   should happen after the reboot directly after installing all packages
+  rm $0
+  # this will actually produce warning from dphys-config, but  exit 0  is wrong
+  exit 1
+fi
+
+
+# --- finish off
+
+exit 0

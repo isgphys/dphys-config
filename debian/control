@@ -8,6 +8,7 @@ Standards-Version: 3.7.2
 Package: dphys-config
 Architecture: all
 Depends: wget
+Recommends: tcc, pciutils
 Description: Tool to distribute config files
  This project is aimed at installing (and keeping update) the site specific
  config files we want, after preprocessing them (conditional content and

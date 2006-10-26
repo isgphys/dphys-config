@@ -1,31 +1,50 @@
 # SITE/dphys-config.list - tell dphys-config what files to process
-# authors multiple, last modification 2006.09.15
+# authors multiple, last modification 2006.10.05
+
+# pci ids database (requires pciutils)
+pci.ids:/usr/share/misc/
+
+# broken debian /dev/cdrom creation fix (requires tcc)
+local/sbin/findcdroms.c:/usr/:/bin/chmod 755 {}; {} 2>&1 | grep "is a" | while read a b c d; do ln -sf $a /dev/${d}${n}; n=$[n+1]; done
+
+# debconf preseeds (extend /var/cache/debconf/config.dat)
+general.seed:/etc/:/usr/bin/debconf-set-selections {}
+
+# IP fragment handling, for NFS on GBit Ether
+local/sbin/dphys-config-sysctl:/usr/:/bin/chmod 755 {}; {}
+
+# install nvidia and ati driver modules
+#   compiles kernel on boot, its awfull :-)
+#   only because it's not possible without the kernel compile for nvidia
+# ati only needs the kernel headers
+nvidia-driver:/etc/init.d/:/bin/chmod +x {}; /usr/sbin/update-rc.d nvidia-driver start 90 2 3 4 5 .
+fglrx-driver:/etc/init.d/:/bin/chmod +x {}; /usr/sbin/update-rc.d fglrx-driver  start 90 2 3 4 5 .
 
 # extra filesystem and fstab line configuration
-dphys-config-filesys.list:/etc/:if [ -x /usr/local/sbin/dphys-config-filesys ] ; then /usr/local/sbin/dphys-config-filesys ; fi
-local/sbin/dphys-config-filesys:/usr/:/bin/chmod 755 {}; {}
+#   after updating this also autogenerate exports and user quota
+dphys-config-filesys.list:/etc/:if [ -x /usr/local/sbin/dphys-config-filesys ] ; then /usr/local/sbin/dphys-config-filesys; fi; if [ -x /usr/local/sbin/dphys-config-exports ] ; then /usr/local/sbin/dphys-config-exports; fi; if [ -x /usr/local/sbin/dphys-config-quota ] ; then /usr/local/sbin/dphys-config-quota; fi
+# extra filesystem and fstab line script
+local/sbin/dphys-config-filesys:/usr/:chmod 755 {}; {}
 
-# quota configuration
-dphys-config-quota.list:/etc/:if [ -x /usr/local/sbin/dphys-config-quota ] ; then /usr/local/sbin/dphys-config-quota; fi
-local/sbin/dphys-config-quota:/usr/:/bin/chmod 755 {}; {}
+# NFS exports for shares script
+local/sbin/dphys-config-exports:/usr/:chmod 755 {}; {}
 
-# automount usb sticks/disks (using kernel 2.6 and udev)
-#   for kernel 2.4 and hotplug use dphys-hotplug and dphys-hotplug-usb-storage
-# Debian 3.1 (sarge)  usbmount  is broken, fails to call  usbmount/umount.d/*
-#   leave this stuff here for in case we re-try  usbmount  in Debian ?.? (etch)
-#usbmount/usbmount.conf:/etc/
-#usbmount/mount.d/10_create_label_or_model_symlink:/etc/
-#usbmount/umount.d/10_remove_label_or_model_symlink:/etc/
-#   in the mean time use our own script, better direct / mountpoint anyway
-usb-storage.dev:/etc/dev.d/block/:/bin/chmod 755 {}
-# modules
-local/sbin/dphys-config-usb-storage:/usr/:/bin/chmod 755 {}; {}
+# quota configuration script
+local/sbin/dphys-config-quota:/usr/:chmod 755 {}; {}
 
-# various scripts to configure system or software
-#   for applications
-local/sbin/dphys-config-alternatives:/usr/:/bin/chmod 755 {}; {}
+# usb storage (sticks/disks) modules load configuration
+local/sbin/dphys-config-usb-storage:/usr/:chmod 755 {}; {}
 
-# X config
-#   X server setup, hardware description and generator script
+# X configuration
+#   X server setup, hardware description
 dphys-config-x:/etc/:if [ -x /usr/local/sbin/dphys-config-x ] ; then /usr/local/sbin/dphys-config-x ; fi
-local/sbin/dphys-config-x:/usr/:/bin/chmod 755 {}; {}
+#   and XFree.conf generator script
+local/sbin/dphys-config-x:/usr/:chmod 755 {}; {}
+
+# select various X settings
+local/sbin/dphys-config-altern-xcursor:/usr/:chmod 755 {}; {}
+local/sbin/dphys-config-altern-xsession:/usr/:chmod 755 {}; {}
+
+# select various applications
+local/sbin/dphys-config-altern-xterminal:/usr/:chmod 755 {}; {}
+local/sbin/dphys-config-altern-wwwbrowser:/usr/:chmod 755 {}; {}

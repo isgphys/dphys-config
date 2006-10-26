@@ -1,3 +1,10 @@
+dphys-config (20061020-1) unstable; urgency=low
+
+  * New upstream version.
+  * Added a few more examples.
+
+ -- Gürkan Sengün <gurkan@linuks.mine.nu>  Thu, 26 Oct 2006 09:19:39 +0200
+
 dphys-config (20060915-1) unstable; urgency=low
 
   * Initial release (Closes: #387633)

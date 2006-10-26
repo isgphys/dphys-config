@@ -1,6 +1,6 @@
 #!/bin/sh
 # /usr/bin/dphys-config - install/update config files and trigger commands
-# author Neil Franklin, last modification 2006.09.15
+# author Neil Franklin, last modification 2006.10.20
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -22,7 +22,7 @@
 CONF_BASEURL=http://not-configured-server/not/configured/directory
 
 # only process lines matching this grep regexp, default do all
-CONF_LINEFILTER='.*'
+CONF_LINEFILTER=".*"
 
 # log what we have done
 CONF_LOG_DONE=yes
@@ -51,8 +51,8 @@ CONF_LOG_DONE=yes
 
 # --- SYS_*, various system internal values
 
-# name of config files list file on server
-SYS_CONFLIST=dphys-config.list
+# name of config file list file on server
+SYS_CONFLIST_NAME=dphys-config.list
 
 # where we once stored our cached copies of the raw downloaded files
 SYS_OLD_WORKDIR=/var/cache/dphys-config
@@ -73,7 +73,8 @@ set -e
 
 # sanitise this place, else some commands may fail
 #   must be before any commands are executed, incl config/input processing
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 export PATH
 
 
@@ -82,62 +83,62 @@ export PATH
 # stuff that goes wrong, not expected by user, not in data output, use >&2
 #   so also with $0 in case this script was called by an other script
 # something within the system that user does not expect, give up
-CMD_FATAL="/bin/echo $0: FATAL:"
+CMD_FATAL="echo $0: FATAL:"
 # something from users input, user will correct this and continue
-CMD_ERROR="/bin/echo $0: ERROR:"
+CMD_ERROR="echo $0: ERROR:"
 # something we can continue with, but may be wrong, and user may not suspect it
-CMD_WARNING="/bin/echo $0: WARNING:"
+CMD_WARNING="echo $0: WARNING:"
 # something most likely not wrong, but tell user for the odd case it is wrong
-CMD_NOTE="/bin/echo $0: NOTE:"
+CMD_NOTE="echo $0: NOTE:"
 
 # normal stuff users expect, so to stdout as normal output, no $0, no marking
-CMD_INFO="/bin/echo"
+CMD_INFO="echo"
 # stuff users asked for, so add to stdout as normal output, no $0, but mark it
-CMD_DEBUG="/bin/echo DEBUG:"
+CMD_DEBUG="echo DEBUG:"
 
 
-# and also put out some permanent mesaages, in case running as cron/init.d job
-BASENAME="`/usr/bin/basename $0`"
+# and also put out some permanent messages, in case running as cron/init.d job
+BASENAME="`basename "$0"`"
 # something within the system that user does not expect, give up
-CMD_LOG_FATAL="/usr/bin/logger -t ${BASENAME} -p user.error FATAL:"
+CMD_LOG_FATAL="logger -t ${BASENAME} -p user.error FATAL:"
 # something from users input, user can possibly correct this and continue
-CMD_LOG_ERROR="/usr/bin/logger -t ${BASENAME} -p user.error ERROR:"
+CMD_LOG_ERROR="logger -t ${BASENAME} -p user.error ERROR:"
 # something we can continue with, but may be wrong, and user may not suspect it
-CMD_LOG_WARNING="/usr/bin/logger -t ${BASENAME} -p user.warning WARNING:"
+CMD_LOG_WARNING="logger -t ${BASENAME} -p user.warning WARNING:"
 # something most likely not wrong, but tell user for the odd case it is wrong
-CMD_LOG_NOTE="/usr/bin/logger -t ${BASENAME} -p user.notice NOTE:"
+CMD_LOG_NOTE="logger -t ${BASENAME} -p user.notice NOTE:"
 
 # normal stuff users expect, so no marking
-CMD_LOG_INFO="/usr/bin/logger -t ${BASENAME} -p user.info"
+CMD_LOG_INFO="logger -t ${BASENAME} -p user.info"
 # stuff users asked for, but mark it as special
-CMD_LOG_DEBUG="/usr/bin/logger -t ${BASENAME} -p user.debug DEBUG:"
+CMD_LOG_DEBUG="logger -t ${BASENAME} -p user.debug DEBUG:"
 
 
 # other stuff we may want to use
-CMD_SLEEP="/bin/sleep 2"
+CMD_SLEEP="sleep 2"
 CMD_WAIT="read -p ---DEBUG-wait-after-step--- dummy"
 
 
 # set config option controllable stuff
 CMD_INFO_PRINT="${CMD_INFO}"
-CMD_VERBOSE_PRINT=/bin/true
+CMD_VERBOSE_PRINT=true
 
 
 # set debug option controllable stuff
-if [ x${DEBUG_SLEEP} = xyes ] ; then
+if [ "${DEBUG_SLEEP}" = yes ] ; then
   CMD_DEBUG_SLEEP="${CMD_SLEEP}"
 else
-  CMD_DEBUG_SLEEP=/bin/true
+  CMD_DEBUG_SLEEP=true
 fi
-if [ x${DEBUG_PRINT_STEP} = xyes ] ; then
+if [ "${DEBUG_PRINT_STEP}" = yes ] ; then
   CMD_DEBUG_PRINT="${CMD_DEBUG}"
 else
-  CMD_DEBUG_PRINT=/bin/true
+  CMD_DEBUG_PRINT=true
 fi
-if [ x${DEBUG_WAIT_STEP} = xyes ] ; then
+if [ "${DEBUG_WAIT_STEP}" = yes ] ; then
   CMD_DEBUG_WAIT="${CMD_WAIT}"
 else
-  CMD_DEBUG_WAIT=/bin/true
+  CMD_DEBUG_WAIT=true
 fi
 
 
@@ -148,55 +149,52 @@ NAME=dphys-config
 PNAME=dphys-config
 
 # check user config file(s), let user override settings
-if [ -e /etc/${PNAME} ] ; then
-  . /etc/${PNAME}
+if [ -e /etc/"${PNAME}" ] ; then
+  . /etc/"${PNAME}"
 fi
-if [ -e ~/.${PNAME} ] ; then
-  . ~/.${PNAME}
-fi
-if [ -f ./${PNAME} ] ; then
-  . ./${PNAME}
+if [ -e ~/."${PNAME}" ] ; then
+  . ~/."${PNAME}"
 fi
 
 
 # --- control variable output
 
 # set config option controllable stuff
-if [ x${CONF_LOG_DONE} = xyes ] ; then
+if [ "${CONF_LOG_DONE}" = yes ] ; then
   CMD_LOG_IF_DONE="${CMD_LOG_INFO}"
 else
-  CMD_LOG_IF_DONE=/bin/true
+  CMD_LOG_IF_DONE=true
 fi
 
 
 # --- parse command line
 
 # so long next parameter is a set of options (= begins with an - character)
-while [ x`/bin/echo $1 | /usr/bin/cut -c 1` = x- ] ; do
+while [ "`echo "$1" | cut -c 1`" = - ] ; do
 
   # extract options from parameter (cut off the "-")
-  OPTS=`/bin/echo $1 | /usr/bin/cut -c 2-`
+  OPTS="`echo "$1" | cut -c 2-`"
   shift 1
 
   # so long still unprocessed option characters
-  while [ x${OPTS} != x ] ; do
+  while [ "${OPTS}" != "" ] ; do
 
     # first option to process
-    OPT=`/bin/echo ${OPTS} | /usr/bin/cut -c 1`
+    OPT="`echo "${OPTS}" | cut -c 1`"
     # and rest of options for later
-    OPTS=`/bin/echo ${OPTS} | /usr/bin/cut -c 2-`
+    OPTS="`echo "${OPTS}" | cut -c 2-`"
 
-    case ${OPT} in
+    case "${OPT}" in
 
       f)
         # filter: only process lines matching this grep regexp
-        CONF_LINEFILTER=$1
+        CONF_LINEFILTER="$1"
         shift 1
         ;;
 
       q)
         # quiet: don't inform user what we are doing
-        CMD_INFO_PRINT=/bin/true
+        CMD_INFO_PRINT=true
         ;;
 
       v)
@@ -206,14 +204,14 @@ while [ x`/bin/echo $1 | /usr/bin/cut -c 1` = x- ] ; do
 
       D)
         # Debug: set an debug option to yes
-        eval DEBUG_$1=yes
-        if [ DEBUG_$1 = DEBUG_SLEEP ] ; then
+        eval "DEBUG_$1"=yes
+        if [ "DEBUG_$1" = DEBUG_SLEEP ] ; then
           CMD_DEBUG_SLEEP="${CMD_SLEEP}"
         fi
-        if [ DEBUG_$1 = DEBUG_PRINT_STEP ] ; then
+        if [ "DEBUG_$1" = DEBUG_PRINT_STEP ] ; then
           CMD_DEBUG_PRINT="${CMD_DEBUG}"
         fi
-        if [ DEBUG_$1 = DEBUG_WAIT_STEP ] ; then
+        if [ "DEBUG_$1" = DEBUG_WAIT_STEP ] ; then
           CMD_DEBUG_WAIT="${CMD_WAIT}"
         fi
         shift 1
@@ -221,7 +219,7 @@ while [ x`/bin/echo $1 | /usr/bin/cut -c 1` = x- ] ; do
 
       h)
         # help: give out help how this script can be used
-        /bin/cat << END-HELP-TEXT
+        cat << END-HELP-TEXT
 Usage is: $0 [options]
 
 options:
@@ -238,10 +236,10 @@ END-HELP-TEXT
 
       *)
         # not one of our recognized options
-        ${CMD_ERROR} unknown option: ${OPT} >&2
+        ${CMD_ERROR} "unknown option: ${OPT}" >&2
         ${CMD_INFO} >&2
         # call self with -h to display help
-        $0 -h >&2
+        "$0" -h >&2
         exit 1
         ;;
 
@@ -252,19 +250,19 @@ END-HELP-TEXT
 done
 
 
-if [ x$1 = x ] ; then
+if [ "$1" = "" ] ; then
   MODE=none
-elif [ x$1 = xcron -o x$1 = xinit ] ; then
-  MODE=$1
+elif [ "$1" = cron -o "$1" = init ] ; then
+  MODE="$1"
 else
-  ${CMD_ERROR} "unknown mode (or even multiple) given: $@" >&2
+  ${CMD_ERROR} "unknown mode (or even multiple) given: $1" >&2
   ${CMD_INFO} >&2
   # call self with -h to display help
-  $0 -h >&2
+  "$0" -h >&2
   exit 1
 fi
 
-${CMD_DEBUG_PRINT} options parsed
+${CMD_DEBUG_PRINT} "options parsed"
 ${CMD_DEBUG_WAIT}
 
 
@@ -273,17 +271,17 @@ ${CMD_DEBUG_WAIT}
 # avoid load peak on the file server from over 100 machines at same time
 #   delay cron jobs of various machines up to 1 hour, do not affect init jobs
 #   therefore we random wait for 0..3599 seconds before working
-if [ ${MODE} = cron ] ; then
-  DELAY=`/usr/bin/perl -e 'print int(rand(3600)), "\n"'`
+if [ "${MODE}" = cron ] ; then
+  DELAY=`perl -e 'print int(rand(3600)), "\n"'`
   ${CMD_INFO} "waiting ${DELAY}s (0-3599s) for our time slot ..."
-  sleep ${DELAY}
-  ${CMD_INFO} waiting done, continuing ...
+  sleep "${DELAY}"
+  ${CMD_INFO} "waiting done, continuing ..."
 fi
 
 
 # --- wget handle unreliable network, DNS faillures or DNS not reachable
 
-function broken_net_wget_or_die () {
+broken_net_wget_or_die () {
 
   # our many thanks to the net admins for their unreliable net
   #   and the resulting unreachable DNS, for client->host and host client auth
@@ -297,57 +295,55 @@ function broken_net_wget_or_die () {
   #   better only continue if we got 200 (got file) or 404 (no file)
   #     this fails safe, can never break config files
 
-  local URL=$1 DIR=$2 TRY WGET_STDERR DNS_STAT HTTP_STAT
-
-  ${CMD_DEBUG_PRINT} URL=${URL} DIR=${DIR}
+  local URL="$1" DIR="$2"
+  ${CMD_DEBUG_PRINT} "URL=${URL} DIR=${DIR}"
   ${CMD_DEBUG_WAIT}
 
 
   # check if we can work
-  if [ ! -x /usr/bin/wget ] ; then
-    ${CMD_FATAL} failed to find wget, can not work, aborting ... >&2
-    ${CMD_LOG_FATAL} failed to find wget, can not work, aborting ...
+  if ! which wget > /dev/null ; then
+    ${CMD_FATAL} "failed to find wget, can not work, aborting ..." >&2
+    ${CMD_LOG_FATAL} "failed to find wget, can not work, aborting ..."
     exit 1
   fi
 
+  local TRY
   for TRY in 1 2 3 ; do
 
-    WGET_STDERR=${SYS_WORKDIR}/@wget.stderr
-    /bin/rm -f ${WGET_STDERR}
+    local WGET_STDERR="${SYS_WORKDIR}/@wget.stderr"
+    rm -f "${WGET_STDERR}"
 
     # -N so we do not re-fetch unchanged files, important when large files
     #   -N and -O do not like each other, so use an (cd ; wget)
-    (cd ${DIR}; /usr/bin/wget -N -o ${WGET_STDERR} ${URL} || /bin/true)
+    (cd "${DIR}"; wget -N -o "${WGET_STDERR}" "${URL}" || true)
 
-    DNS_STAT=`/bin/grep '^Resolving .*... failed: Host not found.$' \
-        ${WGET_STDERR} | /usr/bin/tr -d ' '`
-    HTTP_STAT=`/bin/grep '^HTTP request sent, awaiting response... ' \
-        ${WGET_STDERR} | /usr/bin/tail -n 1 | \
-        /usr/bin/cut -f 6- -d ' ' | /usr/bin/tr -d ' '`
-    /bin/rm ${WGET_STDERR}
+    local DNS_STAT="`grep '^Resolving .*... failed: Host not found.$' \
+        "${WGET_STDERR}" | tr -d ' '`"
+    local HTTP_STAT="`grep '^HTTP request sent, awaiting response... ' \
+        "${WGET_STDERR}" | tail -n 1 | cut -f 6- -d ' ' | tr -d ' '`"
+    rm "${WGET_STDERR}"
 
-    ${CMD_DEBUG_PRINT} URL=${URL} DIR=${DIR} \
-        DNS_STAT=${DNS_STAT} HTTP_STAT=${HTTP_STAT}
+    ${CMD_DEBUG_PRINT} "DNS_STAT=${DNS_STAT} HTTP_STAT=${HTTP_STAT}"
 
-    if [ x${DNS_STAT} != x ] ; then
-      ${CMD_WARNING} failled try ${TRY} to resolve server for URL ${URL} >&2
-      ${CMD_LOG_WARNING} failled try ${TRY} to resolve server for URL ${URL}
-    elif [ ${HTTP_STAT} = 200OK -o ${HTTP_STAT} = 404NotFound ] ; then
+    if [ "${DNS_STAT}" != "" ] ; then
+      ${CMD_WARNING} "failled try ${TRY} to resolve server for URL ${URL}" >&2
+      ${CMD_LOG_WARNING} "failled try ${TRY} to resolve server for URL ${URL}"
+    elif [ "${HTTP_STAT}" = 200OK -o "${HTTP_STAT}" = 404NotFound ] ; then
       # we managed to get a file, or there is no file, both are OK
       return 0
     else
-      ${CMD_WARNING} failled try ${TRY} to retrieve file from URL ${URL}, \
-          with HTTP status ${HTTP_STAT} >&2
-      ${CMD_LOG_WARNING} failled try ${TRY} to retrieve file from URL ${URL}, \
-          with HTTP status ${HTTP_STAT}
+      ${CMD_WARNING} "failled try ${TRY} to retrieve file from" \
+          "URL ${URL}, with HTTP status ${HTTP_STAT}" >&2
+      ${CMD_LOG_WARNING} "failled try ${TRY} to retrieve file from" \
+          "URL ${URL}, with HTTP status ${HTTP_STAT}"
     fi
  
   done
 
-  ${CMD_FATAL} failled entirely to retrieve file from URL ${URL}, \
-          with HTTP status ${HTTP_STAT}, aborting ... >&2
-  ${CMD_LOG_FATAL} failled entirely to retrieve file from URL ${URL}, \
-          with HTTP status ${HTTP_STAT}, aborting ...
+  ${CMD_FATAL} "failled entirely to retrieve file from URL ${URL}," \
+      "with HTTP status ${HTTP_STAT}, aborting ..." >&2
+  ${CMD_LOG_FATAL} "failled entirely to retrieve file from URL ${URL}," \
+      "with HTTP status ${HTTP_STAT}, aborting ..."
   exit 1
 
 }
@@ -355,188 +351,208 @@ function broken_net_wget_or_die () {
 
 # --- check for config file server
 
-${CMD_INFO_PRINT} checking config file server for host `/bin/hostname` ...
+${CMD_INFO_PRINT} "checking config file server for host `hostname` ..."
 ${CMD_DEBUG_SLEEP}
 
 # old pre tmp cache dir, cache removed because side effects and useless
-/bin/rm -rf ${SYS_OLD_WORKDIR}
+rm -rf "${SYS_OLD_WORKDIR}"
 
 
 # make work space for this and other temporary files
-/bin/mkdir -p ${SYS_WORKDIR}
+mkdir -p "${SYS_WORKDIR}"
 # prevent access to just-wget-ed temporary files with wrong permissions
-/bin/chmod 700 ${SYS_WORKDIR}
+chmod 700 "${SYS_WORKDIR}"
 
 # check for valid server URL, read directory with all hosts in it
-/bin/rm -f ${SYS_WORKDIR}/index.html
-broken_net_wget_or_die ${CONF_BASEURL}/ ${SYS_WORKDIR}
-if [ ! -f ${SYS_WORKDIR}/index.html ] ; then
-  ${CMD_FATAL} failed to find dir for server ${CONF_BASEURL}, aborting ... >&2
-  ${CMD_LOG_FATAL} failed to find dir for server ${CONF_BASEURL}, aborting ...
+rm -f "${SYS_WORKDIR}/index.html"
+broken_net_wget_or_die "${CONF_BASEURL}/" "${SYS_WORKDIR}"
+if [ ! -f "${SYS_WORKDIR}/index.html" ] ; then
+  ${CMD_FATAL} "failed to find server dir ${CONF_BASEURL}, aborting ..." >&2
+  ${CMD_LOG_FATAL} "failed to find server dir ${CONF_BASEURL}, aborting ..."
   exit 1
 fi
 
 
 # server subdirectory for this host
-CONFHOST_URL=${CONF_BASEURL}/`/bin/hostname`
+CONFHOST_URL="${CONF_BASEURL}/`hostname`"
 
 # check for valid host name, read directory of this host
-/bin/rm -f ${SYS_WORKDIR}/index.html
-broken_net_wget_or_die ${CONFHOST_URL}/ ${SYS_WORKDIR}
-if [ ! -f ${SYS_WORKDIR}/index.html ] ; then
-  ${CMD_FATAL} failed to find dir for host ${CONFHOST_URL}, aborting ... >&2
-  ${CMD_LOG_FATAL} failed to find dir for host ${CONFHOST_URL}, aborting ...
+rm -f "${SYS_WORKDIR}/index.html"
+broken_net_wget_or_die "${CONFHOST_URL}/" "${SYS_WORKDIR}"
+if [ ! -f "${SYS_WORKDIR}/index.html" ] ; then
+  ${CMD_FATAL} "failed to find host dir for ${CONFHOST_URL}, aborting ..." >&2
+  ${CMD_LOG_FATAL} "failed to find host dir for ${CONFHOST_URL}, aborting ..."
   exit 1
 fi
 
-${CMD_DEBUG_PRINT} `/bin/ls -al ${SYS_WORKDIR}/index.html`
+${CMD_DEBUG_PRINT} "`ls -al "${SYS_WORKDIR}/index.html"`"
 ${CMD_DEBUG_WAIT}
 
 
 # --- fetch config file from server to spool and preprocess it
 
-function fetch_and_preprocess_config_file () {
+fetch_and_preprocess_config_file () {
 
-  local URL=$1 WORK=$2 DIR PREPROC HEAD LINE
-
-  ${CMD_DEBUG_PRINT} URL=${URL} WORK=${WORK}
+  local URL="$1" WORK="$2"
+  ${CMD_DEBUG_PRINT} "URL=${URL} WORK=${WORK}"
   ${CMD_DEBUG_WAIT}
 
 
   # ensure first that work dir is there, in case config file in an new subdir
-  DIR=`/usr/bin/dirname ${WORK}`
-  /bin/mkdir -p ${DIR}
+  local DIR="`dirname "${WORK}"`"
+  mkdir -p "${DIR}"
 
   # get the file
-  broken_net_wget_or_die ${URL} ${DIR}
+  broken_net_wget_or_die "${URL}" "${DIR}"
 
-  if [ ! -f ${WORK} ] ; then
+  if [ ! -f "${WORK}" ] ; then
     # config file not fetched, so we can not work on it
-    ${CMD_ERROR} no config file ${URL} fetched to ${WORK} >&2
-    ${CMD_LOG_ERROR} no config file ${URL} fetched to ${WORK}
+    ${CMD_ERROR} "no config file ${URL} fetched to ${WORK}" >&2
+    ${CMD_LOG_ERROR} "no config file ${URL} fetched to ${WORK}"
     exit 1
   fi
 
-  ${CMD_DEBUG_PRINT} `/bin/ls -al ${WORK}`
+  ${CMD_DEBUG_PRINT} "`ls -al "${WORK}"`"
   ${CMD_DEBUG_WAIT}
 
 
   # preprocessor stuff
 
   # header calls for preprocessing, with syntax similar to the #! shell trigger
-  HEAD=`/usr/bin/head -n 1 ${WORK}`
-  if `/bin/echo "${HEAD}" | /bin/grep -q '^#@dphys-config-preprocess'` ; then
+  local HEAD="`head -n 1 "${WORK}"`"
+  if `echo "${HEAD}" | grep -q '^#@dphys-config-preprocess'` ; then
 
     # use rest of file, purged of header, which is never part of output
-    /bin/sed -ne '2,$p' ${WORK} > ${WORK}.temp
-    /bin/mv ${WORK}.temp ${WORK}
+    sed -ne '2,$p' "${WORK}" > "${WORK}.temp"
+    mv "${WORK}.temp" "${WORK}"
 
-    # what preprocessing actions user wants, and in which row to run them
+    # what preprocessing actions the user wants, and in which row to run them
     #   extract from HEAD format:  #@dphys-config-preprocess [preprocessor...]
-    if ! /bin/echo "${HEAD}" | /bin/grep -q ' ' ; then
-      # add an space to circumvent  cut -f 2-  brokenness if none there
-      HEAD="${HEAD} "
-    fi
-    ${CMD_DEBUG_PRINT} HEAD="${HEAD}"
-    for PREPROC in `/bin/echo "${HEAD}" | /usr/bin/cut -f 2- -d ' '` ; do
-      case "${PREPROC}" in
+    # add an space after "${HEAD}" to circumvent  cut -f 2- -d ' '  brokenness
+    #   if no preprocessor was listed by user, and so possibly no space in line
+    local PREPROCS="`echo "${HEAD} " | cut -f 2- -d ' ' | tr -c -d 'a-z '`"
+    ${CMD_DEBUG_PRINT} "HEAD=${HEAD} PREPROCS=${PREPROCS}"
 
+    # no "${PREPROCS}", else intervening and trailing spaces end up in PREPROC
+    #   and that would then really confuse case
+    #   split junk will simply feed nonsense to case, and get caught by *)
+    local PREPROC
+    for PREPROC in ${PREPROCS} ; do
+      case "${PREPROC}" in
 
         backtick)
           # replace backtick expressions with stdout generated by running them
-          ${CMD_VERBOSE_PRINT} preprocessing for backtick ...
+          ${CMD_VERBOSE_PRINT} "preprocessing for backtick ..."
           ${CMD_DEBUG_SLEEP}
-          /bin/cat ${WORK} | while read LINE ; do
+          local LINE
+          cat "${WORK}" | while read LINE ; do
 
-            # may have multiple substitutions on one line, so use while loop
-            while /bin/echo "${LINE}" | /bin/grep -q '`' ; do
-              local FRONT=`/bin/echo "${LINE}" | /usr/bin/cut -f 1  -d '\`' `
-              local TICK=`/bin/echo "${LINE}"  | /usr/bin/cut -f 2  -d '\`' `
-              local REST=`/bin/echo "${LINE}"  | /usr/bin/cut -f 3- -d '\`' `
-              # syntax taken from the shell backtick, which is also used here
-              LINE="${FRONT}`${TICK}`${REST}"
+            # syntax taken from the shell backtick, which is also used here
+            #   may have multiple substitutions on one line, so use while loop
+            while echo "${LINE}" | grep -q '`' ; do
+              # the '\` here need the \ because of the `` subshell
+              local FRONT="`echo "${LINE}" | cut -f 1  -d '\`' `"
+              local TICK="`echo "${LINE}"  | cut -f 2  -d '\`' `"
+              local REST="`echo "${LINE}"  | cut -f 3- -d '\`' `"
+
+              # prevent non zero return from user given command from killing us
+              set +e
+              local SUBST="`"${TICK}"`"
+              RETVAL="$?"
+              set -e
+              if [ "${RETVAL}" != 0 ] ; then
+                ${CMD_WARNING} "backtick returned non zero: ${RETVAL}" >&2
+                ${CMD_LOG_WARNING} "backtick returned non zero: ${RETVAL}"
+              fi
+
+              LINE="${FRONT}${SUBST}${REST}"
             done
-            /bin/echo "${LINE}" >> ${WORK}.temp
+            echo "${LINE}" >> "${WORK}.temp"
 
           done
-          /bin/mv ${WORK}.temp ${WORK}
+          mv "${WORK}.temp" "${WORK}"
           ;;
 
 
         if)
           # if condition met, leave rest of line, else delete it
-          ${CMD_VERBOSE_PRINT} preprocessing for if ...
+          ${CMD_VERBOSE_PRINT} "preprocessing for if ..."
           ${CMD_DEBUG_SLEEP}
-          /bin/cat ${WORK} | while read LINE ; do
+          local LINE
+          cat "${WORK}" | while read LINE ; do
 
             # extract from LINE format:  #@if condition ; line-to-leave
-            if /bin/echo "${LINE}" | /bin/grep -q '^#@if ' ; then
-              # purge command, which is never part of condition or output
-              LINE=`/bin/echo "${LINE}" | /usr/bin/cut -f 2- -d ' '`
+            if echo "${LINE}" | grep -q '^#@if ' ; then
               # end of command part with ; analog to shell if/while/for
-              if ! /bin/echo "${LINE}" | /bin/grep -q ';' ; then
-                ${CMD_ERROR} config line " ${LINE} " has no ";" to split on >&2
-                ${CMD_LOG_ERROR} config line " ${LINE} " has no ";" to split on
+              if ! echo "${LINE}" | grep -q ';' ; then
+                ${CMD_ERROR} "#@if config line \"${LINE}\" has no \";\"" >&2
+                ${CMD_LOG_ERROR} "#@if config line \"${LINE}\" has no \";\""
                 exit 1
               fi
-              local COND=`/bin/echo "${LINE}" | /usr/bin/cut -f 1  -d ';'`
-              # subshell the user-given code for robustness
+              local COND="`echo "${LINE}" | cut -f 1  -d ';'`"
+              LINE="`echo "${LINE}" | cut -f 2- -d ';'`"
+
+              # purge command, which is not part of condition
+              COND="`echo "${COND}" | cut -f 2- -d ' '`"
+              # strip leading spaces after ; from line
+              while [ "`echo "${LINE}" | cut -c 1`" = " " ] ; do
+                LINE="`echo "${LINE}" | cut -c 2-`"
+              done
+
               set +e
-              if /bin/sh -c "${COND}" ; then
-                local REST=`/bin/echo "${LINE}" | /usr/bin/cut -f 2- -d ';'`
-                while [ "`/bin/echo "${LINE}" | \
-                    /usr/bin/cut -c 1`" = " " ] ; do
-                  REST=`/bin/echo "${REST}" | /usr/bin/cut -c 2-`
-                done
-                /bin/echo "${REST}" >> ${WORK}.temp
+              if sh -c "${COND}" ; then
+                echo "${LINE}" >> "${WORK}.temp"
               fi
               set -e
             else
-              /bin/echo "${LINE}" >> ${WORK}.temp
+              echo "${LINE}" >> "${WORK}.temp"
             fi
 
           done
-          /bin/mv ${WORK}.temp ${WORK}
+          mv "${WORK}.temp" "${WORK}"
           ;;
 
 
         include)
           # replace line with contents of section file named on rest of line
-          ${CMD_VERBOSE_PRINT} preprocessing for include ...
+          ${CMD_VERBOSE_PRINT} "preprocessing for include ..."
           ${CMD_DEBUG_SLEEP}
-          /bin/cat ${WORK} | while read LINE ; do
+          local LINE
+          cat "${WORK}" | while read LINE ; do
 
-            if /bin/echo "${LINE}" | /bin/grep -q '^#@include ' ; then
-              local SECTION=`/bin/echo "${LINE}" | /usr/bin/cut -f 2 -d ' '`
-              broken_net_wget_or_die ${URL}.${SECTION} ${DIR}
-              if [ -f ${WORK}.${SECTION} ] ; then
-                ${CMD_DEBUG_PRINT} `/bin/ls -al ${WORK}.${SECTION}`
+            if echo "${LINE}" | grep -q '^#@include ' ; then
+              local SECTION="`echo "${LINE}" | cut -f 2 -d ' '`"
+              broken_net_wget_or_die "${URL}.${SECTION}" "${DIR}"
+              if [ -f "${WORK}.${SECTION}" ] ; then
+                ${CMD_DEBUG_PRINT} "`ls -al "${WORK}.${SECTION}"`"
               fi
               ${CMD_DEBUG_WAIT}
-              if [ -f ${WORK}.${SECTION} ] ; then
-                /bin/cat ${WORK}.${SECTION} >> ${WORK}.temp
+              if [ -f "${WORK}.${SECTION}" ] ; then
+                cat "${WORK}.${SECTION}" >> "${WORK}.temp"
               #else
-                # NOTE: output is more annoying than usefull, disable it
-                #${CMD_NOTE} no config file section ${URL}.${SECTION} ... >&2
-                #${CMD_LOG_NOTE} no config file section ${URL}.${SECTION} ...
+                # NOTE: this output is more annoying than usefull, disable it
+                #${CMD_NOTE} "no config file section ${URL}.${SECTION} ..." >&2
+                #${CMD_LOG_NOTE} "no config file section ${URL}.${SECTION} ..."
               fi
             else
-              /bin/echo "${LINE}" >> ${WORK}.temp
+              echo "${LINE}" >> "${WORK}.temp"
             fi
 
           done
-          /bin/mv ${WORK}.temp ${WORK}
+          mv "${WORK}.temp" "${WORK}"
           ;;
 
 
         *)
-          ${CMD_WARNING} unknown preprocessor ${PREPROC}, ignoring it ... >&2
-          ${CMD_LOG_WARNING} unknown preprocessor ${PREPROC}, ignoring it ...
+          ${CMD_WARNING} "unknown preprocessor \"${PREPROC}\", " \
+              "ignoring it ..." >&2
+          ${CMD_LOG_WARNING} "unknown preprocessor \"${PREPROC}\"," \
+              "ignoring it ..."
           ;;
 
       esac
 
-      ${CMD_DEBUG_PRINT} `/bin/ls -al ${WORK}`
+      ${CMD_DEBUG_PRINT} "`ls -al "${WORK}"`"
       ${CMD_DEBUG_WAIT}
 
     done
@@ -547,33 +563,40 @@ function fetch_and_preprocess_config_file () {
 }
 
 
-# --- download config files list file
+# --- download config file list
 
-${CMD_INFO_PRINT} downloading configuration list ${SYS_CONFLIST} ...
+${CMD_INFO_PRINT} "downloading configuration list ${SYS_CONFLIST_NAME} ..."
 ${CMD_DEBUG_SLEEP}
 
-# file here on host
-CONFPLACE=/etc/${SYS_CONFLIST}
-
-# file url on server
-CONFFILE_URL=${CONFHOST_URL}/${SYS_CONFLIST}
+# file list url on server
+CONFLIST_URL="${CONFHOST_URL}/${SYS_CONFLIST_NAME}"
 
 # temp file here on host
-CONFFILE=${SYS_WORKDIR}/${SYS_CONFLIST}
+CONFLIST="${SYS_WORKDIR}/${SYS_CONFLIST_NAME}"
 
-# get the config file listing what config files are to be processed
-fetch_and_preprocess_config_file ${CONFFILE_URL} ${CONFFILE}
+# get the config file list, it lists what config files are to be processed
+fetch_and_preprocess_config_file "${CONFLIST_URL}" "${CONFLIST}"
+
+
+# file here on host
+if [ "`whoami`" != root ] ; then
+  # being run by an user for personal files, not as root for system
+  #   FreeBSD sh fails if the ~ is inside the ""
+  CONFLIST_PLACE=~/."${SYS_CONFLIST_NAME}"
+else
+  CONFLIST_PLACE="/etc/${SYS_CONFLIST_NAME}"
+fi
 
 
 # if file nonexistant generate, empty, hopefully that will not break something
 #   need to prevent diff below from complaining about missing previous file
-if [ ! -e ${CONFPLACE} ] ; then
+if [ ! -e "${CONFLIST_PLACE}" ] ; then
 
-  ${CMD_INFO_PRINT} will be installing new config file at ${CONFPLACE}
+  ${CMD_INFO_PRINT} "will be installing new config list at ${CONFLIST_PLACE}"
   ${CMD_DEBUG_SLEEP}
 
   # empty file ensures it is different (new one from server is not empty)
-  /usr/bin/touch ${CONFPLACE}
+  touch "${CONFLIST_PLACE}"
 
 fi
 
@@ -582,83 +605,58 @@ fi
 #   diff is missnamed, successful finding difference regarded as faillure
 #     that makes ist an "equal" test, not an "difference" test :-)
 #   so ! in here despite wanting to do the if stuff in case of difference
-if ! /usr/bin/diff ${CONFPLACE} ${CONFFILE} > /dev/null ; then
+if ! diff "${CONFLIST_PLACE}" "${CONFLIST}" > /dev/null ; then
 
-  ${CMD_INFO_PRINT} updating old or installing new config \
-      ${SYS_CONFLIST} as ${CONFPLACE} ...
+  ${CMD_INFO_PRINT} "updating old or installing new config" \
+      "${SYS_CONFLIST_NAME} as ${CONFLIST_PLACE} ..."
   ${CMD_DEBUG_SLEEP}
 
-  /bin/cp -pf ${CONFFILE} ${CONFPLACE}
+  cp -pf "${CONFLIST}" "${CONFLIST_PLACE}"
 
-  ${CMD_DEBUG_PRINT} `/bin/ls -al ${CONFPLACE}`
+  ${CMD_DEBUG_PRINT} "`ls -al "${CONFLIST_PLACE}"`"
   ${CMD_DEBUG_WAIT}
 
 fi
 
 
-# --- run commands in a subshell and handle possible user script errors
-
-function run_command_safely () {
-
-  local COMMAND=$1
-
-  ${CMD_DEBUG_PRINT} COMMAND=${COMMAND}
-  ${CMD_DEBUG_WAIT}
-
-
-  set +e
-  /bin/sh -c "${COMMAND}"
-  RETVAL=$?
-  set -e
-  if [ ${RETVAL} != 0 ] ; then
-    ${CMD_WARNING} command " ${COMMAND} " returned nonzero value: ${RETVAL} >&2
-    ${CMD_LOG_WARNING} command " ${COMMAND} " returned nonzero value: ${RETVAL}
-  fi
-
-  # not ${RETVAL}, else script abborts because of  set -e  after return
-  return 0
-
-}
-
-
 # --- process each config file
 
-${CMD_INFO_PRINT} processing individual config files from the list ...
+${CMD_INFO_PRINT} "processing individual config files from the list ..."
 ${CMD_DEBUG_SLEEP}
 
 # get rid of comments and empty lines (may be emptied comment lines)
 #   and allow user to select/filter subset of lines to be processed
-/usr/bin/cut -f 1 -d '#' ${CONFPLACE} | \
-    /bin/grep "${CONF_LINEFILTER}" | /bin/grep -v '^ *$' | while read LINE ; do
+cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
+    grep "${CONF_LINEFILTER}" | while read LINE ; do
 
-  ${CMD_DEBUG_PRINT} LINE="${LINE}"
+  ${CMD_DEBUG_PRINT} "LINE=${LINE}"
   ${CMD_DEBUG_WAIT}
 
   # extract from LINE format:  file-name:place-on-target[:command-to-trigger]
-  if ! /bin/echo "${LINE}" | /bin/grep -q ':' ; then
-    ${CMD_ERROR} config line " ${LINE} " has no ":" to split on >&2
-    ${CMD_LOG_ERROR} config line " ${LINE} " has no ":" to split on
+  if ! echo "${LINE}" | grep -q ':' ; then
+    ${CMD_ERROR} "config line \"${LINE}\" has no \":\" to split on" >&2
+    ${CMD_LOG_ERROR} "config line \"${LINE}\" has no \":\" to split on"
     exit 1
   fi
 
   # file-name: work on this file
   #   if this is set to -, then remove an now unused config file
-  CONFFILE_NAME=`/bin/echo "${LINE}" | /usr/bin/cut -f 1 -d ':'`
+  CONFFILE_NAME="`echo "${LINE}" | cut -f 1 -d ':'`"
   # needs to be set, but may be unset if an : is right at begin of line
-  if [ x`/bin/echo ${CONFFILE_NAME} | /usr/bin/tr -d ' '` = x ] ; then
-    ${CMD_ERROR} config line " ${LINE} " has no file name before first ":" >&2
-    ${CMD_LOG_ERROR} config line " ${LINE} " has no file name before first ":"
+  if [ "`echo "${CONFFILE_NAME}" | tr -d ' '`" = "" ] ; then
+    ${CMD_ERROR} "config line \"${LINE}\" has no file name before \":\"" >&2
+    ${CMD_LOG_ERROR} "config line \"${LINE}\" has no file name before \":\""
     exit 1
   fi
 
   # place-on-target: put result here
-  CONFPLACE=`/bin/echo "${LINE}" | /usr/bin/cut -f 2 -d ':'`
+  CONFFILE_PLACE="`echo "${LINE}" | cut -f 2 -d ':'`"
   # needs to be set, but may be unset if mothing between the first 2 :
-  if [ x`/bin/echo ${CONFPLACE} | /usr/bin/tr -d ' '` = x ] ; then
-    ${CMD_ERROR} config line " ${LINE} " has no config place \
-        between first and second ":" >&2
-    ${CMD_LOG_ERROR} config line " ${LINE} " has no config place \
-        between first and second ":"
+  if [ "`echo "${CONFFILE_PLACE}" | tr -d ' '`" = "" ] ; then
+    ${CMD_ERROR} "config line \"${LINE}\" has no config place" \
+        "between first and second \":\"" >&2
+    ${CMD_LOG_ERROR} "config line \"${LINE}\" has no config place" \
+        "between first and second \":\""
     exit 1
   fi
 
@@ -666,102 +664,109 @@ ${CMD_DEBUG_SLEEP}
   #   run post installing (or pre removing) an config file
   #   if no second : on line or nothing after it this is automatically blank
   #   if more than 2 : on line include the rest of them into this with 3-
-  CMDTRIG=`/bin/echo "${LINE}" | /usr/bin/cut -f 3- -d ':'`
+  CMDTRIG="`echo "${LINE}" | cut -f 3- -d ':'`"
 
-  ${CMD_DEBUG_PRINT} CONFFILE_NAME=${CONFFILE_NAME} CONFPLACE=${CONFPLACE} \
-      CMDTRIG="${CMDTRIG}"
+  ${CMD_DEBUG_PRINT} "CONFFILE_NAME=${CONFFILE_NAME}" \
+      "CONFFILE_PLACE=${CONFFILE_PLACE} CMDTRIG=${CMDTRIG}"
   ${CMD_DEBUG_WAIT}
 
 
-  ${CMD_VERBOSE_PRINT} processing config file ${CONFFILE_NAME} ...
+  ${CMD_VERBOSE_PRINT} "processing config file ${CONFFILE_NAME} ..."
   ${CMD_DEBUG_SLEEP}
 
 
   # final file place here on host stuff
   #   ensure that it is an absolute filename
-  if [ x`/bin/echo ${CONFPLACE} | /usr/bin/cut -c 1` != x/ ] ; then
-    ${CMD_WARNING} correcting non-absolute place " ${CONFPLACE} ", adding / >&2
-    ${CMD_LOG_WARNING} correcting non-absolute place " ${CONFPLACE} ", adding /
+  if [ "`echo "${CONFFILE_PLACE}" | cut -c 1`" != / ] ; then
+    ${CMD_WARNING} "correcting non-absolute \"${CONFFILE_PLACE}\", add /" >&2
+    ${CMD_LOG_WARNING} "correcting non-absolute \"${CONFFILE_PLACE}\", add /"
   fi
   #   allow debug runs as normal non-root user, and without overwriting stuff
-  CONFPLACE=${DEBUG_INSTALL_BASE}${CONFPLACE}
+  CONFFILE_PLACE="${DEBUG_INSTALL_BASE}${CONFFILE_PLACE}"
   #   test for only directory name (ends in /), add base file name to it
-  if [ x`/bin/echo ${CONFPLACE} | /usr/bin/rev | \
-      /usr/bin/cut -c 1` = x/ ] ; then
+  if [ "`echo "${CONFFILE_PLACE}" | rev | cut -c 1`" = / ] ; then
     # user gave directory, add filename to it
-    # add no / after ${CONFPLACE} as it is already contained in it
+    # add no / after "${CONFFILE_PLACE}" as it is already contained in it
     #   explicit user request that no // is displayed in resulting names
-    CONFPLACE=${CONFPLACE}${CONFFILE_NAME}
+    CONFFILE_PLACE="${CONFFILE_PLACE}${CONFFILE_NAME}"
   else
     # user gave no directory, but check for forgotten /
-    if [ -d ${CONFPLACE} ] ; then
-      ${CMD_WARNING} place without / at end, but is existing directory >&2
-      ${CMD_LOG_WARNING} place without / at end, but is existing directory
-      CONFPLACE=${CONFPLACE}/${CONFFILE_NAME}
+    if [ -d "${CONFFILE_PLACE}" ] ; then
+      ${CMD_WARNING} "place without / at end, but is existing directory" >&2
+      ${CMD_LOG_WARNING} "place without / at end, but is existing directory"
+      CONFFILE_PLACE="${CONFFILE_PLACE}/${CONFFILE_NAME}"
     fi
   fi
 
   # expand an {} in commands to trigger to the full name of the file installed
   #   syntax in copied from the  find -exec ;  command
-  if /bin/echo "${CMDTRIG}" | /bin/grep -q '\{\}' ; then
+  if echo "${CMDTRIG}" | grep -q '\{\}' ; then
     # hide slashes in path, to not confuse sed s command
-    SED_CONFPLACE=`/bin/echo ${CONFPLACE} | /bin/sed -e '/\//s@@\\\/@g'`
-    CMDTRIG=`/bin/echo "${CMDTRIG}" | \
-        /bin/sed -e "/\{\}/s//${SED_CONFPLACE}/g"`
+    SED_CONFFILE_PLACE="`echo "${CONFFILE_PLACE}" | sed -e '/\//s@@\\\/@g'`"
+    CMDTRIG="`echo "${CMDTRIG}" | sed -e "/{}/s//${SED_CONFFILE_PLACE}/g"`"
   fi
 
 
-  if [ x${CONFFILE_NAME} != x- ] ; then
+  if [ "${CONFFILE_NAME}" != - ] ; then
     # install an config file
 
     # file url on server
-    CONFFILE_URL=${CONFHOST_URL}/${CONFFILE_NAME}
+    CONFFILE_URL="${CONFHOST_URL}/${CONFFILE_NAME}"
 
     # temp file here on host
-    CONFFILE=${SYS_WORKDIR}/${CONFFILE_NAME}
+    CONFFILE="${SYS_WORKDIR}/${CONFFILE_NAME}"
 
     # get the actual config file to be processed
-    fetch_and_preprocess_config_file ${CONFFILE_URL} ${CONFFILE}
+    fetch_and_preprocess_config_file "${CONFFILE_URL}" "${CONFFILE}"
 
 
     # ensure first that target dir is there, case new config file in new dir
-    /bin/mkdir -p `/usr/bin/dirname ${CONFPLACE}`
+    mkdir -p "`dirname "${CONFFILE_PLACE}"`"
  
 
     # prevent diff complaining fix, as for config list
-    if [ ! -e ${CONFPLACE} ] ; then
+    if [ ! -e "${CONFFILE_PLACE}" ] ; then
 
-      ${CMD_INFO_PRINT} will be installing new config file at ${CONFPLACE}
+      ${CMD_INFO_PRINT} "will be installing new config file list at" \
+          "${CONFFILE_PLACE}"
       ${CMD_DEBUG_SLEEP}
 
       # empty file ensures it is different (new one from server is not empty)
-      /usr/bin/touch ${CONFPLACE}
+      touch "${CONFFILE_PLACE}"
 
     fi
 
 
     # only if file has changed do we do anything, as for config list
-    if ! /usr/bin/diff ${CONFPLACE} ${CONFFILE} > /dev/null ; then
+    if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
 
-      ${CMD_INFO_PRINT} updating old or installing new config \
-          ${CONFFILE_NAME} as ${CONFPLACE} ...
+      ${CMD_INFO_PRINT} "updating old or installing new config" \
+          "${CONFFILE_NAME} as ${CONFFILE_PLACE} ..."
       ${CMD_DEBUG_SLEEP}
 
-      /bin/cp -pf ${CONFFILE} ${CONFPLACE}
+      cp -pf "${CONFFILE}" "${CONFFILE_PLACE}"
 
-      ${CMD_DEBUG_PRINT} `/bin/ls -al ${CONFPLACE}`
+      ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
       ${CMD_DEBUG_WAIT}
 
 
       # run the facultative postinstall command trigger stuff
-      if [ x`/bin/echo "${CMDTRIG}" | /usr/bin/tr -d ' '` != x ] ; then
+      if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
 
-        ${CMD_INFO_PRINT} triggering postinstall command " ${CMDTRIG} " ...
+        ${CMD_INFO_PRINT} "triggering postinstall command \"${CMDTRIG}\" ..."
         ${CMD_DEBUG_SLEEP}
 
-        run_command_safely "${CMDTRIG}"
+        # prevent non zero return from user given command from killing us
+        set +e
+        sh -c "${CMDTRIG}"
+        RETVAL="$?"
+        set -e
+        if [ "${RETVAL}" != 0 ] ; then
+          ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
+          ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
+        fi
 
-        ${CMD_DEBUG_PRINT} `/bin/ls -al ${CONFPLACE}`
+        ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
         ${CMD_DEBUG_WAIT}
 
       fi
@@ -773,43 +778,49 @@ ${CMD_DEBUG_SLEEP}
     # remove an config file
 
     # only if file still exists do we do anything
-    if [ -e ${CONFPLACE} ] ; then
+    if [ -e "${CONFFILE_PLACE}" ] ; then
 
-      ${CMD_INFO_PRINT} removing old config file ${CONFPLACE} ...
+      ${CMD_INFO_PRINT} "removing old config file ${CONFFILE_PLACE} ..."
       ${CMD_DEBUG_SLEEP}
 
       # test for only directory name (ends in /), possibly dangerous leftover
-      if [ `/bin/echo ${CONFPLACE} | /usr/bin/rev | \
-          /usr/bin/cut -c 1` = "/" ] ; then
+      if [ "`echo "${CONFFILE_PLACE}" | rev | cut -c 1`" = "/" ] ; then
 
-        ${CMD_WARNING} would remove entire directory for ${CONFPLACE}, \
-            may be partially edited list file entry, DANGEROUS, leaving it, \
-            add the files name after the / to delete an single file, \
-            remove / after directory name to really delete entire directory >&2
-        ${CMD_LOG_WARNING} would remove entire directory for ${CONFPLACE}, \
-            may be partially edited list file entry, DANGEROUS, leaving it, \
-            add the files name after the / to delete an single file, \
-            remove / after directory name to really delete entire directory
+        ${CMD_WARNING} "would remove entire directory ${CONFFILE_PLACE}," \
+            "may be partially edited list file entry, DANGEROUS, leaving it," \
+            "add the files name after the / to delete an single file," \
+            "remove / after dir name to really delete entire directory" >&2
+        ${CMD_LOG_WARNING} "would remove entire directory ${CONFFILE_PLACE}," \
+            "may be partially edited list file entry, DANGEROUS, leaving it," \
+            "add the files name after the / to delete an single file," \
+            "remove / after dir name to really delete entire directory"
 
       else
 
         # run the facultative preremove command trigger stuff
-        if [ x`/bin/echo "${CMDTRIG}" | /usr/bin/tr -d ' '` != x ] ; then
+        if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
 
-          ${CMD_INFO_PRINT} triggering preremove command " ${CMDTRIG} " ...
+          ${CMD_INFO_PRINT} "triggering preremove command \"${CMDTRIG}\" ..."
           ${CMD_DEBUG_SLEEP}
 
-          run_command_safely "${CMDTRIG}"
+          set +e
+          sh -c "${CMDTRIG}"
+          RETVAL="$?"
+          set -e
+          if [ "${RETVAL}" != 0 ] ; then
+            ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
+            ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
+          fi
 
         fi
 
-        ${CMD_INFO_PRINT} removing config file ${CONFPLACE} ...
+        ${CMD_INFO_PRINT} "removing config file ${CONFFILE_PLACE} ..."
         ${CMD_DEBUG_SLEEP}
 
-        ${CMD_DEBUG_PRINT} `/bin/ls -ald ${CONFPLACE}`
+        ${CMD_DEBUG_PRINT} "`ls -ald "${CONFFILE_PLACE}"`"
         ${CMD_DEBUG_WAIT}
 
-        /bin/rm -rf ${CONFPLACE}
+        rm -rf "${CONFFILE_PLACE}"
 
       fi
 
@@ -822,22 +833,22 @@ done
 
 # --- finish off
 
-${CMD_INFO_PRINT} tidying up from working ...
+${CMD_INFO_PRINT} "tidying up from working ..."
 ${CMD_DEBUG_SLEEP}
 
-${CMD_DEBUG_PRINT} +++ begin workdirectory listing +++
-if [ x${DEBUG_PRINT_STEP} = xyes ] ; then
-  /bin/ls -al ${SYS_WORKDIR} 2> /dev/null
+${CMD_DEBUG_PRINT} "+++ begin workdirectory listing +++"
+if [ "${DEBUG_PRINT_STEP}" = yes ] ; then
+  ls -al "${SYS_WORKDIR}" 2> /dev/null
 fi
-${CMD_DEBUG_PRINT} +++ end workdirectory listing +++
+${CMD_DEBUG_PRINT} "+++ end workdirectory listing +++"
 ${CMD_DEBUG_WAIT}
 
 # remove temporary directory and its contents, to save space
 #   must be after debug printout
-if [ x${DEBUG_LEAVE_TEMPDIRS} != xyes ] ; then
+if [ "${DEBUG_LEAVE_TEMPDIRS}" != yes ] ; then
   # but offer to leave this to investigate bugs
-  /bin/rm -rf ${SYS_WORKDIR}
+  rm -rf "${SYS_WORKDIR}"
 fi
 
-${CMD_LOG_IF_DONE} has updated/installed/removes config files
+${CMD_LOG_IF_DONE} "has updated/installed/removed config files"
 exit 0

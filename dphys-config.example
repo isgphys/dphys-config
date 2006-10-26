@@ -1,5 +1,5 @@
 # /etc/dphys-config - user settings for dphys-config auto configurator
-# author Neil Franklin, last modification 2005.05.13
+# author Neil Franklin, last modification 2006.10.05
 # copyright ETH Zuerich Physics Departement
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -9,3 +9,9 @@
 # base directory for config files on server
 #   set to something that will produce an error message without site config
 #CONF_BASEURL=http://not-configured-server/not/configured/directory
+
+# only process lines matching this grep regexp, default do all
+#CONF_LINEFILTER=".*"
+
+# log what we have done
+#CONF_LOG_DONE=yes

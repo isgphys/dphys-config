@@ -8,6 +8,15 @@ Upstream Author: Neil Franklin <franklin@phys.ethz.ch>
 This software is dual-licensed under the GNU General Public License (GPL),
 and the modified/non-advertising BSD License (BSD).
 
+License (Public Domain, findcdroms.c):
+
+   Download from http://stian.lunafish.org/coding-cdrom.php
+   Written by Stian Sebastian Skjelstad <stian@nixia.no>
+
+License (Public Domain, examples written by Gürkan Sengün):
+
+   Download from http://kaerpf.ethz.ch/pub/debian-local/share/kernel/
+
 License (GPL):
 
    Copyright (C) 2005-2006 Neil Franklin

@@ -1,0 +1,42 @@
+#!/bin/sh
+# /usr/local/sbin/dphys-config-exports - generate /etc/exports
+# author Neil Franklin, last modification 2006.10.12
+# copyright ETH Zuerich Physics Departement,
+#   use under either modified/non-advertising BSD or GPL license
+
+# this script is called by dphys-config, once on each install/update
+#   no parameters or environment variables are evaluated
+# it requires in /etc/dphys-config.list 1 line:
+#   local/sbin/dphys-config-exports:/usr/:chmod 755 {}; {}
+
+
+set -e
+
+# get ready to work
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+export PATH
+
+
+ACCESS="@many(rw,async)"
+EXPORTS=/etc/exports
+
+if [ -f ${EXPORTS} ] ; then
+  rm ${EXPORTS}
+fi
+
+# here no "" around `ls`, else intervening and trailing spaces end up in DIR
+for DIR in /scratch /export/data* ; do
+  # prevent space split data from making multiple bogus entries
+  if [ -d "${DIR}" ] ; then
+    echo -e "${DIR}\t${ACCESS}" >> ${EXPORTS}
+  fi
+done
+
+if [ -f ${EXPORTS} ] ; then
+  if [ -x /etc/init.d/nfs-kernel-server ] ; then
+    /etc/init.d/nfs-kernel-server restart
+  fi
+fi
+
+exit 0

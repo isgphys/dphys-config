@@ -1,0 +1,4 @@
+#!/bin/sh
+
+grep ipfrag_time /etc/sysctl.conf > /dev/null || echo net/ipv4/ipfrag_time=2 >> /etc/sysctl.conf
+sysctl -p

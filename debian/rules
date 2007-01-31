@@ -29,7 +29,7 @@ binary-indep: build install
 	dh_testroot
 	dh_installchangelogs 
 	dh_installdocs
-	dh_installinit
+	dh_installinit -- defaults 21
 	dh_installcron
 	dh_compress
 	dh_fixperms

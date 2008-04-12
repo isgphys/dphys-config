@@ -1,3 +1,13 @@
+dphys-config (20061020-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * bashism in 'dphys-config' script (Closes: #469084)
+  * debian/control:
+    - Bump Standards-Version to 3.7.3.
+    - Use Homepage: field for upstream URL.
+
+ -- Chris Lamb <chris@chris-lamb.co.uk>  Sat, 12 Apr 2008 04:33:12 +0100
+
 dphys-config (20061020-2) unstable; urgency=low
 
   * Set start script priority to 21.

@@ -3,7 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Gürkan Sengün <gurkan@linuks.mine.nu>
 Build-Depends: debhelper (>= 5)
-Standards-Version: 3.7.2
+Standards-Version: 3.7.3
+Homepage: http://www.phys.ethz.ch/~franklin/Projects/dphys-config/
 
 Package: dphys-config
 Architecture: all
@@ -16,5 +17,3 @@ Description: Tool to distribute config files
  whenever their associated config file has been changed. It can also remove
  config files, including running an preremove script before doing so. All
  this is driven by an simple config file list.
- .
-  Homepage: http://www.phys.ethz.ch/~franklin/Projects/dphys-config/

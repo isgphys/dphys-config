@@ -59,7 +59,7 @@ SYS_OLD_WORKDIR=/var/cache/dphys-config
 
 # where we want to do all the download/merge/diff-test stuff
 #   this must be a directory that root can access (not a root-squash NFS mount)
-SYS_WORKDIR=/var/tmp/dphys-config-$$-work
+SYS_WORKDIR=$(mktemp -d)
 
 
 
@@ -295,7 +295,9 @@ broken_net_wget_or_die () {
   #   better only continue if we got 200 (got file) or 404 (no file)
   #     this fails safe, can never break config files
 
-  local URL="$1" DIR="$2"
+  local URL
+  local DIR
+  URL="$1" DIR="$2"
   ${CMD_DEBUG_PRINT} "URL=${URL} DIR=${DIR}"
   ${CMD_DEBUG_WAIT}
 
@@ -310,16 +312,19 @@ broken_net_wget_or_die () {
   local TRY
   for TRY in 1 2 3 ; do
 
-    local WGET_STDERR="${SYS_WORKDIR}/@wget.stderr"
+    local WGET_STDERR
+    WGET_STDERR="${SYS_WORKDIR}/@wget.stderr"
     rm -f "${WGET_STDERR}"
 
     # -N so we do not re-fetch unchanged files, important when large files
     #   -N and -O do not like each other, so use an (cd ; wget)
     (cd "${DIR}"; wget -N -o "${WGET_STDERR}" "${URL}" || true)
 
-    local DNS_STAT="`grep '^Resolving .*... failed: Host not found.$' \
+    local DNS_STAT
+    local HTTP_STAT
+    DNS_STAT="`grep '^Resolving .*... failed: Host not found.$' \
         "${WGET_STDERR}" | tr -d ' '`"
-    local HTTP_STAT="`grep '^HTTP request sent, awaiting response... ' \
+    HTTP_STAT="`grep '^HTTP request sent, awaiting response... ' \
         "${WGET_STDERR}" | tail -n 1 | cut -f 6- -d ' ' | tr -d ' '`"
     rm "${WGET_STDERR}"
 
@@ -393,13 +398,16 @@ ${CMD_DEBUG_WAIT}
 
 fetch_and_preprocess_config_file () {
 
-  local URL="$1" WORK="$2"
+  local URL
+  local WORK
+  URL="$1" WORK="$2"
   ${CMD_DEBUG_PRINT} "URL=${URL} WORK=${WORK}"
   ${CMD_DEBUG_WAIT}
 
 
   # ensure first that work dir is there, in case config file in an new subdir
-  local DIR="`dirname "${WORK}"`"
+  local DIR
+  DIR="`dirname "${WORK}"`"
   mkdir -p "${DIR}"
 
   # get the file
@@ -419,7 +427,8 @@ fetch_and_preprocess_config_file () {
   # preprocessor stuff
 
   # header calls for preprocessing, with syntax similar to the #! shell trigger
-  local HEAD="`head -n 1 "${WORK}"`"
+  local HEAD
+  HEAD="`head -n 1 "${WORK}"`"
   if `echo "${HEAD}" | grep -q '^#@dphys-config-preprocess'` ; then
 
     # use rest of file, purged of header, which is never part of output
@@ -430,7 +439,8 @@ fetch_and_preprocess_config_file () {
     #   extract from HEAD format:  #@dphys-config-preprocess [preprocessor...]
     # add an space after "${HEAD}" to circumvent  cut -f 2- -d ' '  brokenness
     #   if no preprocessor was listed by user, and so possibly no space in line
-    local PREPROCS="`echo "${HEAD} " | cut -f 2- -d ' ' | tr -c -d 'a-z '`"
+    local PREPROCS
+    PREPROCS="`echo "${HEAD} " | cut -f 2- -d ' ' | tr -c -d 'a-z '`"
     ${CMD_DEBUG_PRINT} "HEAD=${HEAD} PREPROCS=${PREPROCS}"
 
     # no "${PREPROCS}", else intervening and trailing spaces end up in PREPROC
@@ -451,13 +461,17 @@ fetch_and_preprocess_config_file () {
             #   may have multiple substitutions on one line, so use while loop
             while echo "${LINE}" | grep -q '`' ; do
               # the '\` here need the \ because of the `` subshell
-              local FRONT="`echo "${LINE}" | cut -f 1  -d '\`' `"
-              local TICK="`echo "${LINE}"  | cut -f 2  -d '\`' `"
-              local REST="`echo "${LINE}"  | cut -f 3- -d '\`' `"
+              local FRONT
+              local TICK
+              local REST
+              FRONT="`echo "${LINE}" | cut -f 1  -d '\`' `"
+              TICK="`echo "${LINE}"  | cut -f 2  -d '\`' `"
+              REST="`echo "${LINE}"  | cut -f 3- -d '\`' `"
 
               # prevent non zero return from user given command from killing us
               set +e
-              local SUBST="`"${TICK}"`"
+              local SUBST
+              SUBST="`"${TICK}"`"
               RETVAL="$?"
               set -e
               if [ "${RETVAL}" != 0 ] ; then
@@ -489,7 +503,8 @@ fetch_and_preprocess_config_file () {
                 ${CMD_LOG_ERROR} "#@if config line \"${LINE}\" has no \";\""
                 exit 1
               fi
-              local COND="`echo "${LINE}" | cut -f 1  -d ';'`"
+              local COND
+              COND="`echo "${LINE}" | cut -f 1  -d ';'`"
               LINE="`echo "${LINE}" | cut -f 2- -d ';'`"
 
               # purge command, which is not part of condition
@@ -521,7 +536,8 @@ fetch_and_preprocess_config_file () {
           cat "${WORK}" | while read LINE ; do
 
             if echo "${LINE}" | grep -q '^#@include ' ; then
-              local SECTION="`echo "${LINE}" | cut -f 2 -d ' '`"
+              local SECTION
+              SECTION="`echo "${LINE}" | cut -f 2 -d ' '`"
               broken_net_wget_or_die "${URL}.${SECTION}" "${DIR}"
               if [ -f "${WORK}.${SECTION}" ] ; then
                 ${CMD_DEBUG_PRINT} "`ls -al "${WORK}.${SECTION}"`"

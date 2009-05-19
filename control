@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Axel Beckert <abe@deuxchevaux.org>
 Build-Depends: debhelper (>= 5)
-Standards-Version: 3.7.3
+Standards-Version: 3.8.1
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 
 Package: dphys-config

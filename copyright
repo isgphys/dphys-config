@@ -19,7 +19,7 @@ License (Public Domain, examples written by Gürkan Sengün):
 
 License (GPL):
 
-   Copyright (C) 2005-2006 Neil Franklin
+   Copyright © 2005-2006 Neil Franklin
 
    This package is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ Public License can be found in `/usr/share/common-licenses/GPL'.
 
 License (BSD):
 
-   Copyright (C) 2005-2006 Neil Franklin
+   Copyright © 2005-2006 Neil Franklin
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
@@ -66,6 +66,6 @@ License (BSD):
    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
    SUCH DAMAGE.
 
-The Debian packaging is (C) 2006, Gürkan Sengün <gurkan@linuks.mine.nu>,
-(C) 2009 Axel Beckert <abe@deuxchevaux.org> and is licensed under the
+The Debian packaging is © 2006, Gürkan Sengün <gurkan@linuks.mine.nu>,
+© 2009 Axel Beckert <abe@deuxchevaux.org> and is licensed under the
 GPL, see `/usr/share/common-licenses/GPL'.

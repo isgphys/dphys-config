@@ -1,4 +1,4 @@
-dphys-config (20090519~curr-1) dphys-lenny; urgency=low
+dphys-config (20090519~curr-1) UNRELEASED; urgency=low
 
   * D-PHYS internal test release
   * New upstream pre-release

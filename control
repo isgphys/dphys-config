@@ -11,9 +11,10 @@ Architecture: all
 Depends: wget
 Recommends: tcc, pciutils
 Description: Tool to distribute config files
- This project is aimed at installing (and keeping update) the site specific
- config files we want, after preprocessing them (conditional content and
- include files and include sections). It also triggers postinstall scripts
- whenever their associated config file has been changed. It can also remove
- config files, including running an preremove script before doing so. All
- this is driven by an simple config file list.
+ This project is aimed at automatically installing (and keeping
+ update) site specific config files on many hosts, after preprocessing
+ them (conditional content and include files and include sections). It
+ also triggers postinstall scripts whenever their associated config
+ file has been changed. It can also remove config files, including
+ running an preremove script before doing so. All this is driven by an
+ simple config file list.

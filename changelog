@@ -1,3 +1,22 @@
+dphys-config (20090519~curr-1) dphys-lenny; urgency=low
+
+  * D-PHYS internal test release
+  * New upstream pre-release
+    - Now works with every web server (e.g. also ACME micro_httpd)
+    - Now handles blanks and backslashes correctly while preprocessing
+      and reading its own configuration file. (Closes: #510910)
+    - Now supports file:/// URLs for configuration file locations
+    - New option -c to override hostname in chrooted environments
+  * New maintainer
+  * Updated e-mail addresses and URLs of upstream website in
+    debian/control and debian/copyright
+  * Bumped Standards-Version to 3.8.1
+    - Changed all "(C)" to "©" in debian/copyright.
+  * Removed bashism fixes from last NMU since they're no more necessary
+    (with policy 3.8.1) and will be incorporated in upstream soon anyway.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Tue, 19 May 2009 19:58:54 +0200
+
 dphys-config (20061020-2.1) unstable; urgency=medium
 
   * Non-maintainer upload.

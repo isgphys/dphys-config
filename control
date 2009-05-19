@@ -1,7 +1,7 @@
 Source: dphys-config
 Section: admin
 Priority: optional
-Maintainer: Gürkan Sengün <gurkan@linuks.mine.nu>
+Maintainer: Axel Beckert <abe@deuxchevaux.org>
 Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.3
 Homepage: http://neil.franklin.ch/Projects/dphys-config/

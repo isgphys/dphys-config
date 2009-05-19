@@ -66,5 +66,6 @@ License (BSD):
    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
    SUCH DAMAGE.
 
-The Debian packaging is (C) 2006, Gürkan Sengün <gurkan@linuks.mine.nu> and
-is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+The Debian packaging is (C) 2006, Gürkan Sengün <gurkan@linuks.mine.nu>,
+(C) 2009 Axel Beckert <abe@deuxchevaux.org> and is licensed under the
+GPL, see `/usr/share/common-licenses/GPL'.

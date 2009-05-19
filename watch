@@ -1,0 +1,2 @@
+version=3
+http://neil.franklin.ch/Projects/dphys-config/ ../dphys-config-(\d{8}.*)\.tar\.gz

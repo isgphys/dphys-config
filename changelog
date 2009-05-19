@@ -1,4 +1,4 @@
-dphys-config (20090519~curr-1) UNRELEASED; urgency=low
+dphys-config (20090519~curr-2) UNRELEASED; urgency=low
 
   * D-PHYS internal test release
   * New upstream pre-release
@@ -16,6 +16,8 @@ dphys-config (20090519~curr-1) UNRELEASED; urgency=low
   * Fix lintian warnings:
     - debian-rules-ignores-make-clean-error
     - using-first-person-in-description
+  * Adapted init.d script to not automatically start inside a
+    chrooted environment. chrooted() test taken from udev.postinst.
   * Removed bashism fixes from last NMU since they're no more necessary
     (with policy 3.8.1) and will be incorporated in upstream soon anyway.
 

@@ -31,14 +31,28 @@ export PATH
 # what we are
 NAME=dphys-config
 
+chrooted() {
+  if [ "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];
+  then
+    # the devicenumber/inode pair of / is the same as that of /sbin/init's
+    # root, so we're *not* in a chroot and hence return false.
+    return 1
+  fi
+  return 0
+}
+
 case "$1" in
 
   start)
-    /bin/echo "Starting ${NAME} automatic config updates ..."
+    if ! chrooted; then
+	/bin/echo "Starting ${NAME} automatic config updates ..."
 
-    # in case system was switched off for a while, run an upgrade
-    #   this will produce output, so no -n in above echo
-    /usr/bin/dphys-config init
+        # in case system was switched off for a while, run an upgrade
+        #   this will produce output, so no -n in above echo
+        /usr/bin/dphys-config init
+    else
+	/bin/echo "Running inside a chrooted environment. ${NAME} not updating configs ..."
+    fi
 
     /bin/echo "done."
     ;;

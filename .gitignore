@@ -1,0 +1,5 @@
+*.debhelper.log
+*.debhelper
+*.substvars
+dphys-config
+files

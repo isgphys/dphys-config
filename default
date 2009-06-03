@@ -1,0 +1,8 @@
+# Defaults for dphys-config initscript, sourced by /etc/init.d/dphys-config
+#
+# This is a POSIX shell fragment
+#
+
+# By default, the init.d script won't start dphys-config inside a
+# chrooted environment. Change this to "yes" to change this behaviour.
+START_INSIDE_CHROOT="no"

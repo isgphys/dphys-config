@@ -31,8 +31,10 @@ export PATH
 # what we are
 NAME=dphys-config
 
+. /etc/default/$NAME
+
 chrooted() {
-  if [ "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];
+  if [ "${START_INSIDE_CHROOT}" != "yes" -a "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];
   then
     # the devicenumber/inode pair of / is the same as that of /sbin/init's
     # root, so we're *not* in a chroot and hence return false.
@@ -47,7 +49,7 @@ case "$1" in
     # Don't start inside a chroot.
     if ! chrooted; then
 	# Don't start if we don't know where to fetch config updates
-	if [ -f /etc/dphys-config ]; then
+	if [ -f /etc/${NAME} ]; then
 	    /bin/echo "Starting ${NAME} automatic config updates ..."
 
             # In case system was switched off for a while, run an

@@ -1,3 +1,8 @@
+Give the admin the choice of /tmp vs /var/tmp since /tmp isn't always
+as big as dphys-config needs it, but /var/tmp isn't better either
+since it's thought for files which should survive reboots (which
+dphys-config's work files don't need to).
+
 Index: dphys-config-20090529~curr/dphys-config
 ===================================================================
 --- dphys-config-20090529~curr.orig/dphys-config	2009-06-03 18:23:09.000000000 +0200

@@ -1,3 +1,6 @@
+Make the usage of mktemp configurable instead of only a comment by
+upstream.
+
 Index: dphys-config-20090529~curr/dphys-config
 ===================================================================
 --- dphys-config-20090529~curr.orig/dphys-config	2009-06-03 18:26:53.000000000 +0200

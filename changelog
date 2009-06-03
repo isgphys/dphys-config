@@ -22,6 +22,11 @@ dphys-config (20090529~curr-1) UNRELEASED; urgency=low
     - using-first-person-in-description
   * Adapted init.d script to not automatically start inside a
     chrooted environment. chrooted() test taken from udev.postinst.
+  * Using quilt for patch management:
+    - Added Build-Dependency to debian/control.
+    - Changed debian/rules appropriately.
+  * Removed Recommends on tcc.
+  * Downgraded Recommends on pciutils to a Suggests.
 
  -- Axel Beckert <abe@deuxchevaux.org>  Wed, 03 Jun 2009 17:34:15 +0200
 

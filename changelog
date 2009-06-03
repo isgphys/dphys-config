@@ -29,6 +29,10 @@ dphys-config (20090529~curr-1) UNRELEASED; urgency=low
   * Using quilt for patch management:
     - Added Build-Dependency to debian/control.
     - Changed debian/rules appropriately.
+    - Added configurable-tmp-dir.patch since the usage of /tmp/ or
+      /var/tmp/ depends on the use case.
+    - Added configurable-mktemp.patch.
+    - Added debian-defaults.patch for debian-specific defaults
   * Removed Recommends on tcc.
   * Downgraded Recommends on pciutils to a Suggests.
   * Changed dh_clean -k to dh_prep in debian/rules.

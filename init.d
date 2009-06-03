@@ -1,6 +1,6 @@
 #!/bin/sh
 # /etc/init.d/dphys-config - boot time trigger automatic config updates
-# authors dsbg and franklin, last modification 2006.09.15
+# authors dsbg, franklin and abe, last modification 2009.06.03
 # copyright ETH Zuerich Physics Departement
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -44,12 +44,19 @@ chrooted() {
 case "$1" in
 
   start)
+    # Don't start inside a chroot.
     if ! chrooted; then
-	/bin/echo "Starting ${NAME} automatic config updates ..."
+	# Don't start if we don't know where to fetch config updates
+	if [ -f /etc/dphys-config ]; then
+	    /bin/echo "Starting ${NAME} automatic config updates ..."
 
-        # in case system was switched off for a while, run an upgrade
-        #   this will produce output, so no -n in above echo
-        /usr/bin/dphys-config init
+            # In case system was switched off for a while, run an
+            # upgrade.  This will produce output, so no -n in above
+            # echo.
+            /usr/bin/dphys-config init
+	else
+	    /bin/echo "/etc/dphys-config not found. ${NAME} not updating configs ..."
+	fi
     else
 	/bin/echo "Running inside a chrooted environment. ${NAME} not updating configs ..."
     fi

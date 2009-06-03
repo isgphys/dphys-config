@@ -36,6 +36,7 @@ dphys-config (20090529~curr-1) UNRELEASED; urgency=low
   * Removed Recommends on tcc.
   * Downgraded Recommends on pciutils to a Suggests.
   * Changed dh_clean -k to dh_prep in debian/rules.
+    - Bumped debhelper compatibility to 7.
 
  -- Axel Beckert <abe@deuxchevaux.org>  Wed, 03 Jun 2009 19:44:28 +0200
 

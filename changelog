@@ -1,4 +1,4 @@
-dphys-config (20090519~curr-2) UNRELEASED; urgency=low
+dphys-config (20090529~curr-1) UNRELEASED; urgency=low
 
   * D-PHYS internal test release
   * New upstream pre-release
@@ -7,6 +7,10 @@ dphys-config (20090519~curr-2) UNRELEASED; urgency=low
       and reading its own configuration file. (Closes: #510910)
     - Now supports file:/// URLs for configuration file locations
     - New option -c to override hostname in chrooted environments
+    - Removed bashism fixes from last NMU since they have been intergrated
+      by upstream even though Debian doesn't require them anymore since
+      policy 3.8.1.
+    - Upstream updated man page to fix a bunch of lintian warnings.
   * New maintainer
   * Updated e-mail addresses and URLs of upstream website in
     debian/control and debian/copyright
@@ -18,10 +22,8 @@ dphys-config (20090519~curr-2) UNRELEASED; urgency=low
     - using-first-person-in-description
   * Adapted init.d script to not automatically start inside a
     chrooted environment. chrooted() test taken from udev.postinst.
-  * Removed bashism fixes from last NMU since they're no more necessary
-    (with policy 3.8.1) and will be incorporated in upstream soon anyway.
 
- -- Axel Beckert <abe@deuxchevaux.org>  Tue, 19 May 2009 19:58:54 +0200
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 03 Jun 2009 17:34:15 +0200
 
 dphys-config (20061020-2.1) unstable; urgency=medium
 

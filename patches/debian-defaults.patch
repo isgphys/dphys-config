@@ -1,0 +1,13 @@
+Index: dphys-config-20090529~curr/dphys-config
+===================================================================
+--- dphys-config-20090529~curr.orig/dphys-config	2009-06-03 19:29:54.000000000 +0200
++++ dphys-config-20090529~curr/dphys-config	2009-06-03 19:29:58.000000000 +0200
+@@ -34,7 +34,7 @@
+ CONF_TMP_DIR=/var/tmp
+ 
+ # do we use mktemp?
+-CONF_MKTEMP=no
++CONF_MKTEMP=yes
+ 
+ 
+ # --- DEBUG_*, various debugging settings

@@ -1,2 +1,3 @@
 configurable-tmp-dir.patch
 configurable-mktemp.patch
+debian-defaults.patch

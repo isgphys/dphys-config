@@ -1,0 +1,35 @@
+Index: dphys-config-20090529~curr/dphys-config
+===================================================================
+--- dphys-config-20090529~curr.orig/dphys-config	2009-06-03 18:23:09.000000000 +0200
++++ dphys-config-20090529~curr/dphys-config	2009-06-03 18:23:41.000000000 +0200
+@@ -30,6 +30,9 @@
+ # log what we have done
+ CONF_LOG_DONE=yes
+ 
++# where do we want temporary downloads?
++CONF_TMP_DIR=/var/tmp
++
+ 
+ # --- DEBUG_*, various debugging settings
+ 
+@@ -46,7 +49,7 @@
+ #DEBUG_WAIT_STEP=yes
+ 
+ # set this to have debug dry runs install not in /, avoid killing system
+-#DEBUG_INSTALL_BASE=/var/tmp/dphys-config-debug-install
++#DEBUG_INSTALL_BASE=${CONF_TMP_DIR}/dphys-config-debug-install
+ 
+ # set this to leave temporary directories undeleted after working
+ #DEBUG_LEAVE_TEMPDIRS=yes
+@@ -59,9 +62,9 @@
+ 
+ # where we want to do all the download/merge/diff-test stuff
+ #   this must be a directory that root can access (not a root-squash NFS mount)
+-SYS_WORKDIR=/var/tmp/dphys-config-$$-work
++SYS_WORKDIR=${CONF_TMP_DIR}/dphys-config-$$-work
+ # if your system uses/prefers  mktemp  you may want to use this variant instead
+-#SYS_WORKDIR=`mktemp -d /var/tmp/dphys-config-work.XXXXXXXXXX`
++#SYS_WORKDIR=`mktemp -d ${CONF_TMP_DIR}/dphys-config-work.XXXXXXXXXX`
+ 
+ 
+ ### ------ actual implementation from here on

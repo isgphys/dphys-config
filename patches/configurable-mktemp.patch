@@ -1,0 +1,33 @@
+Index: dphys-config-20090529~curr/dphys-config
+===================================================================
+--- dphys-config-20090529~curr.orig/dphys-config	2009-06-03 18:26:53.000000000 +0200
++++ dphys-config-20090529~curr/dphys-config	2009-06-03 18:38:17.000000000 +0200
+@@ -33,6 +33,9 @@
+ # where do we want temporary downloads?
+ CONF_TMP_DIR=/var/tmp
+ 
++# do we use mktemp?
++CONF_MKTEMP=no
++
+ 
+ # --- DEBUG_*, various debugging settings
+ 
+@@ -60,11 +63,16 @@
+ # name of config file list file on server
+ SYS_CONFLIST_NAME=dphys-config.list
+ 
++# template for directory names used in ${CONF_TMP_DIR}
++SYS_WORKDIR_TEMPLATE=${CONF_TMP_DIR}/dphys-config-$$-work
++
+ # where we want to do all the download/merge/diff-test stuff
+ #   this must be a directory that root can access (not a root-squash NFS mount)
+-SYS_WORKDIR=${CONF_TMP_DIR}/dphys-config-$$-work
++SYS_WORKDIR=${SYS_WORKDIR_TEMPLATE}
+ # if your system uses/prefers  mktemp  you may want to use this variant instead
+-#SYS_WORKDIR=`mktemp -d ${CONF_TMP_DIR}/dphys-config-work.XXXXXXXXXX`
++if [ "${CONF_MKTEMP}" = yes ]; then
++    SYS_WORKDIR=`mktemp -d ${SYS_WORKDIR_TEMPLATE}.XXXXXXXXXX`
++fi
+ 
+ 
+ ### ------ actual implementation from here on

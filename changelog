@@ -20,12 +20,12 @@ dphys-config (20090529~curr-1) UNRELEASED; urgency=low
   * Fix lintian warnings:
     - debian-rules-ignores-make-clean-error
     - using-first-person-in-description
-  * Changed behaviour of init.d script:
-    - Don't start automatically inside a chrooted environment. chrooted()
-      test taken from udev.postinst.
-    - Don't start automatically if no config file has been created by the
-      admin (prevents startup error messages if only installed for personal
-      use of users).
+  * Changed behaviour of init.d script and cronjob:
+    - init.d: Don't start automatically inside a chrooted
+      environment. chrooted() test taken from udev.postinst.
+    - init.d, cron.d: Don't start automatically if no config file has been
+      created by the admin (prevents startup error messages if only
+      installed for personal use of users).
   * Using quilt for patch management:
     - Added Build-Dependency to debian/control.
     - Changed debian/rules appropriately.

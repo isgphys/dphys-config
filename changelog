@@ -16,6 +16,7 @@ dphys-config (20090605~curr-1) UNRELEASED; urgency=low
   * New maintainer
   * Updated e-mail addresses and URLs of upstream website in
     debian/control and debian/copyright
+  * Added Vcs-* headers.
   * Bumped Standards-Version to 3.8.1
     - Changed all "(C)" to "©" in debian/copyright.
   * Added a watch file.

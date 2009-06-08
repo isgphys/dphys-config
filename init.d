@@ -52,8 +52,8 @@ chrooted() {
 	      exit 3;
 	  fi
       else
-	  echo "$0: /proc not mounted, chroot test will not work" >&2;
-	  exit 2;
+	  echo "$0: WARNING: /proc not mounted, assuming chrooted environment." >&2;
+	  return 1;
       fi
   fi
   return 0

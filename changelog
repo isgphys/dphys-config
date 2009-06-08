@@ -12,14 +12,14 @@ dphys-config (20090605~curr-1) UNRELEASED; urgency=low
       policy 3.8.1.
     - Upstream updated man page to fix a bunch of lintian warnings.
     - Now supports configurable temporary directory (defaults to /var/tmp)
-      and optional usage of mktemp (obsoletes mktemp fix from last NMU)
+      and optional usage of mktemp (also obsoletes mktemp fix from last NMU)
   * New maintainer
   * Updated e-mail addresses and URLs of upstream website in
     debian/control and debian/copyright
   * Bumped Standards-Version to 3.8.1
     - Changed all "(C)" to "©" in debian/copyright.
   * Added a watch file.
-  * Fix lintian warnings:
+  * Fixed lintian warnings:
     - debian-rules-ignores-make-clean-error
     - using-first-person-in-description
   * Changed behaviour of init.d script and cronjob:

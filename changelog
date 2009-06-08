@@ -32,7 +32,8 @@ dphys-config (20090605~curr-1) UNRELEASED; urgency=low
     - Added Build-Dependency to debian/control.
     - Changed debian/rules appropriately.
     - Added debian-defaults.patch to enable mktemp usage by default
-  * Removed Recommends on tcc.
+  * Removed Recommends on tcc. (An example script often needed on Sarge
+    needed tcc.)
   * Downgraded Recommends on pciutils to a Suggests.
   * Changed dh_clean -k to dh_prep in debian/rules.
     - Bumped debhelper compatibility to 7.

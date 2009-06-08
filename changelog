@@ -1,4 +1,4 @@
-dphys-config (20090529~curr-1) UNRELEASED; urgency=low
+dphys-config (20090605~curr-1) UNRELEASED; urgency=low
 
   * D-PHYS internal test release
   * New upstream pre-release
@@ -11,6 +11,8 @@ dphys-config (20090529~curr-1) UNRELEASED; urgency=low
       by upstream even though Debian doesn't require them anymore since
       policy 3.8.1.
     - Upstream updated man page to fix a bunch of lintian warnings.
+    - Now supports configurable temporary directory (defaults to /var/tmp)
+      and optional usage of mktemp (obsoletes mktemp fix from last NMU)
   * New maintainer
   * Updated e-mail addresses and URLs of upstream website in
     debian/control and debian/copyright
@@ -29,16 +31,13 @@ dphys-config (20090529~curr-1) UNRELEASED; urgency=low
   * Using quilt for patch management:
     - Added Build-Dependency to debian/control.
     - Changed debian/rules appropriately.
-    - Added configurable-tmp-dir.patch since the usage of /tmp/ or
-      /var/tmp/ depends on the use case.
-    - Added configurable-mktemp.patch.
-    - Added debian-defaults.patch for debian-specific defaults
+    - Added debian-defaults.patch to enable mktemp usage by default
   * Removed Recommends on tcc.
   * Downgraded Recommends on pciutils to a Suggests.
   * Changed dh_clean -k to dh_prep in debian/rules.
     - Bumped debhelper compatibility to 7.
 
- -- Axel Beckert <abe@deuxchevaux.org>  Wed, 03 Jun 2009 19:44:28 +0200
+ -- Axel Beckert <abe@deuxchevaux.org>  Mon, 08 Jun 2009 12:43:03 +0200
 
 dphys-config (20061020-2.1) unstable; urgency=medium
 

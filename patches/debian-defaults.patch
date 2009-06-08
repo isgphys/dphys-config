@@ -1,15 +1,15 @@
 Make the defaults sane for Debian. (Do use mktemp!)
 
-Index: dphys-config-20090529~curr/dphys-config
+Index: dphys-config-20090605~curr/dphys-config
 ===================================================================
---- dphys-config-20090529~curr.orig/dphys-config	2009-06-03 19:29:54.000000000 +0200
-+++ dphys-config-20090529~curr/dphys-config	2009-06-03 19:29:58.000000000 +0200
-@@ -34,7 +34,7 @@
- CONF_TMP_DIR=/var/tmp
+--- dphys-config-20090605~curr.orig/dphys-config	2009-06-05 23:08:52.000000000 +0200
++++ dphys-config-20090605~curr/dphys-config	2009-06-08 12:38:10.000000000 +0200
+@@ -25,7 +25,7 @@
+ # method for generating temp directory name for work files
+ #   some prefer -$$- PIDs as no utility is needed, works everywhere
+ #   some prefer mktemp as this prevents race conditions
+-CONF_USE_MKTEMP=no
++CONF_USE_MKTEMP=yes
  
- # do we use mktemp?
--CONF_MKTEMP=no
-+CONF_MKTEMP=yes
- 
- 
- # --- DEBUG_*, various debugging settings
+ # base directory for config files on server
+ #   set to something that will produce an error message without site config

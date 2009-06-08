@@ -1,6 +1,6 @@
 #!/bin/sh
 # /etc/init.d/dphys-config - boot time trigger automatic config updates
-# authors dsbg, franklin and abe, last modification 2009.06.03
+# authors dsbg, franklin and abe, last modification 2009.06.08
 # copyright ETH Zuerich Physics Departement
 #   use under either modified/non-advertising BSD or GPL license
 

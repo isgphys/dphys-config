@@ -36,7 +36,8 @@ if [ -f /etc/default/$NAME ]; then
 fi
 
 chrooted() {
-  if [ "${START_INSIDE_CHROOT}" != "yes" -a "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];
+  if [ "${START_INSIDE_CHROOT}" != "yes" -a \
+       "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];
   then
     # the devicenumber/inode pair of / is the same as that of /sbin/init's
     # root, so we're *not* in a chroot and hence return false.

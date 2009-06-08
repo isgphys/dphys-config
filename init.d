@@ -31,7 +31,9 @@ export PATH
 # what we are
 NAME=dphys-config
 
-. /etc/default/$NAME
+if [ -f /etc/default/$NAME ]; then
+  . /etc/default/$NAME
+fi
 
 chrooted() {
   if [ "${START_INSIDE_CHROOT}" != "yes" -a "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];

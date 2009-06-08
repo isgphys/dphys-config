@@ -36,12 +36,25 @@ if [ -f /etc/default/$NAME ]; then
 fi
 
 chrooted() {
-  if [ "${START_INSIDE_CHROOT}" != "yes" -a \
-       "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];
-  then
-    # the devicenumber/inode pair of / is the same as that of /sbin/init's
-    # root, so we're *not* in a chroot and hence return false.
-    return 1
+  if [ "${START_INSIDE_CHROOT}" != "yes" ]; then
+      if [ -d /proc/1 ]; then
+	  if [ `id -u` = 0 ]; then
+	      if [ "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ]; then
+		  # the devicenumber/inode pair of / is the same as
+		  # that of /sbin/init's root, so we're *not* in a
+		  # chroot and hence return false
+		  return 1
+	      else
+		  return 0
+	      fi
+	  else
+	      echo "$0: chroot test doesn't work as normal user." >&2;
+	      exit 3;
+	  fi
+      else
+	  echo "$0: /proc not mounted, chroot test will not work" >&2;
+	  exit 2;
+      fi
   fi
   return 0
 }

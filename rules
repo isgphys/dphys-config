@@ -2,6 +2,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+DESTDIR=$(CURDIR)/debian/dphys-config
+
 build: build-stamp
 
 build-stamp: $(QUILT_STAMPFN)
@@ -21,7 +23,10 @@ install: build
 	dh_testroot
 	dh_prep
 	dh_installdirs
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/dphys-config
+	$(MAKE) install DESTDIR=$(DESTDIR)
+	# Install example config file as default config file
+	mkdir -pv $(CURDIR)/debian/dphys-config/etc/
+	cp -av dphys-config.example $(DESTDIR)/etc/dphys-config
 
 # Build architecture-independent files here.
 binary-indep: build install

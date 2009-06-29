@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Axel Beckert <abe@deuxchevaux.org>
 Build-Depends: debhelper (>= 7)
-Standards-Version: 3.8.1
+Standards-Version: 3.8.2
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 Vcs-Browser: http://git.phys.ethz.ch/?p=dphys-config-debian.git
 Vcs-Git: http://git.phys.ethz.ch/git/dphys-config-debian.git

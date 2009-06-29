@@ -9,6 +9,7 @@ dphys-config (20090629~curr-1) UNRELEASED; urgency=low
   * Removing quilt patch management
   * Install dphys-config.example as default /etc/dphys-config conffile.
   * Define $(DESTDIR) in debian/rules for better readability
+  * Bumped Standards-Version to 3.8.2 (no changes necessary)
 
  -- Axel Beckert <abe@deuxchevaux.org>  Mon, 29 Jun 2009 15:32:43 +0200
 

@@ -31,8 +31,15 @@ export PATH
 # what we are
 NAME=dphys-config
 
+# init.d config settings
 if [ -f /etc/default/$NAME ]; then
   . /etc/default/$NAME
+fi
+
+# dphys-config config settings
+CONF_BASEURL=''
+if [ -f /etc/$NAME ]; then
+  . /etc/$NAME
 fi
 
 chrooted() {
@@ -66,12 +73,16 @@ case "$1" in
     if ! chrooted; then
 	# Don't start if we don't know where to fetch config updates
 	if [ -f /etc/${NAME} ]; then
-	    /bin/echo "Starting ${NAME} automatic config updates ..."
+	    if [ -n "$CONF_BASEURL" ]; then
+		/bin/echo "Starting ${NAME} automatic config updates ..."
 
-            # In case system was switched off for a while, run an
-            # upgrade.  This will produce output, so no -n in above
-            # echo.
-            /usr/bin/dphys-config init
+		# In case system was switched off for a while, run an
+		# upgrade.  This will produce output, so no -n in above
+		# echo.
+		/usr/bin/dphys-config init
+	    else
+		/bin/echo "No CONF_BASEURL setting found. ${NAME} not updating configs ..."
+	    fi
 	else
 	    /bin/echo "/etc/dphys-config not found. ${NAME} not updating configs ..."
 	fi

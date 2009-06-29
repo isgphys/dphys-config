@@ -4,7 +4,8 @@ dphys-config (20090629~curr-1) UNRELEASED; urgency=low
   * New upstream pre-release
     - Now supports mktemp by default if available -> debian-defaults.patch
       can be removed.
-    - Now throws error if ran unconfigured -> init.d script adapted
+    - Now throws error if ran unconfigured -> init.d script now also
+      checks the existence of the mandatory CONF_BASEURL setting
   * Removing quilt patch management
   * Install dphys-config.example as default /etc/dphys-config conffile.
   * Define $(DESTDIR) in debian/rules for better readability

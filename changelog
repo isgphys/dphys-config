@@ -1,3 +1,12 @@
+dphys-config (20090703~curr-1) UNRELEASED; urgency=low
+
+  * D-PHYS internal test release
+  * New upstream pre-release
+    - Some more bashisms fixed in example scripts plus some bashisms in
+      dphys-config which checkbashism didn't find.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Mon, 06 Jul 2009 16:16:27 +0200
+
 dphys-config (20090629~curr-1) UNRELEASED; urgency=low
 
   * D-PHYS internal test release

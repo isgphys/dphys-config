@@ -6,7 +6,7 @@ DESTDIR=$(CURDIR)/debian/dphys-config
 
 build: build-stamp
 
-build-stamp: $(QUILT_STAMPFN)
+build-stamp:
 	dh_testdir
 	$(MAKE)
 	touch $@

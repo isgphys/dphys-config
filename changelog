@@ -1,72 +1,48 @@
-dphys-config (20090703~curr-2) UNRELEASED; urgency=low
+dphys-config (20090926-1) unstable; urgency=low
 
-  * D-PHYS internal test release
-  * New upstream pre-release
-    - Some more bashisms fixed in example scripts plus some bashisms in
-      dphys-config which checkbashism didn't find. (Closes: 530072)
-  * Remove forgotten $(QUILT_STAMPFN) since quilt is no more used.
-
- -- Axel Beckert <abe@deuxchevaux.org>  Mon, 06 Jul 2009 18:03:20 +0200
-
-dphys-config (20090629~curr-1) UNRELEASED; urgency=low
-
-  * D-PHYS internal test release
-  * New upstream pre-release
-    - Now supports mktemp by default if available -> removed patch
-      debian-defaults.patch
-    - Now throws error if ran unconfigured -> init.d script now also
-      checks the existence of the mandatory CONF_BASEURL setting
-  * No more patches necessary (Thanks, Neil!) -> Removed quilt from build
-    dependencies.
-  * Install upstream dphys-config.example as default /etc/dphys-config
-    conffile.
-  * Define $(DESTDIR) in debian/rules for better readability
-  * Bumped Standards-Version to 3.8.2 (no changes necessary)
-
- -- Axel Beckert <abe@deuxchevaux.org>  Mon, 29 Jun 2009 21:19:58 +0200
-
-dphys-config (20090605~curr-1) UNRELEASED; urgency=low
-
-  * D-PHYS internal test release
-  * New upstream pre-release
+  * New upstream release
     - Now works with every web server (e.g. also ACME micro_httpd)
     - Now handles blanks and backslashes correctly while preprocessing
       and reading its own configuration file. (Closes: #510910)
-    - Now supports file:/// URLs for configuration file locations
+    - Supports file:/// URLs for configuration file locations
+    - Supports configurable temporary directory (defaults to /var/tmp)
+    - Supports mktemp by default if available (also obsoletes mktemp fix
+      from last NMU)
     - New option -c to override hostname in chrooted environments
     - Removed bashism fixes from last NMU since they have been intergrated
       by upstream even though Debian doesn't require them anymore since
       policy 3.8.1.
+    - Some more bashisms fixed in example scripts plus some bashisms in
+      dphys-config which checkbashism didn't find. (Closes: #530072)
     - Upstream updated man page to fix a bunch of lintian warnings.
-    - Now supports configurable temporary directory (defaults to /var/tmp)
-      and optional usage of mktemp (also obsoletes mktemp fix from last NMU)
+    - Now throws error if ran unconfigured -> init.d script now also
+      checks the existence of the mandatory CONF_BASEURL setting
   * New maintainer
   * Updated e-mail addresses and URLs of upstream website in
     debian/control and debian/copyright
   * Added Vcs-* headers.
-  * Bumped Standards-Version to 3.8.1
+  * Bumped Standards-Version to 3.8.3
     - Changed all "(C)" to "©" in debian/copyright.
+  * Changed dh_clean -k to dh_prep in debian/rules.
+    - Bumped debhelper compatibility to 7.
+  * Install upstream dphys-config.example as default /etc/dphys-config
+    conffile.
   * Added a watch file.
   * Fixed lintian warnings:
     - debian-rules-ignores-make-clean-error
     - using-first-person-in-description
+  * Define $(DESTDIR) in debian/rules for better readability
   * Changed behaviour of init.d script and cronjob:
     - init.d: Don't start automatically inside a chrooted
       environment. chrooted() test taken from udev.postinst.
     - init.d, cron.d: Don't start automatically if no config file has been
       created by the admin (prevents startup error messages if only
       installed for personal use of users).
-  * Using quilt for patch management:
-    - Added Build-Dependency to debian/control.
-    - Changed debian/rules appropriately.
-    - Added debian-defaults.patch to enable mktemp usage by default
+  * Downgraded Recommends on pciutils to a Suggests.
   * Removed Recommends on tcc. (An example script often needed on Sarge
     needed tcc.)
-  * Downgraded Recommends on pciutils to a Suggests.
-  * Changed dh_clean -k to dh_prep in debian/rules.
-    - Bumped debhelper compatibility to 7.
 
- -- Axel Beckert <abe@deuxchevaux.org>  Mon, 08 Jun 2009 12:43:03 +0200
+ -- Axel Beckert <abe@deuxchevaux.org>  Fri, 02 Oct 2009 19:11:41 +0200
 
 dphys-config (20061020-2.1) unstable; urgency=medium
 

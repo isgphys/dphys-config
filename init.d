@@ -31,6 +31,9 @@ export PATH
 # what we are
 NAME=dphys-config
 
+# exit if dphys-config is not installed (i.e. removed but not purged)
+[ -x /usr/bin/${NAME} ] || exit 0
+
 # init.d config settings
 if [ -f /etc/default/$NAME ]; then
   . /etc/default/$NAME

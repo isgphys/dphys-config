@@ -10,4 +10,4 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #   after 03:00, when users are assumed to be least active
 #   before 04:00 so that finished long before dphys-admin starts
 #     by 1 hour, because random sleep 0..59min to spread load on pkg server
-0 3 * * *	root	[ -f /etc/dphys-config ] && /usr/bin/dphys-config cron > /dev/null 2>&1
+0 3 * * *	root	[ -f /etc/dphys-config -a -x /usr/bin/dphys-config ] && /usr/bin/dphys-config cron > /dev/null 2>&1

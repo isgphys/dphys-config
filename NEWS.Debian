@@ -1,4 +1,4 @@
-dphys-config (20090529~curr-1) UNRELEASED; urgency=low
+dphys-config (20090926-1) unstable; urgency=low
 
   The behaviour of dphys-config's init.d script and cronjob have been modified:
 
@@ -11,9 +11,8 @@ dphys-config (20090529~curr-1) UNRELEASED; urgency=low
     package in automatic installation setups without having to clean up
     the wrong config files from the newly created host.
 
-    You can this new default behaviour back to the old behaviour (don't
-    check for chroots) by setting START_INSIDE_CHROOT="yes" in
-    /etc/default/dphys-config.
+    You can get back the old behaviour (don't check for chroots) by
+    setting START_INSIDE_CHROOT="yes" in /etc/default/dphys-config.
 
   * Neither the init.d script nor the default cronjob start dphys-config
     automatically if no configuration file has been provided since the

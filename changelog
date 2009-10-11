@@ -41,8 +41,10 @@ dphys-config (20090926-1) unstable; urgency=low
   * Downgraded Recommends on pciutils to a Suggests.
   * Removed Recommends on tcc. (An example script often needed on Sarge
     needed tcc.)
+  * init.d script and cronjob now do nothing if dphys-config has been
+    removed but not purged. (Thanks to Myon for that hint!)
 
- -- Axel Beckert <abe@deuxchevaux.org>  Fri, 02 Oct 2009 19:11:41 +0200
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 11 Oct 2009 15:23:32 +0200
 
 dphys-config (20061020-2.1) unstable; urgency=medium
 

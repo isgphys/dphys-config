@@ -1,6 +1,7 @@
 #!/bin/sh
 # /usr/local/sbin/dphys-config-x - generate XFree server configuration
 # author Neil Franklin, last modification 2006.10.13
+#   2009.07.02 because of  [ -a ]  changed to ( [] && [] ), not tested after!!!
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -436,8 +437,8 @@ END-CONFIG-FILE
 
 # - PS/2 mouse, if we have one
 
-if [ "${CONF_PS2_MOUSE_DEV}" != none -a \
-     "${CONF_PS2_MOUSE_PROTO}" != none ] ; then
+if ( [ "${CONF_PS2_MOUSE_DEV}" != none ] && \
+    [ "${CONF_PS2_MOUSE_PROTO}" != none ] ) ; then
 
   if [ ! -e "${CONF_PS2_MOUSE_DEV}" ] ; then
     ${CMD_ERROR} "non existant PS/2 mouse device" \
@@ -863,8 +864,8 @@ END-CONFIG-FILE
 
 # on some systems enabling PS/2 mouse with only an USB mouse connected
 #   crashes the PS/2 controller, so losing PS/2 keyboard access
-if [ "${CONF_PS2_MOUSE_DEV}" != none -a \
-     "${CONF_PS2_MOUSE_PROTO}" != none ] ; then
+if ( [ "${CONF_PS2_MOUSE_DEV}" != none ] && \
+    [ "${CONF_PS2_MOUSE_PROTO}" != none ] ) ; then
   cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	InputDevice	"MousePS20"	"CorePointer"
 END-CONFIG-FILE

@@ -1,25 +1,6 @@
 # SITE/dphys-config.list - tell dphys-config what files to process
 # authors multiple, last modification 2006.10.05
 
-# pci ids database (requires pciutils)
-pci.ids:/usr/share/misc/
-
-# broken debian /dev/cdrom creation fix (requires tcc)
-local/sbin/findcdroms.c:/usr/:/bin/chmod 755 {}; {} 2>&1 | grep "is a" | while read a b c d; do ln -sf $a /dev/${d}${n}; n=$[n+1]; done
-
-# debconf preseeds (extend /var/cache/debconf/config.dat)
-general.seed:/etc/:/usr/bin/debconf-set-selections {}
-
-# IP fragment handling, for NFS on GBit Ether
-local/sbin/dphys-config-sysctl:/usr/:/bin/chmod 755 {}; {}
-
-# install nvidia and ati driver modules
-#   compiles kernel on boot, its awfull :-)
-#   only because it's not possible without the kernel compile for nvidia
-# ati only needs the kernel headers
-nvidia-driver:/etc/init.d/:/bin/chmod +x {}; /usr/sbin/update-rc.d nvidia-driver start 90 2 3 4 5 .
-fglrx-driver:/etc/init.d/:/bin/chmod +x {}; /usr/sbin/update-rc.d fglrx-driver  start 90 2 3 4 5 .
-
 # extra filesystem and fstab line configuration
 #   after updating this also autogenerate exports and user quota
 dphys-config-filesys.list:/etc/:if [ -x /usr/local/sbin/dphys-config-filesys ] ; then /usr/local/sbin/dphys-config-filesys; fi; if [ -x /usr/local/sbin/dphys-config-exports ] ; then /usr/local/sbin/dphys-config-exports; fi; if [ -x /usr/local/sbin/dphys-config-quota ] ; then /usr/local/sbin/dphys-config-quota; fi

@@ -1,10 +1,10 @@
-http://www.phys.ethz.ch/~franklin/Projects/dphys-config/Logfile - done and todo
+http://neil.franklin.ch/Projects/dphys-config/Logfile - done and todo
 author Neil Franklin, last modification see last entry near bottom
 copyright ETH Zuerich Physics Departement
   use under either modified/non-advertising BSD or GPL license
 
 background is the dphys-admin project, read its Logfile at:
-  http://www.phys.ethz.ch/~franklin/Projects/dphys-admin/Logfile
+  http://nic.phys.ethz.ch/projects/dphys-admin/Logfile
 as part of that wrote this tool to do auto-loading of config for packages
   here only log of the events pertaining to making this tool
 
@@ -466,6 +466,116 @@ better automated test for missing "${VAR}", found annother one
   while doing so found bug in #@if condition/line splitting, fixed
 as only fetched by senguen, no distribution, redo 2nd release
   no dphys-config-20061013 any more, just dphys-config-20061020 as 2nd
+
+2006.12.22 Fri
+as part of taking this over als personal project, after leaving job
+  moved everything from www.phys.ethz.ch/~franklin to neil.franklin.ch website
+    changes all URLs to refer to new home, expanded links to other projects
+  we decided that I will keep on maintaining this project (and dphys-swapfile)
+    as I also use these 2 projects at home on my own non-Debian systems
+
+2007.06.12 Tue
+added functioning (not wget based) support for file: URLs, corrected man page
+
+2007.06.13 Wed
+trying to use new functionality, fixed wrong  cut  specification in file: test
+
+2009.05.17 Sun
+bugfixes for 2 reported bugs by Axel Beckert
+  wget returns HTTP status code server dependant, sometimes ok instead of OK
+    so filter out only the numeric code, do not use the textual message
+  using "| while read LINE ; do" screws up spaces, processed as separators
+    add IFS= before read, and also -r after read, prevent mutilations
+    this reported 3 times in preprocessing, but also once in own input file
+
+2009.05.18 Mon
+Axel Beckert reports above bugfixes are OK
+he is also from today on the new official Debian maintainer for dphys-config
+  reported that the behavior fixed by above -r is reported Debian bug 510910
+request for new feature, option set hostname, is not `hostname` inside chroot
+  this chroot is used for installing xen guests/vhosts, also good for tests
+  new option -c (configname) and config variable CONF_CONFNAME=`hostname`
+    documented option in help, also both of them in man page
+  while at it als drop deleting old tmp cache dir, no hosts with this any more
+    and the system variable SYS_OLD_WORKDIR used only for it
+
+2009.05.19 Tue
+Axel Beckert reports bashism, usage of local, not Posix sh compatible
+  and Lintian scan of man page finds 2 missed cases of - without using \-
+
+2009.05.29 Fri
+checked if other projects have local problem, only used that in dphys-config
+  dphys-config chaged all  local VAR1=expr1 VAR2=expr2  to n*2 separate lines
+    local VAR1; VAR1=expr; local VAR2; VAR2=expr2
+dphys-config.1 .* at line begin problem, place an "any" before it
+  and 2 cases of options beginning with - not escaped with \-
+  but also more cases, not flagged, not options, but some - in commands
+    in the end place an \ in front of every -, circumvent groff brokenness
+    want all to be minus, and if hyphen desired anyway use \(hy
+  this problem is in all dphys-* projects, is only an nuissance, not a bug
+    lead others for the moment, fix whenever an project needs other fixes
+dphys-config also added wish for SYS_WORKDIR using mktemp
+  as commented out 2nd variant, no test, as in SYS_* section, keep it simple
+
+2009.06.05 Fri
+Axel Beckert tests and feedback
+  suggested CONF_TMP_DIR for /var/tmp or /tmp, good idea, added it
+    added also to dphys-config.example, while at it also added CONF_CONFNAME
+    and updated man page with CONF_TMP_DIR
+  suggested CONF_* option for PID or mktemp based workdir filename generation
+    added also to dphys-config.example, and updated man page
+    remove second variant of #SYS_WORKDIR=`mktemp ...` which requires user edit
+      instead in code test for CONF_USE_MKTEMP=yes and then extend with mktemp
+
+2009.06.27 Sat
+Axel Beckert tests and feedback (ready for release, but with patches)
+change mktemp switch to be automatic, use if present, no config option
+  so now no need any more for an Debian patch to the option
+  fixed in code (test with "which"), man page, and config example
+suggested set CONF_BASEURL to use example.net domain, reserved for non-use
+  is better so, no possibly valid (if unlikely) non-domain host name
+  consistency then changed man page example from .example.org to .example.net
+test for unset CONF_BASEURL and abort with explicit error message
+  instead of aborting after many wget errors, and error msg only in servername
+  allows Debian maintainer to drop his init.d and cron.d tests
+    and these were only testing for presence of /etc/dphys-config anyway
+    and so prevent him from installing an commented out example file
+init.d example also use  > /dev/null 2>&1  like in cron.d example, consistant
+  so that no error message, if not configured (possibly only used by users)
+  also cron.d drop /usr/sbin like in init.d, also consistant
+  updated man page with suggested variants and expanded explanations
+
+2009.06.29 Mon
+just while last testing a new bug report came
+  one example script uses  echo -e  , yet annother bashism
+  also then Axel discovered an  test -a/-o  , in other example
+    did search, also found  test -a/-o  in main dphys-config script
+
+2009.07.02 Thu
+search for other  echo -e  usage
+  in old (pre-)pkgtools Makefile, removed from makelocalsite, because bashism
+  in older versions of swapfile, also removed, as not even used for anything
+  many cases in dphys2, all versions, but that is woody-only, long dead
+  so only active use remains this one case, change to get all correct
+    no test host here or ETH, so no fix, change to #$/bin/bash, as only example
+checkbashisms also disallows  echo -n  but debian accepts this
+  used often, various init.d, makelocalsite, dphys-swapfile, dphys2, dphys3
+  lots of work to change everywhere, if missing usually only visual effect
+    correction either printf dependant (since when is this?) or allways visual
+  so leave this the way it is, as standard practise, very old systems may fail
+test -a/-o  also used in many projects, lots of work to change them all
+  -a in d-c examp, dphys-kernel-packages (many), dphys-pkgtools, dphys2, dphys3
+  -o in dphys-config, d-c example, dphys-pkgtools, dphys2, dphys3
+  but dphys-config is only currently used stuff, only fix it here
+    replaced  [ cond -o cond ]  with  ( [ cond ] || [ cond ] )  2+1 times
+    replaced  [ cond -a cond ]  with  ( [ cond ] && [ cond ] )  2 times
+
+2009.09.26 Sat
+after all bugfixes and changes, and my holiday and Axels done, new release
+  testing "current" 2 months showed no problems, no new Debian bug reports
+  updated FAQ, INSTALL, index.html.en (incl Debian Maintainer name change)
+  copy to ../dphys-config-20090926, change Makefile, made tar file of that
+
 
 ------ project status
 

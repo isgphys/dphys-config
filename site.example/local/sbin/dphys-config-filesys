@@ -2,6 +2,7 @@
 # /usr/local/sbin/dphys-config-filesys - add filesystem stuff
 # author Neil Franklin, last modification 2006.10.12
 #   derived from dphys-setup-extra-fs 1.0, Elmar S. Heeb <heeb@phys.ethz.ch>
+#   2009.07.02 because of  [ -o ]  changed to ( [] || [] ), not tested after!!!
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -132,7 +133,7 @@ ${CMD_LOG_IF_DEBUG} "CONF_LOG_DONE=${CONF_LOG_DONE}"
 
 # --- install each directory name
 
-if [ ! -f "${SYS_CONFLIST}" -o ! -s "${SYS_CONFLIST}" ]; then
+if ( [ ! -f "${SYS_CONFLIST}" ] || [ ! -s "${SYS_CONFLIST}" ] ) ; then
 
   # directory name list not found, so we can not work
   ${CMD_FATAL} "no or empty directory name list ${SYS_CONFLIST}" >&2

@@ -1,0 +1,27 @@
+dphys-config (20090926-1) unstable; urgency=low
+
+  The behaviour of dphys-config's init.d script and cronjob have been modified:
+
+  * The init.d script does no more start dphys-config automatically inside
+    a chrooted environment, because while the hostname in a chroot doesn't
+    change, the configuration files you usually want, are different ones.
+
+    This new behaviour make it possible to install the dphys-config
+    package with debootstrap or xen-create-image from the xen-tools
+    package in automatic installation setups without having to clean up
+    the wrong config files from the newly created host.
+
+    You can get back the old behaviour (don't check for chroots) by
+    setting START_INSIDE_CHROOT="yes" in /etc/default/dphys-config.
+
+  * Neither the init.d script nor the default cronjob start dphys-config
+    automatically if no configuration file has been provided since the
+    default values are set in a way that they can't work and the admin has
+    to change them.
+
+    This new behaviour prevents startup error messages if dphys-config has
+    only been installed for the personal use of users, but not for the
+    maintaining the configuration of the host on which it is being
+    installed.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 03 Jun 2009 20:16:06 +0200

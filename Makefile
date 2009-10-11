@@ -1,13 +1,12 @@
-# http://www.phys.ethz.ch/~franklin/Projects/dphys-config/Makefile
-# author/generator Neil Franklin using makesourcepackage script,
-#   last modification/generation 2005.10.12
+# http://neil.franklin.ch/Projects/dphys-config/Makefile
+# author Neil Franklin, last modification 2009.09.26
 # This Makefile is copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
 # --- various site dependant user config variables
 
 # for creating an <program>[-<version>].tar.gz archive
-DIR = dphys-config
+DIR = dphys-config-20090926
 
 
 # --- no user configurable stuff below here

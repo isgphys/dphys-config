@@ -1,42 +1,49 @@
-.\" /usr/share/man/man1/dphys-config.1(.gz)
-.\" author Neil Franklin, last modification 2006.10.12
+.\" /usr/share/man/man1/dphys\-config.1(.gz)
+.\" author Neil Franklin, last modification 2009.06.27
 .\" copyright ETH Zuerich Physics Departement
-.\"   use under either modified/non-advertising BSD or GPL license
+.\"   use under either modified/non\-advertising BSD or GPL license
 
-.TH DPHYS-CONFIG 1 "2006.10.12" "D-PHYS Configuration Tools"
+.\" all appearances of an minus/options/wordseparators are written as \-
+.\"   avoid groff brokenness, which else makes U+2010 instead of U+002D
+
+.TH DPHYS\-CONFIG 1 "2009.06.27" "D\-PHYS Configuration Tools"
 
 .SH NAME
 
-dphys-config \- daily auto-install/update and/or remove config files
+dphys\-config \- daily auto\-install/update and/or remove config files
 
 .SH SYNOPSIS
 
-.B dphys-config
-[\fB-f\fP \fIfilter\fP] [\fB-qvD\fP]
+.B dphys\-config
+[\fB\-f\fP \fIfilter\fP] [\fB\-cqvD\fP]
 .PP
-.B dphys-config
-\fB-h\fP
+.B dphys\-config
+\fB\-h\fP
 
 .SH DESCRIPTION
 
-dphys-config installs/updates and/or removes config files. It also triggers
+dphys\-config installs/updates and/or removes config files. It also triggers
 commands after an new/updated config file is available or before an existing
 config file will disappear. It can be run by hand, from cron and/or from
 init.d.
 .PP
-Get an list of config files from an HTTP server. For each file in the list
-retrieve it from the same server, and only install it if it is new or changed
-relative to what is already here. If a file is newly installed (or changed)
-then run an postinstall script, this may trigger actions which are wanted to
-process the new config (such as inserting data from an config file into an
-database). Also remove unwanted files. If doing so first run an preremove
-script.
+Get an list of config files from an configuration server. For each file in the
+list retrieve that file from the same server, and only install it if it is new
+or changed relative to what is already here. If a file is newly installed (or
+changed) then run an postinstall script, which may trigger actions which are
+wanted to process the new config (such as inserting data from an config file
+into an database). Also remove unwanted files. If doing so first run an
+preremove script to tidy up stuff.
 .PP
-This is part of the D-PHYS (ETH Zuerich, Departement of Physics) automatic
+This is part of the D\-PHYS (ETH Zuerich, Departement of Physics) automatic
 system operation and maintenance setup.
 
 .SH OPTIONS
 
+.TP
+.B \-c
+configname: Use this set of config files instead of hostname set. Usefull for
+chroot or vhost installs, or for tests.
 .TP
 .B \-f \ filter
 filter: Only process lines which match the filter spec.
@@ -55,70 +62,84 @@ help: Output help text, and then abort operation.
 
 .SH CONFIG
 
-The config files \fI/etc/dphys-config\fP (sitewide) and \fI~/.dphys-config\fP
+The config files \fI/etc/dphys\-config\fP (sitewide) and \fI~/.dphys\-config\fP
 (personal) allow the admin and users to set up the working environment for
-\fBdphys-config\fP.
+\fBdphys\-config\fP.
 .PP
 These config files are sh script fragments full of assignments, which are
 sourced, in above row, later config files assignments overriding earlier ones.
 Standard sh syntax rules apply. Assignments are:
 .TP
+.B CONF_TMP_DIR
+Sets the base directory in which all temporary files are stored. It defaults
+to \fI/var/tmp\fP (for enough size and safe operation). Some users may like to
+use \fI/tmp\fP for higher speed (tmpfs) or automatic deletion at boot time.
+Standard sh syntax rules apply. Assignments are:
+.TP
 .B CONF_BASEURL
 Sets the base URL to which all */\fI<hostname>\fP/\fI<filename>\fP combinations
-are added when \fBwget\fP-ing config files. This can be a file: (may be NFS) or
-http: or ftp: or whatever other type of URL which \fBwget\fP understands and
-can fetch an file from. It defaults to the error message generating invalid
-\fIhttp://not-configured-server/not/configured/directory\fP, as there is no
-sensible default possible. You must set this to where ever your config files
-should be taken from.
+are added when \fBwget\fP\-ing config files. This can be an \fIhttp:\fP or
+\fIftp:\fP or whatever other type of URL which \fBwget\fP understands and can
+fetch an file from. Additionally it can be an \fIfile:\fP (this may be from an
+NFS server) URL, in which case wget is bypassed and the files fetched directly
+using \fBcp\fP. It defaults to the error message generating and aborting
+invalid setting of
+\fIhttp://not\-configured\-server.example.net/not/configured/directory\fP, as
+there is no sensible default possible. You must set this to where ever your
+config files should be taken from.
+.TP
+.B CONF_CONFNAME
+Selects the name for which set of configuration files shall be used for this
+host. Defaults to \fI`hostname`\fP.
 .TP
 .B CONF_LINEFILTER
 Sets an regexp which selects which lines from the config file list are
 processed. Defaults to \fI.*\fP (all).
 .TP
 .B CONF_LOG_DONE
-Log to syslog that dphys-config has run. Good to see if cron and/or init.d
+Log to syslog that dphys\-config has run. Good to see if cron and/or init.d
 have done their job. Defaults to \fIyes\fP.
 
 
 .PP
-The config file list \fIdphys-config.list\fP, which is found via above
-settings, and is downloaded to \fI/etc/dphys-config.list\fP or
-\fI~/.dphys-config.list\fP, then allows the admin to list what config files are
-to be fetched and installed/updated or removed, and what scripts to run for
+The config file list \fIdphys\-config.list\fP, which is found via above
+settings, and is downloaded to \fI/etc/dphys\-config.list\fP or
+\fI~/.dphys\-config.list\fP, then allows the admin to list what config files
+are to be fetched and installed/updated or removed, and what scripts to run for
 them. These can be each given for the entire site (= all hosts) and/or group
 and/or each host, or even merged from site+group+host subsections.
 
 .SH FILES
 
 .TP
-.B /etc/dphys-config
+.B /etc/dphys\-config
 site admin config
 .TP
-.B ~/.dphys-config
+.B ~/.dphys\-config
 users personal config
 .TP
-.B /etc/dphys-config.list
+.B /etc/dphys\-config.list
 roots config file list gets stored here
 .TP
-.B ~/.dphys-config.list
+.B ~/.dphys\-config.list
 users config file list gets stored here
 .TP
-.B $CONF_BASEURL/`hostname`/dphys-config.list
-site-global (all hosts) common (usually, or group-global or host specific)
+.B $CONF_BASEURL/`hostname`/dphys\-config.list
+site\-global (all hosts) common (usually, or group\-global or host specific)
 config file list
 .TP
-.B $CONF_BASEURL/`hostname`/dphys-config.list.*
-facultative host-specific (usually) or group-specific include-able
-subsection(s) to be added to above config file list dphys-config.list. We often
-use *.group (one per group of users) and *.host (per host), sometimes also
-*.base (all host types) and *.workstation (only workstation hosts) subsections
-.B $CONF_BASEURL/`hostname`/<file-name>
+.B $CONF_BASEURL/`hostname`/dphys\-config.list.*
+facultative host\-specific (usually) or group\-specific include\-able
+subsection(s) to be added to above config file list dphys\-config.list. We
+often use *.group (one per group of users) and *.host (per host), sometimes
+also *.base (all host types) and *.workstation (only workstation hosts)
+subsections
+.B $CONF_BASEURL/`hostname`/<file\-name>
 actual config files referred to in config file list, common section (usually
 the only section)
-.B $CONF_BASEURL/`hostname`/<file-name>.*
-facultative host-specific (usually) or group-specific include-able
-subsection(s) to be added to above config file <file-name>
+.B $CONF_BASEURL/`hostname`/<file\-name>.*
+facultative host\-specific (usually) or group\-specific include\-able
+subsection(s) to be added to above config file <file\-name>
 
 .SH CONFIG FILE LIST
 
@@ -126,43 +147,44 @@ The config file list to be used for checking what files need to be
 installed/updated or removed and its subsections included by #@include lines
 are merged to one list file, analog to \fBcpp\fP #include.
 .PP
-These are all fetched via \fBwget\fP, adding their names to the user-defined
-base URL in \fICONF_BASEURL\fP, and then merged. So \fICONF_BASEURL\fP can be
-any URL that \fBwget\fP understands file: or http: or ftp: or whatever else.
+These are all fetched via \fBwget\fP (or \fBcp\fP for file:), adding their
+names to the user\-defined base URL in \fICONF_BASEURL\fP, and then merged. So
+\fICONF_BASEURL\fP can be any URL that \fBwget\fP understands http: or ftp: or
+whatever else, or file:.
 .PP
 The format of the resulting concatenated file must consist of lines, one per
 config file, of following format:
 .TP
-\fBfile-name\fP:\fBplace-on-target\fP:\fBcommand-to-trigger\fP
+\fBfile\-name\fP:\fBplace\-on\-target\fP:\fBcommand\-to\-trigger\fP
 .TP
 Where the 3 fields have following meanings:
 .RS
 .TP
-.B file-name
+.B file\-name
 Name of the config file to be installed/updated. Must be only the base part
 of the filename on the server, without URL and hostname before it, and without
-.* subsection endings after it, as these are all auto-added whenever they are
-needed. If this is set to \fI-\fP the line specifies an config file to be
+any .* subsection endings after it, as these are all auto\-added whenever they
+are needed. If this is set to \fI\-\fP the line specifies an config file to be
 removed
 .TP
-.B place-on-target
+.B place\-on\-target
 Full directory or full filename (directory+filename) of where the file is to
 be placed on the target system. If only an directory is given (any name that
-ends in /), then the above file-name (inclusive any directories in it) will be
+ends in /), then the above file\-name (inclusive any directories in it) will be
 automatically added to it. For removing this must be the full filename (or
 an directory name (without an /) if an entire directory and its contents shall
 disapper). An directory name ending with / is not processed, to prevent
-incomplete edits (filename replaced by -, but not added to directory) from
-killing entire directories (such as say all of /etc/ :-))
+incomplete edits (filename replaced by \-, but not added to directory) from
+killing entire directories (such as say all of /etc/ :\-))
 .TP
-.B command-to-trigger
+.B command\-to\-trigger
 Full command (directory+filename, with parameters) of an command to be run,
 after this config file has been newly installed or changed/updated, or before
 this config file is removed. This can also be multiple commands separated
 by ; separators. Usefull for doing chown/chmod to files that need it. If the
 marker \fI{}\fP appears in the command, this will be substituted by the
 filename the config file is going to be installed as. This is analog to \fBfind
--exec\fP filename substitution
+\-exec\fP filename substitution
 .RE
 .PP
 Lines which begin with an \fB#\fP are regarded as comments, and don't have any
@@ -172,7 +194,7 @@ same applies for empty lines.
 .SH PREPROCESSOR
 
 If the first line of the config file list, or any config file fetched on its
-behalf, has the special format \fB#@dphys-config-preprocess\fP
+behalf, has the special format \fB#@dphys\-config\-preprocess\fP
 [\fBaction...\fP] then this line will be stripped, and the rest of the
 file will be preprocessed. Depending on the list of \fBaction\fPs present and
 their order (repeats are allowed) the file will be procesed. Valid
@@ -193,91 +215,92 @@ is analog to \fIshell if ... ;\fP conditional execution
 .B include
 For any line beginning with \fB#@include\fP the rest of the line is regarded as
 an subsection name, which will be added to the base filename, and then the
-resulting subsection file fetched (also by wget) and substituted for the line.
-This is analog to \fIC preprocessor #include\fP oder \fIshell . include\fP
+resulting subsection file fetched (also by wget or cp) and substituted for the
+line. This is analog to an \fIC preprocessor #include\fP oder an \fIshell .
+include\fP
 .RE
 
 .SH EXAMPLES
 
 The following allows you to fetch all your config file lists from an HTTP
-VirtualHost called www.admin.example.org under its subdirectory dphys-config.
+VirtualHost called www.admin.example.net under its subdirectory dphys\-config.
 .PP
-In file \fI/etc/dphys-config\fP, on every host, so it can find the config file
+In file \fI/etc/dphys\-config\fP, on every host, so it can find the config file
 server:
 .PP
 .nf
-# system will use ${CONF_BASEURL}/`hostname`/<file-name>*
-CONF_BASEURL=http://www.admin.example.org/dphys-config
+# system will use ${CONF_BASEURL}/`hostname`/<file\-name>*
+CONF_BASEURL=http://www.admin.example.net/dphys\-config
 .fi
 .PP
 We advise using an subdirectory here, because other
-\fI/http://www.admin.example.org/*\fP directories may already contain other
+\fI/http://www.admin.example.net/*\fP directories may already contain other
 admin stuff you put on the same VirtualHost. Such as software packages, site
 news, etc.
 .PP
-For dphys-config to be usefull you then need to make config file lists for it.
+For dphys\-config to be usefull you then need to make config file lists for it.
 And provide the actual config files that can be installed, driven by the lists.
 This is the largest job, as it basically amounts to extracting all your
 relevant config work from your site. Also known as reengineering your site.
 .PP
-Assuming your VirtualHost on \fIwww.admin.example.org\fP has as its
-DocumentRoot \fI/vhost/www.admin\fP, you would then begin with an pseudo-host
-Directory for site-global common stuff:
-\fI/vhost/www.admin/dphys-config/SITE/\fP.
+Assuming your VirtualHost on \fIwww.admin.example.net\fP has as its
+DocumentRoot \fI/vhost/www.admin\fP, you would then begin with an pseudo\-host
+Directory for site\-global common stuff:
+\fI/vhost/www.admin/dphys\-config/SITE/\fP.
 .PP
-If your hosts are organised in groups with group-global common configs (such as
-professors, students, staff), make an pseudo-host for each group, such as:
-\fI/vhost/www.admin/dphys-config/PROFS/\fP and \fI*/STUDENTS/\fP and
+If your hosts are organised in groups with group\-global common configs (such
+as professors, students, staff), make an pseudo\-host for each group, such as:
+\fI/vhost/www.admin/dphys\-config/PROFS/\fP and \fI*/STUDENTS/\fP and
 \fI*/STAFF/\fP.
 .PP
 Then for host specific stuff, assuming systems called prof1.example.com to
 prof3.example.com, stud1 to stud20, staff1 to staff5, server1 and server2,
 make for each its own directory:
-\fI/vhost/www.admin/dphys-config/prof1/\fP (and so on).
+\fI/vhost/www.admin/dphys\-config/prof1/\fP (and so on).
 .PP
-Note that we suggest using CAPITALS for pseudo-hosts and lowercase for actual
+Note that we suggest using CAPITALS for pseudo\-hosts and lowercase for actual
 hosts. This avoids name space collisions. You can also use loops like \fIfor
-host in [a-z]* ; do ... ; done\fP to work (say generating symlinks to an new
+host in [a\-z]* ; do ... ; done\fP to work (say generating symlinks to an new
 config file in all hosts). Well at least you can do this so long no one goes
 and sets LANGUAGE= or similar junk, then bash (or libc?) will hapily screw up
 case sensitivity and produce random lossage (yes, it was painfull).
 .PP
-After this add to \fI/vhost/www.admin/dphys-config/SITE/\fP, the actual config
+After this add to \fI/vhost/www.admin/dphys\-config/SITE/\fP, the actual config
 files as far as they are not host specific, or at least have an common section
 to all hosts. Example this would be \fB/etc/hosts\fP for all, an common
 section for \fB/etc/motd\fP, common or all for \fBsendmail.cf\fP, common for
 \fBinetd.conf\fP, nothing for the ssh hostkeys.
 .PP
-Then add, to an group, say \fI/vhost/www.admin/dphys-config/STUDENTS/\fP,
+Then add, to an group, say \fI/vhost/www.admin/dphys\-config/STUDENTS/\fP,
 whatever is specific to that group. Example this may be an entire special
 \fBmotd\fP for the many changing users, or just an \fBmotd.group\fP to
 #@include into the common one.
 .PP
-Then for each host in its \fI/vhost/www.admin/dphys-config/prof1/\fP (or so)
+Then for each host in its \fI/vhost/www.admin/dphys\-config/prof1/\fP (or so)
 add all that is specific to it. Such as its ssh key files. And its own
 \fBmotd.host\fP, it it needs one. Same its \fBinetd.conf.host\fP if it is going
 to offer special stuff. An configs for services only this host has such as
 \fBhttpd.conf\fP.
 .PP
 Then for each host add symlinks to the SITE or group versions that it is to use
-for common stuff, like on \fI/vhost/www.admin/dphys-config/stud1/\fP:
+for common stuff, like on \fI/vhost/www.admin/dphys\-config/stud1/\fP:
 .PP
 .nf
- .../dphys-config/stud1/dphys-config.list -> ../SITE/dphys-config.list
- .../dphys-config/stud1/hosts -> ../SITE/hosts
- .../dphys-config/stud1/inetd.conf -> ../SITE/inetd.conf
- .../dphys-config/stud1/motd -> ../SITE/motd
- .../dphys-config/stud1/motd.group -> GROUP/motd
- .../dphys-config/stud1/GROUP -> ../STUDENTS
- .../dphys-config/stud1/sendmail.cf -> ../SITE/sendmail.cf
+ .../dphys\-config/stud1/dphys\-config.list \-> ../SITE/dphys\-config.list
+ .../dphys\-config/stud1/hosts \-> ../SITE/hosts
+ .../dphys\-config/stud1/inetd.conf \-> ../SITE/inetd.conf
+ .../dphys\-config/stud1/motd \-> ../SITE/motd
+ .../dphys\-config/stud1/motd.group \-> GROUP/motd
+ .../dphys\-config/stud1/GROUP \-> ../STUDENTS
+ .../dphys\-config/stud1/sendmail.cf \-> ../SITE/sendmail.cf
 .fi
 .PP
-In the \fI/vhost/www.admin/dphys-config/SITE/\fP directory place the
-site-global common \fBdphys-config.list\fP for all your hosts, containing stuff
-like this:
+In the \fI/vhost/www.admin/dphys\-config/SITE/\fP directory place the
+site\-global common \fBdphys\-config.list\fP for all your hosts, containing
+stuff like this:
 .PP
 .nf
-# SITE dphys-config.list - just example stuff, for our exemplaric site
+# SITE dphys\-config.list \- just example stuff, for our exemplaric site
 # basics
 hosts:/etc/                      # simply works, no command
 motd:/etc/                       # this will be assembled group specific
@@ -288,46 +311,47 @@ ssh_host_key:/etc/ssh/:chown root:root {}; chmod 600 {}
 ssh_host_rsa_key:/etc/ssh/:chown root:root {}; chmod 600 {}
 ssh_host_dsa_key:/etc/ssh/:chown root:root {}; chmod 600 {}; /etc/init.d/sshd restart
 # load stuff into an existing database file
-seed.debconf:/etc/:debconf-set-selections {}
+seed.debconf:/etc/:debconf\-set\-selections {}
 # other stuff
-daemon1-conf:/etc/daemon1/conf   # rename so names can differ on server
-daemon2-conf:/etc/daemon2/conf
+daemon1\-conf:/etc/daemon1/conf   # rename so names can differ on server
+daemon2\-conf:/etc/daemon2/conf
 daemon1/conf:/etc/               # same as above, but with directories on server
 daemon2/conf:/etc/
 testing:/etc/                    # put something in there for an test
+# delete some stuff
 \-:/etc/testing                   # change to above test to get rid of it again
 \-:/etc/                          # you will get a warning if you leave this
-#\-:/etc                          # you would reinstall your system after the resulting  rm \-rf /etc  :-)
-#only-an-name                    # you would get an error: no place on target
-#only-an-name:                   # you would get an error: no place on target
-#:only-an-place                  # you would get an error: no file to install
-# and so on, the stuff you want on all hosts
+#\-:/etc                          # you would reinstall your system after the resulting  rm \-rf /etc  :\-)
+# and some errors
+#only\-an\-name                    # you would get an error: no place on target
+#only\-an\-name:                   # you would get an error: no place on target
+#:only\-an\-place                  # you would get an error: no file to install
 .fi
 .PP
-For special services add an \fBdphys-config.list.host\fP on each host that
+For special services add an \fBdphys\-config.list.host\fP on each host that
 has special config files not present on others, such as on
-\fI/vhost/www.admin/dphys-config/server2/\fP:
+\fI/vhost/www.admin/dphys\-config/server2/\fP:
 .PP
 .nf
-# server2 dphys-config.list.host - only used on our web server
+# server2 dphys\-config.list.host \- only used on our web server
 httpd.conf:/etc/apache/httpd.conf:/etc/init.d/apache restart
 .fi
 .PP
-You can also use dphys-config to run arbitrary commands, whenever config files
+You can also use dphys\-config to run arbitrary commands, whenever config files
 are installed/updated or removed, to modify existing config files, or more
 likely modify complex config databases which can not be provided as files, but
 where one can provide edit info as files.
 .PP
-dphys-config can even install scripts to use as above commands (or even just to
-run scripts while installing), such as into \fI/usr/local/sbin/\fP.
+dphys\-config can even install scripts to use as above commands (or even just
+to run scripts while installing), such as into \fI/usr/local/sbin/\fP.
 .PP
 For this make an \fI../SITE/local/sbin/\fP directory, place the scripts in
-there (such as \fI../SITE/local/sbin/dphys-config-<whatever>\fP), and symlink
+there (such as \fI../SITE/local/sbin/dphys\-config\-<whatever>\fP), and symlink
 \fIlocal\fP to \fI../SITE/local\fP on each host, and then add config lines for
 the scripts, with the command to trigger them, giving something like this:
 .PP
 .nf
-local/sbin/dphys-config-<whatever>:/usr/:chmod 755 {}; {}  # chmod and run
+local/sbin/dphys\-config\-<whatever>:/usr/:chmod 755 {}; {}  # chmod and run
 .fi
 .PP
 It this script processes an config file your will want it to be run if either
@@ -347,27 +371,33 @@ mkdir student21
 tar \-cf \- \-C student1 . | tar xpf \- \-C student21
 .fi
 .PP
-To then run dphys-config by hand (say for tests), type on the host:
+To then run dphys\-config by hand (say for tests), type on the host:
 .PP
-\fBdphys-config\fP
+\fBdphys\-config\fP
 .PP
-But usually you will want to run dphys-config automatically, every night (or if
-a machine was/is switched off, at every boot), to keep your configs up to date.
+But usually you will want to run dphys\-config automatically, every night (or
+if a machine was/is switched off, at every boot), to keep your configs up to
+date.
 .PP
-For every night (03:00 is most likely idle time) the best thing is to use an
-cron job on every host, like this one:
+For nightly updates the best thing is to use an cron job on every host. 03:00
+to 03:59 is most likely idle time. Use an line like this one, with the
+\fIcron\fP option to avoid an load peak on the config file server, by random
+delaying the run by 0..3599 seconds, and with stdout and strerr thrown away to
+avoid getting an mail from every host, as error messages are also allways sent
+to syslog:
 .PP
-0 3 * * *	root	/usr/sbin/dphys-config > /dev/null 2>&1
+0 3 * * *	root	dphys\-config cron > /dev/null 2>&1
 .PP
-And for at every boot, to catch machines switched off over night, you will want
-an init.d script, like this one:
+To catch machines switched off over night, with no cron run on them, also run
+an init.d script. Use an script like this one, also with stdout and stderr
+thrown away to avoid cluttering your boot console output:
 .PP
 .nf
 #!/bin/sh
-# /etc/init.d/dphys-config - boot time automatic config updates
+# /etc/init.d/dphys\-config \- boot time automatic config updates, if no cron
 case "$1" in
   start)
-    /usr/sbin/dphys-config
+    dphys\-config init > /dev/null 2>&1
     ;;
 esac
 exit 0
@@ -375,7 +405,7 @@ exit 0
 
 .SH SECURITY
 
-If dphys-config is to be used to distribute \fIall\fP config files, this will
+If dphys\-config is to be used to distribute \fIall\fP config files, this will
 also include files which are security relevant, such as ssh private keys (host
 key or (root) user authentification), SSL certificates, passwd and shadow,
 lilo.conf, software license keys, etc.
@@ -385,7 +415,7 @@ to secure the config website from other people downloading them. We here use an
 restriction to only IP addresses registered as hosts in our NIS server, and
 additionally run identd on all allowed hosts, and require the wget process
 opening the HTTP connection to be running by user root, and so also require
-dphys-config to run as root.
+dphys\-config to run as root.
 .PP
 To avoid sniffing it is recommended to give wget an https: URL.
 
@@ -395,27 +425,27 @@ Config files are read by wget from an webserver, so they lose their owners and
 modes. So the commands triggered on their lines must be used to chown/chmod
 them to proper values.
 .PP
-When used together with \fIdphys-admin\fP, dphys-config should run as first
+When used together with \fIdphys\-admin\fP, dphys\-config should run as first
 (earlier cron and init.d entries). This is needed to provide configs before new
-packages are installed, so phys-admin can pretend that the packages were
-already once installed (and then non-purge removed), and so prevent questions
+packages are installed, so dphys\-admin can pretend that the packages were
+already once installed (and then non\-purge removed), and so prevent questions
 on install, which is required for unattended installs. [Note that this
 pretending does not go as far as setting debconf up. Broken packages that
 ignore config files and only look at debconf will still ask questions.]
 .PP
 As result of this, when installing for the first time on an new system (such as
 installing Debian by the \fIdphys3\fP end2stage feature, which installs first
-dphys-config and then dphys-admin), any scripts installed by packages by
-dphys-admin, to be called on config file install/update will still be missing,
+dphys\-config and then dphys\-admin), any scripts installed by packages by
+dphys\-admin, to be called on config file install/update will still be missing,
 and so not runnable. Either ignore the warnings, or better call the scripts by
 something like this:
 .PP
 file:place:if [ \-x script ]; then script; fi
 .PP
-Note that in this case, trying to run dphys-config for a second time after
-dphys-admin has installed packages and scripts, will \fBnot\fP automatically
-mend this, as the config files have not changed, and so dphys-config will no
-(re-)run their scripts. Therefore packages containing such scripts must also,
+Note that in this case, trying to run dphys\-config for a second time after
+dphys\-admin has installed packages and scripts, will \fBnot\fP automatically
+mend this, as the config files have not changed, and so dphys\-config will not
+(re\-)run their scripts. Therefore packages containing such scripts must also,
 as part of their postinst (or init.d which is called by postinst), check for
 existing config files and then run their scripts. This is the normal behaviour
 of quite a few packages anyway. Of course this requires the scripts to be
@@ -423,4 +453,4 @@ idempotent, which is official Debian policy anyway.
 
 .SH AUTHOR
 
-franklin@phys.ethz.ch, http://www.phys.ethz.ch/~franklin/
+neil@franklin.ch, http://neil.franklin.ch/

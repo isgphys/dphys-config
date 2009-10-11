@@ -1,7 +1,7 @@
 #!/bin/sh
 # /etc/init.d/dphys-config - boot time trigger automatic config updates
-# authors dsbg and franklin, last modification 2006.09.15
-# copyright ETH Zuerich Physics Departement
+# authors dsbg, franklin and abe, last modification 2009.06.08
+# Copyright ETH Zurich Physics Department
 #   use under either modified/non-advertising BSD or GPL license
 
 # this init.d script is intended to be run from rc2.d
@@ -31,14 +31,67 @@ export PATH
 # what we are
 NAME=dphys-config
 
+# exit if dphys-config is not installed (i.e. removed but not purged)
+[ -x /usr/bin/${NAME} ] || exit 0
+
+# init.d config settings
+if [ -f /etc/default/$NAME ]; then
+  . /etc/default/$NAME
+fi
+
+# dphys-config config settings
+CONF_BASEURL=''
+if [ -f /etc/$NAME ]; then
+  . /etc/$NAME
+fi
+
+chrooted() {
+  if [ "${START_INSIDE_CHROOT}" != "yes" ]; then
+      if [ -d /proc/1 ]; then
+	  if [ `id -u` = 0 ]; then
+	      if [ "$(stat -c %d/%i /)" = "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ]; then
+		  # the devicenumber/inode pair of / is the same as
+		  # that of /sbin/init's root, so we're *not* in a
+		  # chroot and hence return false
+		  return 1
+	      else
+		  return 0
+	      fi
+	  else
+	      echo "$0: chroot test doesn't work as normal user." >&2;
+	      exit 3;
+	  fi
+      else
+	  echo "$0: WARNING: /proc not mounted, assuming chrooted environment." >&2;
+	  return 1;
+      fi
+  fi
+  return 0
+}
+
 case "$1" in
 
   start)
-    /bin/echo "Starting ${NAME} automatic config updates ..."
+    # Don't start inside a chroot.
+    if ! chrooted; then
+	# Don't start if we don't know where to fetch config updates
+	if [ -f /etc/${NAME} ]; then
+	    if [ -n "$CONF_BASEURL" ]; then
+		/bin/echo "Starting ${NAME} automatic config updates ..."
 
-    # in case system was switched off for a while, run an upgrade
-    #   this will produce output, so no -n in above echo
-    /usr/bin/dphys-config init
+		# In case system was switched off for a while, run an
+		# upgrade.  This will produce output, so no -n in above
+		# echo.
+		/usr/bin/dphys-config init
+	    else
+		/bin/echo "No CONF_BASEURL setting found. ${NAME} not updating configs ..."
+	    fi
+	else
+	    /bin/echo "/etc/dphys-config not found. ${NAME} not updating configs ..."
+	fi
+    else
+	/bin/echo "Running inside a chrooted environment. ${NAME} not updating configs ..."
+    fi
 
     /bin/echo "done."
     ;;

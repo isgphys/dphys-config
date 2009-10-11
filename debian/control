@@ -1,19 +1,22 @@
 Source: dphys-config
 Section: admin
 Priority: optional
-Maintainer: Gürkan Sengün <gurkan@linuks.mine.nu>
-Build-Depends: debhelper (>= 5)
-Standards-Version: 3.7.3
-Homepage: http://www.phys.ethz.ch/~franklin/Projects/dphys-config/
+Maintainer: Axel Beckert <abe@deuxchevaux.org>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+Homepage: http://neil.franklin.ch/Projects/dphys-config/
+Vcs-Browser: http://git.phys.ethz.ch/?p=dphys-config-debian.git
+Vcs-Git: http://git.phys.ethz.ch/git/dphys-config-debian.git
 
 Package: dphys-config
 Architecture: all
 Depends: wget
-Recommends: tcc, pciutils
+Suggests: pciutils
 Description: Tool to distribute config files
- This project is aimed at installing (and keeping update) the site specific
- config files we want, after preprocessing them (conditional content and
- include files and include sections). It also triggers postinstall scripts
- whenever their associated config file has been changed. It can also remove
- config files, including running an preremove script before doing so. All
- this is driven by an simple config file list.
+ This project is aimed at automatically installing (and keeping
+ update) site specific config files on many hosts, after preprocessing
+ them (conditional content and include files and include sections). It
+ also triggers postinstall scripts whenever their associated config
+ file has been changed. It can also remove config files, including
+ running an preremove script before doing so. All this is driven by an
+ simple config file list.

@@ -1,3 +1,51 @@
+dphys-config (20090926-1) unstable; urgency=low
+
+  * New upstream release
+    - Now works with every web server (e.g. also ACME micro_httpd)
+    - Now handles blanks and backslashes correctly while preprocessing
+      and reading its own configuration file. (Closes: #510910)
+    - Supports file:/// URLs for configuration file locations
+    - Supports configurable temporary directory (defaults to /var/tmp)
+    - Supports mktemp by default if available (also obsoletes mktemp fix
+      from last NMU)
+    - New option -c to override hostname in chrooted environments
+    - Removed bashism fixes from last NMU since they have been intergrated
+      by upstream even though Debian doesn't require them anymore since
+      policy 3.8.1.
+    - Some more bashisms fixed in example scripts plus some bashisms in
+      dphys-config which checkbashism didn't find. (Closes: #530072)
+    - Upstream updated man page to fix a bunch of lintian warnings.
+    - Now throws error if ran unconfigured -> init.d script now also
+      checks the existence of the mandatory CONF_BASEURL setting
+  * New maintainer
+  * Updated e-mail addresses and URLs of upstream website in
+    debian/control and debian/copyright
+  * Added Vcs-* headers.
+  * Bumped Standards-Version to 3.8.3
+    - Changed all "(C)" to "©" in debian/copyright.
+  * Changed dh_clean -k to dh_prep in debian/rules.
+    - Bumped debhelper compatibility to 7.
+  * Install upstream dphys-config.example as default /etc/dphys-config
+    conffile.
+  * Added a watch file.
+  * Fixed lintian warnings:
+    - debian-rules-ignores-make-clean-error
+    - using-first-person-in-description
+  * Define $(DESTDIR) in debian/rules for better readability
+  * Changed behaviour of init.d script and cronjob:
+    - init.d: Don't start automatically inside a chrooted
+      environment. chrooted() test taken from udev.postinst.
+    - init.d, cron.d: Don't start automatically if no config file has been
+      created by the admin (prevents startup error messages if only
+      installed for personal use of users).
+  * Downgraded Recommends on pciutils to a Suggests.
+  * Removed Recommends on tcc. (An example script often needed on Sarge
+    needed tcc.)
+  * init.d script and cronjob now do nothing if dphys-config has been
+    removed but not purged. (Thanks to Myon for that hint!)
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 11 Oct 2009 15:23:32 +0200
+
 dphys-config (20061020-2.1) unstable; urgency=medium
 
   * Non-maintainer upload.

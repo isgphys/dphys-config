@@ -10,7 +10,7 @@ Vcs-Git: http://git.phys.ethz.ch/git/dphys-config-debian.git
 
 Package: dphys-config
 Architecture: all
-Depends: wget
+Depends: wget, ${misc:Depends}
 Suggests: pciutils
 Description: Tool to distribute config files
  This project is aimed at automatically installing (and keeping

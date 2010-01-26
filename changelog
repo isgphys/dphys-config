@@ -4,6 +4,8 @@ dphys-config (20100126~current-1) unstable; urgency=low
     - Works even with LANG not set to C or en_*
     - Fixes some misspellings reported by Lintian 2.3.x
     - New debug option LEAVE_WGET_OUTPUT
+  * Fix Lintian warning debhelper-but-no-misc-depends by adding
+    ${misc:Depends} to the dependencies.
 
  -- Axel Beckert <abe@deuxchevaux.org>  Tue, 26 Jan 2010 19:18:32 +0100
 

@@ -6,8 +6,9 @@ dphys-config (20100126~current-1) unstable; urgency=low
     - New debug option LEAVE_WGET_OUTPUT
   * Fix Lintian warning debhelper-but-no-misc-depends by adding
     ${misc:Depends} to the dependencies.
+  * Bumped Standards-Version to 3.8.4 (no changes)
 
- -- Axel Beckert <abe@deuxchevaux.org>  Tue, 26 Jan 2010 19:18:32 +0100
+ -- Axel Beckert <abe@deuxchevaux.org>  Thu, 28 Jan 2010 01:39:43 +0100
 
 dphys-config (20090926-1) unstable; urgency=low
 

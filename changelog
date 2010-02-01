@@ -8,8 +8,9 @@ dphys-config (20100126~current-1) unstable; urgency=low
     ${misc:Depends} to the dependencies.
   * Bumped Standards-Version to 3.8.4 (no changes)
   * Changed the maintainer e-mail address to my debian.org address.
+  * [debian/init.d] Add dependency to $remote_fs due to usage of /usr.
 
- -- Axel Beckert <abe@debian.org>  Mon, 01 Feb 2010 01:13:25 +0100
+ -- Axel Beckert <abe@debian.org>  Mon, 01 Feb 2010 14:17:40 +0100
 
 dphys-config (20090926-1) unstable; urgency=low
 

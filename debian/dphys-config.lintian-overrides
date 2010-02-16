@@ -1,0 +1,3 @@
+# According to the upstream author, "authenti*fi*cation" is commonly
+# used English and therefore English, even if it's not in the OED.
+dphys-config binary: spelling-error-in-manpage usr/share/man/man1/dphys-config.1.gz authentification authentication

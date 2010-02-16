@@ -13,8 +13,8 @@
 
 ### BEGIN INIT INFO
 # Provides:          dphys-config
-# Required-Start:    $syslog
-# Required-Stop:     $syslog
+# Required-Start:    $syslog $remote_fs
+# Required-Stop:     $syslog $remote_fs
 # Should-Start:      $local_fs
 # Should-Stop:       $local_fs
 # Default-Start:     2 3 4 5
@@ -30,19 +30,22 @@ export PATH
 
 # what we are
 NAME=dphys-config
+CONFIG=/etc/${NAME}
+DEFAULT=/etc/default/${NAME}
+BIN=/usr/bin/${NAME}
 
 # exit if dphys-config is not installed (i.e. removed but not purged)
-[ -x /usr/bin/${NAME} ] || exit 0
+[ -x ${BIN} ] || exit 0
 
 # init.d config settings
-if [ -f /etc/default/$NAME ]; then
-  . /etc/default/$NAME
+if [ -f ${DEFAULT} ]; then
+  . ${DEFAULT}
 fi
 
 # dphys-config config settings
 CONF_BASEURL=''
-if [ -f /etc/$NAME ]; then
-  . /etc/$NAME
+if [ -f ${CONFIG} ]; then
+  . ${CONFIG}
 fi
 
 chrooted() {
@@ -75,19 +78,19 @@ case "$1" in
     # Don't start inside a chroot.
     if ! chrooted; then
 	# Don't start if we don't know where to fetch config updates
-	if [ -f /etc/${NAME} ]; then
-	    if [ -n "$CONF_BASEURL" ]; then
+	if [ -f ${CONFIG} ]; then
+	    if [ -n "${CONF_BASEURL}" ]; then
 		/bin/echo "Starting ${NAME} automatic config updates ..."
 
 		# In case system was switched off for a while, run an
 		# upgrade.  This will produce output, so no -n in above
 		# echo.
-		/usr/bin/dphys-config init
+		${BIN} init
 	    else
 		/bin/echo "No CONF_BASEURL setting found. ${NAME} not updating configs ..."
 	    fi
 	else
-	    /bin/echo "/etc/dphys-config not found. ${NAME} not updating configs ..."
+	    /bin/echo "/etc/${NAME} not found. ${NAME} not updating configs ..."
 	fi
     else
 	/bin/echo "Running inside a chrooted environment. ${NAME} not updating configs ..."

@@ -1,16 +1,16 @@
 Source: dphys-config
 Section: admin
 Priority: optional
-Maintainer: Axel Beckert <abe@deuxchevaux.org>
+Maintainer: Axel Beckert <abe@debian.org>
 Build-Depends: debhelper (>= 7)
-Standards-Version: 3.8.3
+Standards-Version: 3.8.4
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 Vcs-Browser: http://git.phys.ethz.ch/?p=dphys-config-debian.git
 Vcs-Git: http://git.phys.ethz.ch/git/dphys-config-debian.git
 
 Package: dphys-config
 Architecture: all
-Depends: wget
+Depends: wget, ${misc:Depends}
 Suggests: pciutils
 Description: Tool to distribute config files
  This project is aimed at automatically installing (and keeping

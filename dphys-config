@@ -1,6 +1,6 @@
 #!/bin/sh
 # /usr/bin/dphys-config - install/update config files and trigger commands
-# author Neil Franklin, last modification 2009.07.02
+# author Neil Franklin, last modification 2010.01.21
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -56,6 +56,10 @@ CONF_LOG_DONE=yes
 # set this to leave temporary directories undeleted after working
 #DEBUG_LEAVE_TEMPDIRS=yes
 
+# set this to leave wget output file that was parsed
+#   this requires also DEBUG_LEAVE_TEMPDIRS, else file gone with directories
+#DEBUG_LEAVE_WGET_OUTPUT=yes
+
 
 # --- SYS_*, various system internal values
 
@@ -70,16 +74,21 @@ SYS_WORKDIR=${CONF_TMP_DIR}/dphys-config-$$-work
 ### ------ actual implementation from here on
 # no user settings any more below this point
 
-set -e
-
 
 # --- get ready to work
+
+# report as many called program errors as possible
+set -e
 
 # sanitise this place, else some commands may fail
 #   must be before any commands are executed, incl config/input processing
 # /usr/local added for FreeBSD, because their ports end up in there
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 export PATH
+
+# also sanitise this, else wget output parsing fails on some systems
+LANG=C
+export LANG
 
 
 # --- tidy up some commands, make systematic
@@ -297,17 +306,9 @@ broken_net_wget_or_die () {
 
   # our many thanks to the net admins for their unreliable net
   #   and the resulting unreachable DNS, for client->host and host client auth
-  # with 150 hosts times 30 files, is produces up to 5 failled hosts per run
+  # with 150 hosts times 30 files, is produces up to 5 failed hosts per run
 
   # later this subroutine also got used to "fix" the missing file: URLs in wget
-
-  # uses an temp file for wget stderr output
-  #   wget gives back 1 for both DNS failure (bad) and simple 404 (expected)
-  #     so we need to split on stderr output to see which happened
-  #   also we need to expect 403 if we managed to reach the server
-  #     but it then failled to resolve our IP address
-  #   better only continue if we got 200 (got file) or 404 (no file)
-  #     this fails safe, can never break config files
 
   local URL
   URL="$1"
@@ -346,45 +347,56 @@ broken_net_wget_or_die () {
   local TRY
   for TRY in 1 2 3 ; do
 
-    local WGET_STDERR
-    WGET_STDERR="${SYS_WORKDIR}/@wget.stderr"
-    rm -f "${WGET_STDERR}"
+    # wget gives back 1 for both DNS failure (bad) and simple 404 (expected)
+    #   also we need to expect 403 if we managed to reach the server
+    #     but it then failed to resolve our IP address
+    #   and also for any other access violation problems
+    #     such as admin giving wrong file permissions
+    #   better only continue if we got 200 (got file) or 404 (no file)
+    #     this fails safe, can never break config files
+    #   uses an temp file for wget output, split on that to see which happened
+
+    local WGET_OUTPUT
+    WGET_OUTPUT="${SYS_WORKDIR}/@wget.output"
 
     # -N so we do not re-fetch unchanged files, important when large files
     #   -N and -O do not like each other, so use an (cd ; wget)
-    (cd "${DIR}"; wget -N -o "${WGET_STDERR}" "${URL}" || true)
+    (cd "${DIR}"; wget -N -o "${WGET_OUTPUT}" "${URL}" || true)
 
     local DNS_STAT
     DNS_STAT="`grep '^Resolving .*... failed: Host not found.$' \
-        "${WGET_STDERR}" | tr -d ' '`"
+        "${WGET_OUTPUT}" | tr -d ' '`"
     # the 6th field is the numeric HTTP return code
     #   do not depend on 7th field, textual code, can vary depending on server
     local HTTP_STAT
     HTTP_STAT="`grep '^HTTP request sent, awaiting response... ' \
-        "${WGET_STDERR}" | tail -n 1 | cut -f 6 -d ' '`"
-    rm "${WGET_STDERR}"
+        "${WGET_OUTPUT}" | tail -n 1 | cut -f 6 -d ' '`"
+    if [ "${DEBUG_LEAVE_WGET_OUTPUT}" != yes ] ; then
+      # offer to leave this to investigate bugs
+      rm "${WGET_OUTPUT}"
+    fi
 
     ${CMD_DEBUG_PRINT} "DNS_STAT=${DNS_STAT} HTTP_STAT=${HTTP_STAT}"
 
     # 2 similar "elif" as some shells built-in [ command fail on -o operator
     if [ "${DNS_STAT}" != "" ] ; then
-      ${CMD_WARNING} "failled try ${TRY} to resolve server for URL ${URL}" >&2
-      ${CMD_LOG_WARNING} "failled try ${TRY} to resolve server for URL ${URL}"
+      ${CMD_WARNING} "failed try ${TRY} to resolve server for URL ${URL}" >&2
+      ${CMD_LOG_WARNING} "failed try ${TRY} to resolve server for URL ${URL}"
     elif ( [ "${HTTP_STAT}" = 200 ] || [ "${HTTP_STAT}" = 404 ] ) ; then
       # we managed to get a file, or there is no file, both are OK for us
       return 0
     else
-      ${CMD_WARNING} "failled try ${TRY} to retrieve file from" \
+      ${CMD_WARNING} "failed try ${TRY} to retrieve file from" \
           "URL ${URL}, with HTTP status ${HTTP_STAT}" >&2
-      ${CMD_LOG_WARNING} "failled try ${TRY} to retrieve file from" \
+      ${CMD_LOG_WARNING} "failed try ${TRY} to retrieve file from" \
           "URL ${URL}, with HTTP status ${HTTP_STAT}"
     fi
  
   done
 
-  ${CMD_FATAL} "failled entirely to retrieve file from URL ${URL}," \
+  ${CMD_FATAL} "failed entirely to retrieve file from URL ${URL}," \
       "with HTTP status ${HTTP_STAT}, aborting ..." >&2
-  ${CMD_LOG_FATAL} "failled entirely to retrieve file from URL ${URL}," \
+  ${CMD_LOG_FATAL} "failed entirely to retrieve file from URL ${URL}," \
       "with HTTP status ${HTTP_STAT}, aborting ..."
   exit 1
 
@@ -609,7 +621,7 @@ fetch_and_preprocess_config_file () {
               if [ -f "${WORK}.${SECTION}" ] ; then
                 cat "${WORK}.${SECTION}" >> "${WORK}.temp"
               #else
-                # NOTE: this output is more annoying than usefull, disable it
+                # NOTE: this output is more annoying than useful, disable it
                 #${CMD_NOTE} "no config file section ${URL}.${SECTION} ..." >&2
                 #${CMD_LOG_NOTE} "no config file section ${URL}.${SECTION} ..."
               fi

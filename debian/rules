@@ -36,6 +36,7 @@ binary-indep: build install
 	dh_installdocs
 	dh_installinit -- defaults 21
 	dh_installcron
+	dh_lintian
 	dh_compress
 	dh_fixperms
 	dh_installdeb

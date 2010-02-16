@@ -1,3 +1,20 @@
+dphys-config (20100216-1) unstable; urgency=low
+
+  * New upstream release
+    - Works even with LANG not set to C or en_*
+    - New debug option LEAVE_WGET_OUTPUT
+    - Fixes some misspellings reported by Lintian 2.3.x
+    - Other not so common spellings won't be fixed by upstream, so let's
+      keep lintian quiet about them by using lintian overrides as
+      suggested on the lintian mailing list.
+  * Fix Lintian warning debhelper-but-no-misc-depends by adding
+    ${misc:Depends} to the dependencies.
+  * Bumped Standards-Version to 3.8.4 (no changes)
+  * Changed the maintainer e-mail address to my debian.org address.
+  * [debian/init.d] Add dependency to $remote_fs due to usage of /usr.
+
+ -- Axel Beckert <abe@debian.org>  Tue, 16 Feb 2010 21:46:39 +0100
+
 dphys-config (20090926-1) unstable; urgency=low
 
   * New upstream release

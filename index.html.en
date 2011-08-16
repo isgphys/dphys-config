@@ -1,9 +1,9 @@
 <html>
-  <!--http://www.phys.ethz.ch/~franklin/Projects/dphys-config/index.html.en-->
+  <!--http://neil.franklin.ch/Projects/dphys-config/index.html.en-->
   <head>
     <title>dphys-config Configuration Manager</title>
     <meta name="keywords"
-      content="neil franklin, ETH, dphys-config, Linux, configuration">
+      content="neil franklin, dphys-config, Linux, autoconfiguration">
     <meta name="description"
       content="dphys-config configuration manager">
   </head>
@@ -37,11 +37,12 @@
     <a href="init.d.example">init.d script</a> that run this script nightly and
     at boot time.
     <p>
-    This project was spawned from the <a href="../dphys-admin/">dphys-admin
+    This project was spawned from the
+    <a href="http://nic.phys.ethz.ch/projects/dphys-admin/">dphys-admin
     project</a>, aimed at automatically installing Debian packages onto our
     systems, but is itsself independant of dphys-admin or any other Debian
     stuff. It should work on any Unix system, but has only been tested on our
-    Debian Linux 3.1 (sarge) systems and on FreeBSD 6.1.
+    Debian Linux 3.1 (sarge) and later systems and on FreeBSD 6.1.
 
 
     <a name=status></a>
@@ -73,7 +74,15 @@
       <li>Extensive quoting improvements against possible escaping bugs</li>
       <li>Path handling and other changes to work also on FreeBSD 6.1</li>
     </ul>
-    Current (= development, = may be broken):
+    Milestone/Release 3 (2009.09.26):
+    <ul>
+      <li>Added file: URL support, as wget does not implement that</li>
+      <li>Bugfixes for HTTP status codes, preprocessing handle spaces</li>
+      <li>Facultatively user set hostname for install in xen guests/vhosts</li>
+      <li>Remove various bashisms, so it will work with Debians dash</li>
+      <li>Use mktemp if the users system has it</li>
+    </ul>
+    Current (= development, = may be fantastic, may be broken):
     <ul>
       <li>Nothing yet</li>
     </ul>
@@ -86,7 +95,7 @@
     <a name=download></a>
     <h3>Code Download</h3>
 
-    Current (= development, = may be broken):
+    Current (= development, = may be fantastic, may be broken):
     <ul>
       <li><a href="INSTALL">
          Installation Guide</a></li>
@@ -127,12 +136,53 @@
       </ul></li>
     </ul>
 
+    Milestone/Release 3 (2009.09.26):
+    <ul>
+      <li><a href="../dphys-config-20090926/INSTALL">
+         Installation Guide</a></li>
+      <li>entire project: <a href="../dphys-config-20090926.tar.gz">
+        dphys-config-20090926.tar.gz</a></li>
+      <li>single files:<ul>
+        <li><a href="../dphys-config-20090926/Makefile">
+          Makefile</a>, control process</li>
+        <li><a href="../dphys-config-20090926/dphys-config">
+          dphys-config</a>, automatically install/update config files and run
+          scripts, run by cron or init</li>
+        <li><a href="../dphys-config-20090926/dphys-config.1">
+          dphys-config.1</a>, man page for dphys-config</li>
+        <li><a href="../dphys-config-20090926/dphys-config.example">
+          dphys-config.example</a>, example config file, containing only the
+          default settings as comments, to adapt to your site</li>
+        <li><a href="../dphys-config-20090926/site.example">
+          site.example</a>, example site config, containing an <a
+          href="../dphys-config-20090926/site.example/dphys-config.list"
+          >list of files to process</a>, together with example files used in
+          this list, some of which are quite usefull scripts (<a
+         href="../dphys-config-20090926/site.example/dphys-config-filesys.list"
+          >expand /etc/fstab</a>, <a
+   href="../dphys-config-20090926/site.example/local/sbin/dphys-config-exports"
+          >generate /etc/exports from fstab</a>, <a
+     href="../dphys-config-20090926/site.example/local/sbin/dphys-config-quota"
+          >setup quota from fstab</a>, <a
+          href="../dphys-config-20090926/site.example/local/sbin/dphys-config-usb-storage"
+          >expand /etc/modules for USB storage</a>, <a
+         href="../dphys-config-20090926/site.example/local/sbin/dphys-config-x"
+          >generate XFree config from simple description</a>)</li>
+        <li><a href="../dphys-config-20090926/cron.d.example">
+          cron.d.example</a>, example cron job to run dphys-config every night,
+          for automatic updates</li>
+        <li><a href="../dphys-config-20090926/init.d.example">
+          init.d.example</a>, example init.d script to run dphys-config every
+          boot, to catchup on missed automatic updates</li>
+      </ul></li>
+    </ul>
+
     Milestone/Release 2 (2006.10.20):
     <ul>
       <li><a href="../dphys-config-20061020/INSTALL">
          Installation Guide</a></li>
       <li>entire project: <a href="../dphys-config-20061020.tar.gz">
-        dphys-config.tar.gz</a></li>
+        dphys-config-20061020.tar.gz</a></li>
       <li>single files:<ul>
         <li><a href="../dphys-config-20061020/Makefile">
           Makefile</a>, control process</li>
@@ -213,10 +263,11 @@
 
     Various links that may be usefull:
     <ul>
-      <li><a href="http://www.phys.ethz.ch/~franklin/Projects/dphys-admin/">
+      <li><a href="http://nic.phys.ethz.ch/projects/dphys-admin/">
         dphys-admin project this project was spawned from</a></li>
       <li><a href="http://packages.debian.org/dphys-config">
-        official Debian Package of dphys-config</a></li>
+        official Debian Package of dphys-config</a> maintained by
+        <a href="http://www.linuks.mine.nu/"></a>Axel Beckert</li>
     </ul>
 
 
@@ -225,6 +276,6 @@
     <a href="../../index.html.en">Home</a> |
     <a href="../index.html.en">Projects</a> | dphys-config
     <p>
-    This page is by Neil Franklin, last modification 2006.10.20
+    This page is by Neil Franklin, last modification 2009.09.26
   </body>
 </html>

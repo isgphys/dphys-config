@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 # /usr/local/sbin/dphys-config-exports - generate /etc/exports
 # author Neil Franklin, last modification 2006.10.12
+#   2009.07.02 because of  echo -e  changed to #!/bin/bash, not tested after!!!
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 

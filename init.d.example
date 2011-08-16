@@ -1,6 +1,6 @@
 #!/bin/sh
 # /etc/init.d/dphys-config - boot time trigger automatic config updates
-# authors dsbg and franklin, last modification 2006.09.15
+# authors dsbg and franklin, last modification 2009.06.27
 # copyright ETH Zuerich Physics Departement
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -21,13 +21,16 @@ NAME=dphys-config
 case "$1" in
 
   start)
-    echo "Starting ${NAME} automatic config updates ..."
+    echo -n "Starting ${NAME} automatic config file updates ..."
 
-    # in case system was switched off for a while, run an upgrade
-    #   this will produce output, so no -n in above echo
-    dphys-config init
+    # in case system was switched off for a while, no cron, run an upgrade
 
-    echo "done."
+    # no direct output, so no on-screen error message if not configured
+    #   this is also consistant with cron.d handling
+    #   errors will still be recorded to syslog, enough, as not boot-critical
+    dphys-config init > /dev/null 2>&1
+
+    echo ", done."
     ;;
 
   stop)

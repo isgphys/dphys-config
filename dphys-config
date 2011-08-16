@@ -1,6 +1,6 @@
 #!/bin/sh
 # /usr/bin/dphys-config - install/update config files and trigger commands
-# author Neil Franklin, last modification 2006.10.20
+# author Neil Franklin, last modification 2009.07.02
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -17,9 +17,17 @@
 
 # --- CONF_* various site or subnet dependant user config variables
 
+# base directory for temporary files
+#   some prefer /var/tmp for size and safety, works everywhere
+#   some prefer /tmp for speed or boot-time auto-delete
+CONF_TMP_DIR=/var/tmp
+
 # base directory for config files on server
 #   set to something that will produce an error message without site config
-CONF_BASEURL=http://not-configured-server/not/configured/directory
+CONF_BASEURL=http://not-configured-server.example.net/not/configured/directory
+
+# configuration name to use, usually host name, unless chroot or vhost or test
+CONF_CONFNAME=`hostname`
 
 # only process lines matching this grep regexp, default do all
 CONF_LINEFILTER=".*"
@@ -43,7 +51,7 @@ CONF_LOG_DONE=yes
 #DEBUG_WAIT_STEP=yes
 
 # set this to have debug dry runs install not in /, avoid killing system
-#DEBUG_INSTALL_BASE=/var/tmp/dphys-config-debug-install
+#DEBUG_INSTALL_BASE=${CONF_TMP_DIR}/dphys-config-debug-install
 
 # set this to leave temporary directories undeleted after working
 #DEBUG_LEAVE_TEMPDIRS=yes
@@ -54,13 +62,9 @@ CONF_LOG_DONE=yes
 # name of config file list file on server
 SYS_CONFLIST_NAME=dphys-config.list
 
-# where we once stored our cached copies of the raw downloaded files
-SYS_OLD_WORKDIR=/var/cache/dphys-config
-
 # where we want to do all the download/merge/diff-test stuff
 #   this must be a directory that root can access (not a root-squash NFS mount)
-SYS_WORKDIR=/var/tmp/dphys-config-$$-work
-
+SYS_WORKDIR=${CONF_TMP_DIR}/dphys-config-$$-work
 
 
 ### ------ actual implementation from here on
@@ -186,6 +190,12 @@ while [ "`echo "$1" | cut -c 1`" = - ] ; do
 
     case "${OPT}" in
 
+      c)
+        # configname: use this set of files config instead of hostname set
+        CONF_CONFNAME="$1"
+        shift 1
+        ;;
+
       f)
         # filter: only process lines matching this grep regexp
         CONF_LINEFILTER="$1"
@@ -223,6 +233,7 @@ while [ "`echo "$1" | cut -c 1`" = - ] ; do
 Usage is: $0 [options]
 
 options:
+  -c         configname: use this set of config files instead of hostname set
   -f filter  filter: only process lines matching this grep regexp
   -q         quiet: don't give user an running report of what we are doing
   -v         verbose: give user detailed running report
@@ -250,9 +261,10 @@ END-HELP-TEXT
 done
 
 
+# do not use  elif [ "" = "" -o "" = "" ] ;  as some shells test fails on this
 if [ "$1" = "" ] ; then
   MODE=none
-elif [ "$1" = cron -o "$1" = init ] ; then
+elif ( [ "$1" = cron ] || [ "$1" = init ] ) ; then
   MODE="$1"
 else
   ${CMD_ERROR} "unknown mode (or even multiple) given: $1" >&2
@@ -287,6 +299,8 @@ broken_net_wget_or_die () {
   #   and the resulting unreachable DNS, for client->host and host client auth
   # with 150 hosts times 30 files, is produces up to 5 failled hosts per run
 
+  # later this subroutine also got used to "fix" the missing file: URLs in wget
+
   # uses an temp file for wget stderr output
   #   wget gives back 1 for both DNS failure (bad) and simple 404 (expected)
   #     so we need to split on stderr output to see which happened
@@ -295,9 +309,31 @@ broken_net_wget_or_die () {
   #   better only continue if we got 200 (got file) or 404 (no file)
   #     this fails safe, can never break config files
 
-  local URL="$1" DIR="$2"
+  local URL
+  URL="$1"
+  local DIR
+  DIR="$2"
   ${CMD_DEBUG_PRINT} "URL=${URL} DIR=${DIR}"
   ${CMD_DEBUG_WAIT}
+
+
+  # support for file:<something> URLs which wget does not know about
+  if [ "`echo "${URL}" | cut -c 1-5`" = "file:" ] ; then
+
+    local FILE
+    FILE="`echo "${URL}" | cut -c 6-`"
+    # URL ends in /, this is directory existance test, generate fake index.html
+    if [ "`echo "${FILE}" | rev | cut -c 1`" = "/" ] ; then
+      # we later only test for file existance of index.html, so non-HTML is OK
+      (cd "${DIR}"; ls -al "${FILE}" > index.html 2> /dev/null)
+    else
+      local FILEBASE
+      FILEBASE="`basename "${FILE}"`"
+      (cd "${DIR}"; cp -p "${FILE}" "${FILEBASE}")
+    fi
+    return 0
+
+  fi
 
 
   # check if we can work
@@ -310,26 +346,32 @@ broken_net_wget_or_die () {
   local TRY
   for TRY in 1 2 3 ; do
 
-    local WGET_STDERR="${SYS_WORKDIR}/@wget.stderr"
+    local WGET_STDERR
+    WGET_STDERR="${SYS_WORKDIR}/@wget.stderr"
     rm -f "${WGET_STDERR}"
 
     # -N so we do not re-fetch unchanged files, important when large files
     #   -N and -O do not like each other, so use an (cd ; wget)
     (cd "${DIR}"; wget -N -o "${WGET_STDERR}" "${URL}" || true)
 
-    local DNS_STAT="`grep '^Resolving .*... failed: Host not found.$' \
+    local DNS_STAT
+    DNS_STAT="`grep '^Resolving .*... failed: Host not found.$' \
         "${WGET_STDERR}" | tr -d ' '`"
-    local HTTP_STAT="`grep '^HTTP request sent, awaiting response... ' \
-        "${WGET_STDERR}" | tail -n 1 | cut -f 6- -d ' ' | tr -d ' '`"
+    # the 6th field is the numeric HTTP return code
+    #   do not depend on 7th field, textual code, can vary depending on server
+    local HTTP_STAT
+    HTTP_STAT="`grep '^HTTP request sent, awaiting response... ' \
+        "${WGET_STDERR}" | tail -n 1 | cut -f 6 -d ' '`"
     rm "${WGET_STDERR}"
 
     ${CMD_DEBUG_PRINT} "DNS_STAT=${DNS_STAT} HTTP_STAT=${HTTP_STAT}"
 
+    # 2 similar "elif" as some shells built-in [ command fail on -o operator
     if [ "${DNS_STAT}" != "" ] ; then
       ${CMD_WARNING} "failled try ${TRY} to resolve server for URL ${URL}" >&2
       ${CMD_LOG_WARNING} "failled try ${TRY} to resolve server for URL ${URL}"
-    elif [ "${HTTP_STAT}" = 200OK -o "${HTTP_STAT}" = 404NotFound ] ; then
-      # we managed to get a file, or there is no file, both are OK
+    elif ( [ "${HTTP_STAT}" = 200 ] || [ "${HTTP_STAT}" = 404 ] ) ; then
+      # we managed to get a file, or there is no file, both are OK for us
       return 0
     else
       ${CMD_WARNING} "failled try ${TRY} to retrieve file from" \
@@ -349,14 +391,34 @@ broken_net_wget_or_die () {
 }
 
 
-# --- check for config file server
+# --- check for neccessary configuration done by user
 
-${CMD_INFO_PRINT} "checking config file server for host `hostname` ..."
+${CMD_INFO_PRINT} "checking configuration for user setting CONF_BASEURL ..."
 ${CMD_DEBUG_SLEEP}
 
-# old pre tmp cache dir, cache removed because side effects and useless
-rm -rf "${SYS_OLD_WORKDIR}"
+if `echo "${CONF_BASEURL}" | \
+    grep -q 'http://not-configured-server.example.net/'` ; then
+  # CONF_BASEURL still has not configured setting, so we can not work with it
+  ${CMD_ERROR} "user config variable CONF_BASEURL has not been set to an" \
+      "valid base directory for config files on your server, aborting ..." >&2
+  ${CMD_LOG_ERROR} "user config variable CONF_BASEURL has not been set to an" \
+      "valid base directory for config files on your server, aborting ..."
+  exit 1
+fi
 
+
+# --- check for config file server
+
+${CMD_INFO_PRINT} "checking file server for configuration ${CONF_CONFNAME} ..."
+${CMD_DEBUG_SLEEP}
+
+# use mktemp if users system has it installed
+#   some systems need $$ PIDs as no utility is present, works everywhere
+#   others can use mktemp, preferable as this prevents race conditions
+#     in this case just add mktemp on to end of name with $$ in it, use both
+if [ "`which mktemp 2> /dev/null`" != "" ]; then
+  SYS_WORKDIR="`mktemp -d "${SYS_WORKDIR}.XXXXXXXXXX"`"
+fi
 
 # make work space for this and other temporary files
 mkdir -p "${SYS_WORKDIR}"
@@ -366,6 +428,9 @@ chmod 700 "${SYS_WORKDIR}"
 # check for valid server URL, read directory with all hosts in it
 rm -f "${SYS_WORKDIR}/index.html"
 broken_net_wget_or_die "${CONF_BASEURL}/" "${SYS_WORKDIR}"
+# do not rely on the contents of index.html being actual HTML
+#   can be  ls -al  output in case of  file:<something>/  URLs
+#   so only use this file for existance test, no parsing its content
 if [ ! -f "${SYS_WORKDIR}/index.html" ] ; then
   ${CMD_FATAL} "failed to find server dir ${CONF_BASEURL}, aborting ..." >&2
   ${CMD_LOG_FATAL} "failed to find server dir ${CONF_BASEURL}, aborting ..."
@@ -373,8 +438,8 @@ if [ ! -f "${SYS_WORKDIR}/index.html" ] ; then
 fi
 
 
-# server subdirectory for this host
-CONFHOST_URL="${CONF_BASEURL}/`hostname`"
+# server subdirectory for this hosts configuration
+CONFHOST_URL="${CONF_BASEURL}/${CONF_CONFNAME}"
 
 # check for valid host name, read directory of this host
 rm -f "${SYS_WORKDIR}/index.html"
@@ -393,13 +458,17 @@ ${CMD_DEBUG_WAIT}
 
 fetch_and_preprocess_config_file () {
 
-  local URL="$1" WORK="$2"
+  local URL
+  URL="$1"
+  local WORK
+  WORK="$2"
   ${CMD_DEBUG_PRINT} "URL=${URL} WORK=${WORK}"
   ${CMD_DEBUG_WAIT}
 
 
   # ensure first that work dir is there, in case config file in an new subdir
-  local DIR="`dirname "${WORK}"`"
+  local DIR
+  DIR="`dirname "${WORK}"`"
   mkdir -p "${DIR}"
 
   # get the file
@@ -419,7 +488,8 @@ fetch_and_preprocess_config_file () {
   # preprocessor stuff
 
   # header calls for preprocessing, with syntax similar to the #! shell trigger
-  local HEAD="`head -n 1 "${WORK}"`"
+  local HEAD
+  HEAD="`head -n 1 "${WORK}"`"
   if `echo "${HEAD}" | grep -q '^#@dphys-config-preprocess'` ; then
 
     # use rest of file, purged of header, which is never part of output
@@ -430,7 +500,8 @@ fetch_and_preprocess_config_file () {
     #   extract from HEAD format:  #@dphys-config-preprocess [preprocessor...]
     # add an space after "${HEAD}" to circumvent  cut -f 2- -d ' '  brokenness
     #   if no preprocessor was listed by user, and so possibly no space in line
-    local PREPROCS="`echo "${HEAD} " | cut -f 2- -d ' ' | tr -c -d 'a-z '`"
+    local PREPROCS
+    PREPROCS="`echo "${HEAD} " | cut -f 2- -d ' ' | tr -c -d 'a-z '`"
     ${CMD_DEBUG_PRINT} "HEAD=${HEAD} PREPROCS=${PREPROCS}"
 
     # no "${PREPROCS}", else intervening and trailing spaces end up in PREPROC
@@ -445,19 +516,25 @@ fetch_and_preprocess_config_file () {
           ${CMD_VERBOSE_PRINT} "preprocessing for backtick ..."
           ${CMD_DEBUG_SLEEP}
           local LINE
-          cat "${WORK}" | while read LINE ; do
+          # IFS= to avoid read doing separator processing (mangles spaces)
+          #   and -r to prevent \ interpretation (mangles line contents)
+          cat "${WORK}" | while IFS= read -r LINE ; do
 
             # syntax taken from the shell backtick, which is also used here
             #   may have multiple substitutions on one line, so use while loop
             while echo "${LINE}" | grep -q '`' ; do
               # the '\` here need the \ because of the `` subshell
-              local FRONT="`echo "${LINE}" | cut -f 1  -d '\`' `"
-              local TICK="`echo "${LINE}"  | cut -f 2  -d '\`' `"
-              local REST="`echo "${LINE}"  | cut -f 3- -d '\`' `"
+              local FRONT
+              FRONT="`echo "${LINE}" | cut -f 1  -d '\`' `"
+              local TICK
+              TICK="`echo "${LINE}"  | cut -f 2  -d '\`' `"
+              local REST
+              REST="`echo "${LINE}"  | cut -f 3- -d '\`' `"
 
               # prevent non zero return from user given command from killing us
               set +e
-              local SUBST="`"${TICK}"`"
+              local SUBST
+              SUBST="`"${TICK}"`"
               RETVAL="$?"
               set -e
               if [ "${RETVAL}" != 0 ] ; then
@@ -479,7 +556,7 @@ fetch_and_preprocess_config_file () {
           ${CMD_VERBOSE_PRINT} "preprocessing for if ..."
           ${CMD_DEBUG_SLEEP}
           local LINE
-          cat "${WORK}" | while read LINE ; do
+          cat "${WORK}" | while IFS= read -r LINE ; do
 
             # extract from LINE format:  #@if condition ; line-to-leave
             if echo "${LINE}" | grep -q '^#@if ' ; then
@@ -489,7 +566,8 @@ fetch_and_preprocess_config_file () {
                 ${CMD_LOG_ERROR} "#@if config line \"${LINE}\" has no \";\""
                 exit 1
               fi
-              local COND="`echo "${LINE}" | cut -f 1  -d ';'`"
+              local COND
+              COND="`echo "${LINE}" | cut -f 1  -d ';'`"
               LINE="`echo "${LINE}" | cut -f 2- -d ';'`"
 
               # purge command, which is not part of condition
@@ -518,10 +596,11 @@ fetch_and_preprocess_config_file () {
           ${CMD_VERBOSE_PRINT} "preprocessing for include ..."
           ${CMD_DEBUG_SLEEP}
           local LINE
-          cat "${WORK}" | while read LINE ; do
+          cat "${WORK}" | while IFS= read -r LINE ; do
 
             if echo "${LINE}" | grep -q '^#@include ' ; then
-              local SECTION="`echo "${LINE}" | cut -f 2 -d ' '`"
+              local SECTION
+              SECTION="`echo "${LINE}" | cut -f 2 -d ' '`"
               broken_net_wget_or_die "${URL}.${SECTION}" "${DIR}"
               if [ -f "${WORK}.${SECTION}" ] ; then
                 ${CMD_DEBUG_PRINT} "`ls -al "${WORK}.${SECTION}"`"
@@ -581,7 +660,7 @@ fetch_and_preprocess_config_file "${CONFLIST_URL}" "${CONFLIST}"
 # file here on host
 if [ "`whoami`" != root ] ; then
   # being run by an user for personal files, not as root for system
-  #   FreeBSD sh fails if the ~ is inside the ""
+  #   FreeBSD sh fails to substitute if the ~ is inside the ""
   CONFLIST_PLACE=~/."${SYS_CONFLIST_NAME}"
 else
   CONFLIST_PLACE="/etc/${SYS_CONFLIST_NAME}"
@@ -624,10 +703,12 @@ fi
 ${CMD_INFO_PRINT} "processing individual config files from the list ..."
 ${CMD_DEBUG_SLEEP}
 
-# get rid of comments and empty lines (may be emptied comment lines)
+# cut get rid of comments and grep empty lines (may be emptied comment lines)
 #   and allow user to select/filter subset of lines to be processed
+#   IFS= to avoid read doing separator processing (mangles spaces)
+#     and -r to prevent \ interpretation (mangles line contents)
 cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
-    grep "${CONF_LINEFILTER}" | while read LINE ; do
+    grep "${CONF_LINEFILTER}" | while IFS= read -r LINE ; do
 
   ${CMD_DEBUG_PRINT} "LINE=${LINE}"
   ${CMD_DEBUG_WAIT}

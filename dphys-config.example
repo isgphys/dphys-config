@@ -1,14 +1,24 @@
 # /etc/dphys-config - user settings for dphys-config auto configurator
-# author Neil Franklin, last modification 2006.10.05
+# author Neil Franklin, last modification 2009.06.27
 # copyright ETH Zuerich Physics Departement
 #   use under either modified/non-advertising BSD or GPL license
 
 # this file is sourced with . so full normal  sh  syntax applies
 
+# the default settings are added as commented out CONF_*=* lines
+
+
+# base directory for temporary files
+#   some prefer /var/tmp for size and safety, works everywhere
+#   some prefer /tmp for speed or boot-time auto-delete
+#CONF_TMP_DIR=/var/tmp
 
 # base directory for config files on server
 #   set to something that will produce an error message without site config
-#CONF_BASEURL=http://not-configured-server/not/configured/directory
+#CONF_BASEURL=http://not-configured-server.example.net/not/configured/directory
+
+# configuration name to use, usually host name, unless chroot or vhost or test
+#CONF_CONFNAME=`hostname`
 
 # only process lines matching this grep regexp, default do all
 #CONF_LINEFILTER=".*"

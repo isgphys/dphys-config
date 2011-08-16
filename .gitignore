@@ -1,0 +1,6 @@
+*.debhelper.log
+*.debhelper
+*.substvars
+dphys-config
+files
+stamp-patched

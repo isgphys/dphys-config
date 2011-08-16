@@ -1,0 +1,97 @@
+#!/bin/sh
+# /usr/sbin/dphys-config-quota - automatically set up user quotas
+# author franklin, last modification 2006.08.17
+# This script is copyright ETH Zuerich Physics Departement,
+#   use under either modified/non-advertising BSD or GPL license
+
+# this script is called by dphys-config, once on each install/update
+#   no parameters or env vars for this script
+# it requires in /etc/dphys-config.list 2 lines, for config file and script:
+#   quota:/etc/:if [ -f /usr/local/sbin/dphys-config-quota ] ; then /usr/local/sbin/dphys-config-quota ; fi
+#   local/sbin/dphys-config-quota:/usr/:/bin/chmod 755 {}; {}
+
+
+set -e
+
+# get ready to work
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+
+# config file, this is just a list of filesystem mountpoints
+CONF=/etc/dphys-config-quota.list
+
+
+if [ ! -f ${CONF} ] ; then
+  /bin/echo "$0: ERROR: can not find config file: ${CONF}" >&2
+  exit 1
+fi
+
+
+# eliminate accidental duplicated mount options on some hosts
+while /bin/grep -q ',usrquota,usrquota' /etc/fstab ; do
+
+  /bin/sed -e '/,usrquota,usrquota/s//,usrquota/' \
+      /etc/fstab > /etc/fstab.tmp
+  /bin/mv /etc/fstab.tmp /etc/fstab
+
+done
+
+
+# remove comment lines from config file, and so allow them in file
+#   empty lines and superfluous whitespace are auto-deleted by `` and for
+for MPOINT in `/bin/grep -v '^#' ${CONF}` ; do
+
+  # is this actually a valid mount point?
+  if [ x`/usr/bin/awk '$2=="'${MPOINT}'" { print $2 }' \
+      /etc/fstab` != x ] ; then
+
+    # only if quota has not been added yet
+    if [ x`/usr/bin/awk '$2=="'${MPOINT}'" && $4 !~ /usrquota/ { print $2 }' \
+        /etc/fstab` != x ] ; then
+
+      /usr/bin/awk 'BEGIN                      { OFS="\t" }
+                    $2=="'${MPOINT}'" && NF==6 { $4 = $4",usrquota" }
+                                               { print }
+          ' /etc/fstab > /etc/.fstab
+      /bin/mv /etc/.fstab /etc/fstab
+
+    fi
+
+    # only if not already mounted with quota
+    if [ x`/usr/bin/awk '$2=="'${MPOINT}'" && $4 !~ /usrquota/ { print $2 }' \
+          /etc/mtab` != x  ] ; then
+
+      # ensure that kernel knows about this mount point using quota
+      /bin/mount -o remount ${MPOINT}
+
+      # just in case this interferes with rebuilding
+      #   may return non-zero if no quota is running, so catch that
+      /sbin/quotaoff ${MPOINT} 2> /dev/null || /bin/true
+
+      # man page claims following autogenerate, Beat regards these as needed
+      /bin/rm -f ${MPOINT}/quota.user
+      /usr/bin/touch ${MPOINT}/quota.user
+      /bin/chmod 600 ${MPOINT}/quota.user
+
+      # we use -m (no remount as -ro), so risks losing count
+      #   but this quota is only for recording, not for enforcement
+      #   we only want to see users disk usage without waiting for  du -sk
+      # same also -f (force) so that mount is ignored
+      # the -c avoids validity check warning message on empty quota.user file
+      # /sbin/quotacheck can take a very long time, like find
+      /sbin/quotacheck -cmf ${MPOINT}
+      /sbin/quotaon ${MPOINT}
+
+    fi
+
+  else
+
+    echo "$0: WARNING: no mount point ${MPOINT} in /etc/fstab," \
+        "ignoring quota request for it ..." >&2
+
+  fi
+
+done
+
+exit 0

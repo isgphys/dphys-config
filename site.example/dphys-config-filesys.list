@@ -1,0 +1,29 @@
+# /etc/dphys-config-filesys.list - add stuff to filesystem and to /etc/fstab
+
+# allow direct reading of mails
+nfsmount:/var/mail:mail.phys:/var/mail:rw,soft,noac,rsize=8192,wsize=8192,retry=1
+
+# allow users to use rest of disk space
+directory:/scratch:root:root:1777
+
+# allow remote access to /export/data, uses autofs automounter
+#   only used by some groups, with /data/<host><n> to access /export/data<n>
+#     with /export/data<n> defined for these in their .hostpost list files:
+#       astro (for only astro, with SGID, and sticky):
+#         partition:/export/data1:/dev/hdb1:ext3
+#         directory:/export/data2:root:astro:3770
+#       lpp (for only lpp, without SGID, but with sticky):
+#         partition:/export/data1:/dev/hdb1:ext3
+#         directory:/export/data2:root:lpp:1770
+#       few isg and theor (for anyone, without SGID, but with sticky):
+#         partition:/export/data1:/dev/hdb1:ext3
+#         directory:/export/data2:root:root:1777
+directory:/data:root:root:0755
+
+# for restoring stuff, uses autofs automounter
+directory:/backup:root:root:0755
+
+# quick access to package servers, uses /net automounter
+#   /mirror for debian, /pub for debian-local
+symlink:/mirror:/net/debian/export/mirror
+symlink:/pub:/net/debian/export/pub

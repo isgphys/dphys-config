@@ -1,0 +1,48 @@
+#!/bin/sh
+# /etc/init.d/dphys-config - boot time trigger automatic config updates
+# authors dsbg and franklin, last modification 2006.09.15
+# copyright ETH Zuerich Physics Departement
+#   use under either modified/non-advertising BSD or GPL license
+
+# this init.d script is intended to be run from rc2.d
+#   on our site it needs to run after rc2.d/S20inetd (and so identd)
+#     else our config file server will disallow requests for config files
+#   on our site it needs to run before rc2.d/S24dphys-admin
+#     else that will not find its /etc/dphys-admin.list config file
+#   so we run it as rc2.d/S22dphys-config
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+# what we are
+NAME=dphys-config
+
+case "$1" in
+
+  start)
+    /bin/echo "Starting ${NAME} automatic config updates ..."
+
+    # in case system was switched off for a while, run an upgrade
+    #   this will produce output, so no -n in above echo
+    /usr/bin/dphys-config init
+
+    /bin/echo "done."
+    ;;
+
+  stop)
+    /bin/echo "'Stopping' ${NAME} automatic config updates (does nothing)."
+    ;;
+
+  restart|reload|force-reload)
+    /bin/echo "No daemon to (force-)re[start|load] in ${NAME}"
+    ;;
+
+  *)
+    /bin/echo "Usage: $0 {start}"
+
+    exit 1
+    ;;
+
+esac
+
+exit 0

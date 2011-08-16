@@ -1,0 +1,42 @@
+http://www.phys.ethz.ch/~franklin/Projects/dphys-config/INSTALL
+author Neil Franklin, last modification 2006.09.15
+copyright ETH Zuerich Physics Departement
+  use under either modified/non-advertising BSD or GPL license
+
+To install/config/use dphys-config do the following:
+
+
+Source install
+==============
+
+1. Download and unpack the .tar.gz archive file from:
+
+   http://www.phys.ethz.ch/~franklin/Projects/dphys-config.tar.gz or
+   http://www.phys.ethz.ch/~franklin/Projects/dphys-config-<date>.tar.gz
+     where last milestone/release is <date>=20060915
+
+   make
+   make install
+
+
+Configuration
+=============
+
+1. ensure that wget is installed
+2. install this software
+3. make HTTP server space which will host the config files and file list
+   (dir, HTTP server config, DNS, etc), such as http://server/configs/sarge/*
+4. in the virtual servers base directory, make for each host an directory,
+   such as http://server/configs/sarge/<hostname>/*
+5. in this host directory put an file listing the files to be installed;
+     with each line formatted: file-on-server:path-on-target:script-to-run
+   as many hosts have the same files, hardlink or symlink them to an file in an
+     http://server/configs/sarge/<PSEUDOHOST>/* directory
+6. set up the config file /etc/dphys-config
+   - where your file list and config files are to be found
+7. run the /usr/bin/dphys-config script at every startup:
+   - /usr/bin/dphys-config init
+   and daily from cron:
+   - 0 3 * * *  root  /usr/bin/dphys-config cron > /dev/null 2>&1
+
+For details read the included dphys-config.1 man page.

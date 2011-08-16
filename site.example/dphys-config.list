@@ -1,0 +1,31 @@
+# SITE/dphys-config.list - tell dphys-config what files to process
+# authors multiple, last modification 2006.09.15
+
+# extra filesystem and fstab line configuration
+dphys-config-filesys.list:/etc/:if [ -x /usr/local/sbin/dphys-config-filesys ] ; then /usr/local/sbin/dphys-config-filesys ; fi
+local/sbin/dphys-config-filesys:/usr/:/bin/chmod 755 {}; {}
+
+# quota configuration
+dphys-config-quota.list:/etc/:if [ -x /usr/local/sbin/dphys-config-quota ] ; then /usr/local/sbin/dphys-config-quota; fi
+local/sbin/dphys-config-quota:/usr/:/bin/chmod 755 {}; {}
+
+# automount usb sticks/disks (using kernel 2.6 and udev)
+#   for kernel 2.4 and hotplug use dphys-hotplug and dphys-hotplug-usb-storage
+# Debian 3.1 (sarge)  usbmount  is broken, fails to call  usbmount/umount.d/*
+#   leave this stuff here for in case we re-try  usbmount  in Debian ?.? (etch)
+#usbmount/usbmount.conf:/etc/
+#usbmount/mount.d/10_create_label_or_model_symlink:/etc/
+#usbmount/umount.d/10_remove_label_or_model_symlink:/etc/
+#   in the mean time use our own script, better direct / mountpoint anyway
+usb-storage.dev:/etc/dev.d/block/:/bin/chmod 755 {}
+# modules
+local/sbin/dphys-config-usb-storage:/usr/:/bin/chmod 755 {}; {}
+
+# various scripts to configure system or software
+#   for applications
+local/sbin/dphys-config-alternatives:/usr/:/bin/chmod 755 {}; {}
+
+# X config
+#   X server setup, hardware description and generator script
+dphys-config-x:/etc/:if [ -x /usr/local/sbin/dphys-config-x ] ; then /usr/local/sbin/dphys-config-x ; fi
+local/sbin/dphys-config-x:/usr/:/bin/chmod 755 {}; {}

@@ -1,0 +1,432 @@
+http://www.phys.ethz.ch/~franklin/Projects/dphys-config/Logfile - done and todo
+author Neil Franklin, last modification see last entry near bottom
+copyright ETH Zuerich Physics Departement
+  use under either modified/non-advertising BSD or GPL license
+
+background is the dphys-admin project, read its Logfile at:
+  http://www.phys.ethz.ch/~franklin/Projects/dphys-admin/Logfile
+as part of that wrote this tool to do auto-loading of config for packages
+  here only log of the events pertaining to making this tool
+
+2005.04.28 Thu
+looking at dphys-admin example config and dphys-local-admin generated config
+  note that dphys-local-admin also sets /etc/default/dphys, also needs change
+    only contains url-path for accessing config files on config server
+    heeb discussion about /etc/default/dphys and what packages use it
+      according to new policy all dphys-setup-* use local files, no net access
+    only dphys-local-* fetches stuff from server, used by older packages
+      has led to proliferation of dphys-local-* packages, work, duplicate code
+    heeb uses dphys-common-tools lib now, common code, has url-path hardcoded
+  bring up suggestion of single downloader, dphys-config, with url-path in it
+    on server then file with list file-on-server:path-on-target:script-to-run
+  will require per-package config files, no splitting/processing
+    is cleaner, but means that keyboard needs setting twice (X and console)
+  split out /etc/default/dphys to separate dphys-local-etc-default-dphys
+    to be left there, so long still old-style packages use it
+    add that to top of /pub/debian-local/share/main.pkglist to be safe
+senguen discuss paths for config files
+  we will use http://server/configs/sarge/<hostname>/<conffile>
+    which will then be /pub/debian-local/configs/sarge/<hostname>/<conffile>
+
+2005.04.29 Fri
+forked dphys-config project off from dphys-admin
+  while starting up that removed 3.0 remark from README
+make dphys-config so it will work on woody and sarge, so path version depend
+  no file contains "woody" or "sarge", only /etc/debian_version "3.0" or "3.1"
+  so path http://server/configs/`cat /etc/debian_version`/<hostname>/<file>
+    and with http://server/configs/sarge/<hostname>/<conffile> comfort symlink
+makesourcepackage generated project directory
+  Makefile new title line, README adapted from dphys-admin, Logfile started
+
+2005.05.12 Thu
+further generating project, FAQ, INSTALL
+sketched out what features need to go in
+
+2005.05.13 Fri
+further generating project, index.html.*, makefile make tar
+dphys-config.example setting CONF_BASEURL for server and subdir
+  needed to read configs, so not settable by dphys-config
+    so set it by dphys[2|3] end[firstrun|2ndstage] by writing into file
+  this also solves the `cat /etc/debian_version` problem
+    dphys[2|3] dependant [woody|sarge] string in above action
+started coding dphys-config
+  all sh script boilerplate taken from makesourcepackage (dphys-admin is perl)
+    while at it more code unification, added stuff missing in some places
+  download list of config files to process, file tests copied from dphys-admin
+    test runs download, wget of 404 files faills to give error message
+
+2005.05.19 Thu
+further coding dphys-config, missing wget error message was missing "!"
+  made /pub/debian-local/configs/woody/pomfrey/conf_list dir and test conf_list
+    despite 1 line loops runs twice, 1st for conffile, 2nd for place
+  is because -d sets line end, not field separator
+    using IFS= fails with syntax error, use cut, this works
+  allow $SCRIPT to be a full command with parameters, strip for some stuff
+  allow commented out lines and empty lines in config files list
+  made an cron.d script and started init.d script
+  how pass cron/init.d to dphys-admin? not at all, own scripts for such cases
+    same for special stuff like dphys-admin, own init.d and cron.d for timing
+
+2005.05.20 Fri
+dphys-config finished init.d script, run early before daemons
+search all dphys-local-* packages for functions they do
+  decide what to offer in dphys-config, and what to expect in scripts
+  dphys-local-admin: generate /etc/dphys-admin
+    URL base (now superfluous as we load), and email adress -> get 2 files
+  dphys-local-afs: get /etc/openafs/CellServDB file from server
+    generate /etc/default/afs.conf from config vars -> get a file
+  dphys-local-anacronconf: generate /etc/cron.d/anacron to start anacron
+    -> file, with randomised time already in it
+  dphys-local-aptconf: generate /etc/apt/sources.list -> get file (or files)
+  dphys-local-auth: get /etc/ssh/* and chown/chmod, inst /etc/pam.d/* files
+    generate /etc/pam_ldap.conf with config var in it, host in group
+    generate /etc/cron.allow from NIS -> all get files (host specific)
+  dphys-local-autofs: generate auto.master and restart /etc/init.d/autofs
+    -> files and trigger script (or direct restart command)
+  dphys-local-console-keymap: get config, run /usr/sbin/install-keymap
+    -> leave or install an file and run script
+  dphys-local-debconf: just set critical and noninteractive -> done already
+  dphys-local-devfsconf: generate /etc/devfs/compat_symlinks -> get file
+    and we are dropping devfs -> so no need anyway
+  dphys-local-dhclient: generate /etc/dhclient.conf -> get file
+  after 10 scripts it seems, copy+script is enough
+    worst case make an (reduced) package with just special actions
+man page dphys-config.8, from dhys-admin, but as sh also from dphys-pkgtools
+  while doing this noticed inconsistent terminology and missing functions
+    main->common (better to read) and conf_list->dphys-config (more obvious)
+    config files may need paths making (else error and not there)
+    if file installed under same name (usual) dont require duplicate typing
+    have an option for removing config files not needed any more
+
+2005.05.26 Thu
+for better user visible naming changes:
+  main->common, pre|post->hostpre|hostpost, conf_list->dphys-config.list
+make directory for new config files
+for place path ending in / add file name, save user typing
+  while man page added example where full name needed, same name, diff dir
+added for debugging an directory base, so can test in /tmp/.../<stuff>
+  test runs, fixes, OK
+improved man page wording and formatting, pass to senguen to check over
+
+2005.05.27 Fri
+on pomfrey make /etc/dphys-config config file, as no dphys-local-config wanted
+package version 20050527.122702-1, changelog:
+  "initial release"
+fails to install /usr/sbin/dphys-config
+  was Makefile, still had # in each line, from when generating
+intro to senguen, how to use it, explained exact site layput, ideas
+  make /pub/debian-local/configs/woody/`hostname` directories for all
+  added symlinks to ../SITE/dphys-config.list
+  made empty (only comments) SITE/dphys-config.list file
+  all hosts made /etc/dphys-config file with server location
+  existing dphys-admin pkglist file added dphys-config so it gets installed
+with senguen ported some dphys-local-* packages, see how it performs
+  noticed good thing to oder some files into directories under SITE
+    can copy by dir/file syntax, but in /tmp/dphys-config-*/ needs mkdir -p
+  files wgetted have current time, lose edit time, tried -N, same, leave it
+  if command is multiple separated by ; shell fails to split them, use eval
+
+2005.06.09 Thu
+fixed debian/dphys-config.init, removed unneccessary and effectless parameter
+  was still /usr/sbin/dphys-config init, from editing old dphys-admin script
+if no scripts found, not just warning, also don't run missing script
+improved error messages, log fatal and warning, for when running cron/init.d
+packaged version 20050609.173645-1, changelog:
+  "fix init.d, no script don't run, improve err msg, syslog fatal/warning"
+
+2005.06.10 Fri
+on system install with config before admin, using scripts only fetched by admin
+  gives time dependency, admin packages need config, so must be this way
+    config already doesn't run script, and then gives warning, ignore it
+      user can avoid warning if using /bin/sh -c "if [ ... ] ; then ... ; fi"
+    then admin fetched packages must run script on install (postinst/init.d)
+      if it finds an preexisiting (non-purge remove or config) file there
+  document this behaviour and solution in man page
+packaged version 20050610.134347-1, changelog:
+  "improved man page, gotchas, dphys-config vs dphys-admin install time"
+
+2005.06.16 Thu
+problem with wget -N and -O options clashing, -N not really usefull, remove it
+packaged version 20050616.130021-1, changelog:
+  "bugfix wget without -N, some verbose output now as info"
+senguen request optimise output, -v all, no -v installing/script, -q nothing
+made wget retry each file 3 times, and put out error if not finding server
+  at present we have with 150 hosts and 30 files up to 5 faillures every night
+packaged version 20050616.152551-1, changelog:
+  "changed cron.d time to avoid 04:00 net reconfig troubles"
+
+2005.06.17 Fri
+above wget 3 times also fails, now explicit loop, call 3 times and evaluate
+  only return on 200 or 404 status, everything else log and abort
+packaged version 20050617.130219-1, changelog:
+  "bugfix config overwrite partial with files when DNS sporadic fails"
+spread load of 150 systems over an hour like dphys-admin
+  call with none|"none"|"cron"|"init" mode, on cron delay by rand
+file permissions of installed files, man page document chown/chmod usage
+packaged version 20050617.142523-1, changelog:
+  "randomised cron run times to spread load, man documented chown/chmod"
+
+2005.06.30 Thu
+senguen no // in path, fixed generating CONFPLACE
+packaged version 20050630.105838-1, changelog:
+  "fixed // in install paths"
+
+2005.07.01 Fri
+also handle large files, such as entire kernel.tar.gz files
+  so keep all downloaded "temporary" files, for wget -N, permanent work dir
+  no delete of temp dir at end, so move from /tmp to /var/cache
+  wget no -O, so use (cd ; wget), so no file renaming, no .common, use .merged
+test run, works in /tmp/dphys-config.debug, but pam.d/* screwed
+  is missing -O which contained pam.d/, dir needs to go into cd
+handle chown/chmod problems, now that temporary files are permanent
+packaged version 20050701.155459-1, changelog:
+  "handle large files, only fetch once, unless file changed"
+
+2005.07.07 Fri
+corrected some outdated comments
+
+2005.09.08 Thu
+all scripts added  exit 0  at end, following new policy
+makefile install .example
+man page document options -q -v -D -h
+set INSTALL <date>=  to  ????????  (= none yet)
+packaged version 20050708.144751-1, changelog:
+  "fix for sarge chown/chmod -f bug"
+
+2005.09.15 Thu
+improved man page gotchas section wording
+
+2005.09.23 Fri
+on booting errors, because can not access config files server
+  is because identd is only started by inetd with is rc2.d/S20, we have S18
+  delay execution until after S20, will need restarting updated S20 daemons
+    needs to run before dphys-admin (S24), so run as S22, changed debian/*.init
+packaged version 20050923.171624-1, changelog:
+  "bugfix rc2.d/S?? runlevel, after S20 of inetd and identd"
+
+2005.09.29 Thu
+still failed, works on newly installed, but not on updated preexisting
+  is fault of update-rc.d, does no install if existing link, no remove old
+  fix this by doing an  mv  by hand, als all new machines work right
+
+2005.10.13 Thu
+extended man page with more examples, loading scripts, improved wording
+  also suggested method for making/copying an new host
+packaged version 20051013.151800-1, changelog:
+  "improved man page, describe scripts and host copying"
+
+2005.12.22 Thu
+changed CMD_* stuff to same new system as in dphys3
+
+2006.06.29 Thu
+fixed -D bug, shift 1 after the  if DEBUG_$1  tests, as in dphys3 and msp
+added  set -e  after config stuff, as now in all other scripts
+  add robustness against non-0 return values,  || /bin/true  in some places
+added debug output of exit value of called scripts
+  systematic command|script -> command naming for triggerable command
+  chmod/chown of temp config files only if script run, else never reason
+
+2006.06.30 Fri
+added support for uninstalling outdated config files
+  run the facultative script as pre uninstall instead of post install
+  yes, we are now up to the full abilities of Debian package install/remove
+    just here for single non-packaged config files, and list file driven
+    and with host specific assembly of each file from 3 parts pre/all/post
+  when uninstalling only remove the target file
+    its temporary files can not be located for sure, leave them in /var/cache
+when testing erroneous line with : at beginning, does nonsense
+  should issue an error message and abort, same if no : or nothing after
+  same also if no config file part could be retrieved, file(s) missing
+    but allow any of the 3 parts to be missing, inkl the main/site one
+man page updated to reflect uninstall ability, added more examples
+packaged version 20060630.155509-1, changelog:
+  "added ability to remove config files, with pre uninstall commands"
+
+2006.07.02 Sun
+problem with recursive dpkg call hanging after update
+  was because dphys-admin -> apt-get update -> dpkg -> dphys-config postinst
+    -> init.d -> dphys-config init -> dphys-scripts -> dpkg (recursive)
+  problem is using dpkg in dphys-scripts, instead of using dphys-admin `` stuff
+    actually dphys-scripts itsself is a violation of dphys-config idea
+    from dphys-config should not run stuff that changes dpkg (u/i/r/p) state
+  while looking at this switched off debugging output which was left on
+packaged version 20060702.003332-1, changelog:
+  "bugfix switched off debugging which was left enabled"
+
+2006.07.27 Thu
+correct site and host directory tests, so it aborts if not there
+for command return value != 0 output and log an note
+added {} syntax to filed for commands to trigger
+  it is substituted for the full filename of the file being (un)installed
+
+2006.07.28 Fri
+{} syntax tested, updated man page, update/upgrade on our site
+  simplified dphys-config.list using {}
+packaged version 20060728.131953-1, changelog:
+  "bugfix Server reachability tests, added {} feature"
+for running triggered commands use  /bin/sh -c  instead of  eval
+  saves user typing  /bin/sh -c  whenever an  if [ ]  is needed
+  and also safer than with subshell, variables of script not damagable
+
+2006.08.03 Thu
+tested  /bin/sh -c
+  noticed foo:/root: instead of foo:/root/: gives user-incomprehensible errors
+    check for such user errors, warn user and auto-correct them
+  updated man page to not have  /bin/sh -c ""  in its script test example
+added -f option, to only run an filtered set of dphys-config.list lines
+  saves time when just one/few config file(s) has been updated updated man page
+packaged version 20060803.105525-1, changelog:
+  "triggered command full shell without sh -c "", added -f filter option"
+unified code for handling running external commands into run_command_safely ()
+unified code for downloading/merging into fetch_and_merge_config_file ()
+for variable amount and position of backtick/if/include
+  brainstorming with heeb, only if first line #@dphys-config-preprocess ... ...
+    with ... ... give selection and row of preprocessor modules to call
+    this allows normal configfiles to stay unchanges, no accidents
+      and per file user selecton how much needs to possibly be escaped
+  `stuff` for substituting with stdout of an command, such as /bin/hostname
+  #@if <condition> ; <line to insert>  for host specific, condition may be [ ]
+  #@include extension to generalise host[pre|post]
+
+2006.08.04 Fri
+/bin/sh -c  code change has been distributed, simplify dphys-config.list
+bug report, upgrade error on 30 of 150 hosts, CONFPLACE seems to be not set
+  all of astro department (exept one) and just 2 others (and one special case)
+    special case is most likely because having own dphys-config.list.hostpost
+  upgraded "non-absolute place" from NOTE to WARNING, added log of it
+  ensure that tests on CONFFILE_NAME and CONFPLACE defend against spaces
+  debug run shows that  /bin/grep ${CONF_LINEFILTER}  is the culprint
+    CONF_LINEFILTER set to .* for no filtering, and globbed after substitution
+    so first filename in . becomes filter, rest files read instead of stdin
+packaged version 20060804.112852-1, changelog:
+  "bugfix CONF_LINEFILTER missglobbed screwing config list"
+backtick/if/include preprocessor completed, extensive testing, works
+  expanded man page with preproc options
+
+2006.08.10 Thu
+senguen Bugreport that dphys-config fails on newly install hosts
+  config files do not get installed, downgrade to 20060728 version works
+    both newer source restored on server, diffs, just small stuff, should work
+  pomfrey upgraded again to 20060804, test, works, must be new install problem
+  try new install 20060728 fails on config lines without  sh -c
+    but only one warning, must have abborted before the second one
+    is  /usr/sbin/install-keymap `/bin/cat /etc/install-keymap`  returns 128
+      known bug, Debian Bug ID 339005, surfaced here because of  set -e
+      20060804 version has  set +e  and  set -e  to combat such stuff
+  new try, again gets 20060728, makesourcepackage -ui is failing to upload
+    rsync produces error 23, but transfers, makesourcepackage -u transfers
+    makelocalsite deletes 20060804 instead of 20060728, is file date
+      20060728 has date of 0809 from restoring, so newer, 20060804 deleted
+    delete 20060728 manually and reindex, try new install, works
+  20060804 try shows abbort after first triggered script, is an missed edit
+    exit 0 -> return 0, not return ${RETVAL} else script abborts after return
+    works now as it should, all installed, but no output for - lines
+      while here add missing message when running - lines to current
+packaged version 20060810.132054-1, changelog:
+  "bugfix  missed  exit 0  to  return 0  in run_triggered_commands ()"
+further with preprocessor stuff testing, seems to work
+old, not used any more, file sections remain in the cache
+  need to be replaced on server by empty files, not deleted, error prone
+    wget can not delete them after now getting 404
+  when recieving an 404 delete the not fetched file, if existing
+    but this fails because filename not known in  broken_net_wget_or_die ()
+    and adding annother parameter makes code more bloated, less readable
+  alternative get rid of caches version before fetching, or after installing
+    or even at beginning all, or after run all, no cache at all, only spool|tmp
+      has additional advantage of no need of copying over permissions to cache
+    may produce more server load, but wget is doing 200 anyway, no cache effect
+      and at roughly 1M of files per host not really relevant anyway
+  removed all caching, deleted old cache directory
+    now SYS_WORKDIR in /var/tmp, delete it at end of run
+test run shows warnings in syslog, from non-zero return values
+  own scripts add  exit 0  Debian stuff add  || /bin/true  to commands
+
+2006.08.11 Fri
+test if still warning output in syslog, none any more
+  noticed dphys-config-* scripts log that they have run
+    add option and code for doing this, so log shows that we run, as no own log
+packaged version 20060811.111000-1, changelog:
+  "preprocessor backticks/if/include, no cache"
+added all previous "packaged version ????????.??????-?, changelog:" lines
+  same also done to all other projects, consistent better docs
+publish dphys-config-* scripts, added missing exit 0
+  updated comments in script to use new {} and sh -c handling features
+    dphys-config-quota added missing  set -e  and needed  || /bin/true
+  copied all my scripts to SITE.example/local/sbin dir of dphys-config project
+    and made in SITE.example an dphys-config.list and other files used by it
+
+2006.08.17 Thu
+index.html.en extended with all dphys-config-* scripts, and their config files
+/etc/quota -> /etc/dphys-config-quota.list, config and script updated
+Makefile copy SITE.example to /u/s/d/dphys-config/examples
+dphys-config-usb-mouse merged into dphys-config-x, only if USB mouse used
+  was already in, now just redundant old leftover, deleted
+  dphys-config-x and dphys-config-filesys also log error messages into syslog
+    while at it systematic adding of  exit 1  after all ERROR and FATAL
+convert out site to using #@include instead of .host[pre|post]
+
+2006.08.18 Fri
+processing for #@include screws up when * in line, expands with directory
+  same problem as with grep .*, checked up all ${} and added "" where needed
+  while test run without preprocessor tags error processing
+    #@dphys-config-preprocess line, fails because  cut -f 2-  no " ", broken
+    checked up all  cut -f  and added tests for if needed data there
+packaged version 20060818.153432-1 changelog:
+  "bugfix ${} globbing * in data, bugfix  cut -f 2-  full line no delimitor"
+
+2006.08.25 Fri
+finished convertig our site to use #@include instead of .host[pre|post]
+  remove .host[pre|post] feature for -2/3 server load and -1/2 runtime
+  get rid of .merged suffix, use everywhere the remaining ex main file name
+copy dphys-config.list to /etc, not just in /var/tmp, as that is now deleted
+  allows better debugging of dphys-config.list generation, as it stays visible
+when missing #@include file no NOTE: warning, annoys users, little value
+packaged version 20060825.142020-1 changelog:
+  "removed .host[pre|post] feature, dphys-config.list in /etc, no NOTE:"
+
+2006.09.08 Fri
+dphys-config.8 lintian man page warning fixed, \ before - because groff crap
+
+2006.09.14 Thu
+get ready for publication as an official Debian Linux ?.? (etch) package
+  reworked and updated documentation, FAQ, INSTALL, README, index.html.en
+  senguen wanst to make own debian/* as lintian complains about native package
+    looked into any information lost if deleting debian/* to avoid collision
+  debian/changelog is all info duplicated in this Logfile, deleted it
+  debian/control is just wget depends and docu text, add to other docs
+    clearer in FAQ and man page, added to INSTALL and README
+  debian/copyright is nearly same as in README, updated that
+  debian/dphys-config.cron.d is simple example, move to main dir
+    and removed debian/rules stuff  #@rc.d@ start 22 2 .
+    add to Makefile installation into examples directory
+  debian/dphys-admin.docs is nothing, deleted it
+  debian/dphys-config.init is simple example, move to main dir
+    add to Makefile installation into examples directory
+  debian/rules has nothing specific, deleted it
+  while editing man page noticed that it still refers to .host[pre|post]
+    update this to the new situation, partial rewrite, clarifications
+    while editing noticed terminology used uninstall vs remove
+      standardise on remove, and on postinstall and preremove, not postinst
+  analog to all other *.example rename SITE.example to site.example
+  as only producing an "upstream" and senguen doing "maintainer" version
+    remove FAQ and INSTALL and index.html.en references to my old packages
+
+2006.09.15 Fri
+released 1st (and feature completed) milestone
+  copy to ../dphys-config-20060915, made tar file of that
+  modified index.html and FAQ and INSTALL to show the milestone release
+  remade ../dphys-config.tar.gz archive for current state
+  no Debian packaging any more, senguen does this now, no changelog entry
+senguen while "upstream" packaging made suggestion move /usr/sbin to /usr/bin
+  as it can also be used for distributing users dotfiles to multiple homes
+  change all sbin to bin and also all man page .8 to .1
+  add support for user configs ~/.dphys-config and ./dphys-config
+  copy changes to milestone/release 1, make new tar of release
+
+------ project status
+
+doing:
+
+todo:
+
+possible extensions:

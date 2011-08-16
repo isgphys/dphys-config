@@ -1,0 +1,79 @@
+# /etc/dphys-config-x - configure XFree server
+# author Neil Franklin (auto generate script), last modification 2006.09.14
+
+
+# whether to generate XF86Config-4 (auto) or leave it alone (manual)
+#   defaults to manual, as user needs to make config file if something wanted
+#CONF_SETUP=manual
+
+# what keyboard layout we have (us, en_US, de_CH, ...)
+#   defaults to international compatible standard here
+#CONF_KEYB_LAYOUT=us
+
+# whether we have the extra 3 keys, and so need an keymap including them
+#   but enabling this screwd up xterm ALT key on Debian 3.0 (potato) XFree4.1
+#     and without they worked anyway, still does on Debian 3.1 (sarge) XFree4.3
+#   defaults to using the more universal setting
+#CONF_KEYB_EXTRA3=""
+
+# where the PS/2 mouse is connected
+#   /dev/psaux       (standard)
+#   /dev/misc/psaux  (devfs)
+#   none             (only USB mouse, disable PS/2 mouse, else keyboard dead)
+#   defaults to what we and most people use these days, now devfs is deprecated
+#CONF_PS2_MOUSE_DEV=/dev/psaux
+
+# what PS/2 mouse type we have
+#   imps2      (Logitech Wheel Mouse)
+#   ps2        (2 or 3-button mouse)
+#   ps2scroll  (Wheel Mouse with scrolling on button2 push)
+#   none       (only USB mouse, disable PS/2 mouse, else keyboard dead)
+#   defaults to the most common PS/2 mouse type around here
+#CONF_PS2_MOUSE_PROTO=imps2
+
+# what USB mouse type we have
+#   imps2      (Logitech Wheel Mouse)
+#   ps2        (2 or 3-button mouse)
+#   ps2scroll  (Wheel Mouse with scrolling on button2 push)
+#   none       (only PS/2 mouse, disable USB mouse, don't load USB drivers)
+#   defaults to the most common USB mouse type around here
+#CONF_USB_MOUSE_PROTO=imps2
+
+# what our monitor is capable of
+#   defaults to standard averge LCD abilities, as most are today LCDs
+# old "CRT" and "LCD" settings were 121, "CRT-slow" and "EIZO-T68" had 96
+#CONF_HOR_MAX=121
+# old "LCD" setting was 60, "CRT" and "CRT-slow" and "EIZO-T68" had 160
+#CONF_VER_MAX=60
+
+# what physical size the monitor has, if not queryable, or overriding wanted
+#   format ist "xxx yyy" with xxx and yyy being size in mm
+#   defaults to nothing, as most systems here do not have it set
+#CONF_DISPSIZE=""
+
+# force configuration for this device type
+#   defaults to using what lspci detects, change for special cases
+#CONF_DEVICE_TYPE=""
+
+# PCI bus ID of what card we will be using, in cases it needs forcing
+#   defaults to nothing, as only needed on dual displays, and host specific
+#CONF_BUS_ID=""
+
+# what amount of pixels we want
+#   such as 800x600, 1024x768, 1152x864, 1280x1024, 1400x1050, 1600x1200
+#   defaults to what most monitors are capable of displaying
+#CONF_RESOLUTION="1024x768"
+
+# what amount of bits/pixel we want
+#   such as 1, 2, 4, 8, 15, 16, 24, 32
+#   defaults to what most cards can do and need
+#CONF_DEPTH=24
+
+# whether we have an dual headed system or even Xinerama
+#   none  (single screen)
+#   dual  (2 screens separate, 2nd right of 1st)
+#   xine  (2 screens merged, 2nd right of 1st)
+#CONF_DUAL=none
+
+# log what we have done
+#CONF_LOG_DONE=yes

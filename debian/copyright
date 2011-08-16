@@ -8,10 +8,6 @@ Upstream Author: Neil Franklin <neil@franklin.ch>
 This software is dual-licensed under the GNU General Public License (GPL),
 and the modified/non-advertising BSD License (BSD).
 
-License (Public Domain, examples written by Gürkan Sengün):
-
-   Download from http://debian.ethz.ch/pub/debian-local/share/kernel/
-
 License (GPL):
 
    Copyright © 2005-2006 Neil Franklin
@@ -60,6 +56,9 @@ License (BSD):
    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
    SUCH DAMAGE.
+
+The examples are under Public Domain, written by Gürkan Sengün and
+were downloaded from http://debian.ethz.ch/pub/debian-local/share/kernel/.
 
 The Debian packaging is © 2006, Gürkan Sengün <gurkan@linuks.mine.nu>,
 © 2009-2011 Axel Beckert <abe@debian.org> and is licensed under

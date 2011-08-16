@@ -9,6 +9,7 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
       link at /usr/share/common-licenses/GPL
     + Update copyright years and my e-mail address
     + Reword the section about examples
+    + Mention reverse-dphys-config
   * Bump Standards-Version to 3.9.2 (no changes)
   * Fix some lintian warnings:
     + debian-rules-missing-recommended-target

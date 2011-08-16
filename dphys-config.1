@@ -1,12 +1,12 @@
 .\" /usr/share/man/man1/dphys\-config.1(.gz)
-.\" author Neil Franklin, last modification 2009.06.27
+.\" author Neil Franklin, last modification 2010.01.21
 .\" copyright ETH Zuerich Physics Departement
 .\"   use under either modified/non\-advertising BSD or GPL license
 
 .\" all appearances of an minus/options/wordseparators are written as \-
 .\"   avoid groff brokenness, which else makes U+2010 instead of U+002D
 
-.TH DPHYS\-CONFIG 1 "2009.06.27" "D\-PHYS Configuration Tools"
+.TH DPHYS\-CONFIG 1 "2010.01.21" "D\-PHYS Configuration Tools"
 
 .SH NAME
 
@@ -42,7 +42,7 @@ system operation and maintenance setup.
 
 .TP
 .B \-c
-configname: Use this set of config files instead of hostname set. Usefull for
+configname: Use this set of config files instead of hostname set. Useful for
 chroot or vhost installs, or for tests.
 .TP
 .B \-f \ filter
@@ -181,7 +181,7 @@ killing entire directories (such as say all of /etc/ :\-))
 Full command (directory+filename, with parameters) of an command to be run,
 after this config file has been newly installed or changed/updated, or before
 this config file is removed. This can also be multiple commands separated
-by ; separators. Usefull for doing chown/chmod to files that need it. If the
+by ; separators. Useful for doing chown/chmod to files that need it. If the
 marker \fI{}\fP appears in the command, this will be substituted by the
 filename the config file is going to be installed as. This is analog to \fBfind
 \-exec\fP filename substitution
@@ -238,7 +238,7 @@ We advise using an subdirectory here, because other
 admin stuff you put on the same VirtualHost. Such as software packages, site
 news, etc.
 .PP
-For dphys\-config to be usefull you then need to make config file lists for it.
+For dphys\-config to be useful you then need to make config file lists for it.
 And provide the actual config files that can be installed, driven by the lists.
 This is the largest job, as it basically amounts to extracting all your
 relevant config work from your site. Also known as reengineering your site.

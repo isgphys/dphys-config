@@ -1,5 +1,5 @@
 http://neil.franklin.ch/Projects/dphys-config/INSTALL
-author Neil Franklin, last modification 2009.09.26
+author Neil Franklin, last modification 2010.02.16
 copyright ETH Zuerich Physics Departement
   use under either modified/non-advertising BSD or GPL license
 
@@ -13,7 +13,7 @@ Source install
 
    http://neil.franklin.ch/Projects/dphys-config.tar.gz or
    http://neil.franklin.ch/Projects/dphys-config-<date>.tar.gz
-     where last milestone/release is <date>=20090926
+     where last milestone/release is <date>=20100216
 
    make
    make install

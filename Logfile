@@ -390,7 +390,7 @@ dphys-config.8 lintian man page warning fixed, \ before - because groff crap
 2006.09.14 Thu
 get ready for publication as an official Debian Linux ?.? (etch) package
   reworked and updated documentation, FAQ, INSTALL, README, index.html.en
-  senguen wanst to make own debian/* as lintian complains about native package
+  senguen wants to make own debian/* as lintian complains about native package
     looked into any information lost if deleting debian/* to avoid collision
   debian/changelog is all info duplicated in this Logfile, deleted it
   debian/control is just wget depends and docu text, add to other docs
@@ -399,7 +399,7 @@ get ready for publication as an official Debian Linux ?.? (etch) package
   debian/dphys-config.cron.d is simple example, move to main dir
     and removed debian/rules stuff  #@rc.d@ start 22 2 .
     add to Makefile installation into examples directory
-  debian/dphys-admin.docs is nothing, deleted it
+  debian/dphys-config.docs is nothing, deleted it
   debian/dphys-config.init is simple example, move to main dir
     add to Makefile installation into examples directory
   debian/rules has nothing specific, deleted it
@@ -413,15 +413,59 @@ get ready for publication as an official Debian Linux ?.? (etch) package
 
 2006.09.15 Fri
 released 1st (and feature completed) milestone
-  copy to ../dphys-config-20060915, made tar file of that
   modified index.html and FAQ and INSTALL to show the milestone release
-  remade ../dphys-config.tar.gz archive for current state
   no Debian packaging any more, senguen does this now, no changelog entry
+  copy to ../dphys-config-20060915, made tar file of that
+  remade ../dphys-config.tar.gz archive for current state
 senguen while "upstream" packaging made suggestion move /usr/sbin to /usr/bin
   as it can also be used for distributing users dotfiles to multiple homes
   change all sbin to bin and also all man page .8 to .1
   add support for user configs ~/.dphys-config and ./dphys-config
   copy changes to milestone/release 1, make new tar of release
+
+2006.09.21 Thu
+make place for storing dphys-config.list to variable, so can be user writable
+don't source ./dphys-config, danger of endless recursion, and near useless
+  when user don't use /etc/dphys-config.list, go for ~/.dphys-config.list
+Debian sid sed 4.1.5 newly fails caucious \{\}, because old basic regex style
+  sarge sed 4.1.2. still processed \{\}, remove both \, now works on both
+
+2006.10.05 Thu
+index.html.en small text fixes, Link to official Debian package in Sid
+more checking for potential escaping problems, aggressive use of ""
+  all echo and CMD*PRINT* which have variables which may derive from user data
+  for VAR in "${VARS}" ; do  fails, all ov VARS in one loop run
+    so need to do this without "", so with tr filter ${VARS} only valid chars
+  systematic rename to ${[SYS_]CONF[LIST|FILE][|_NAME|_URL|_PLACE]}
+shrink space devoted to site.example in index.html.en, for more releases
+update index.html.en and man page with what has changed since last release
+
+2006.10.12 Thu
+senguen porting to FreeBSD
+  finds no /bin/gzip and /bin/true, has both in /usr/bin (urgh)
+    we already set PATH, revise that, add /usr/local (for FreeBSD ports)
+    after that remove all absolute paths to commands, not only from Code
+      but also all example scripts, man page examples, Makefile
+  /bin/sh has no keyword function, sh and bash work without it, drop it
+    why does damn bash not warn of this, when running called as /bin/sh?
+  /bin/sh also fails on "~/.xxx", has to be given ~/."xxx" to work
+
+2006.10.13 Fri
+after all bugfixes and changes new release
+  updated FAQ, INSTALL, README, index.html.en
+  copy to ../dphys-config-20061013, made tar file of that
+  remade ../dphys-config.tar.gz archive for current state
+
+2006.10.19 Thu
+better automated test for missing "${VAR}", found one
+  automated search for possible missed cases, sed /\\$/N trouble
+
+2006.10.20 Fri
+better automated test for missing "${VAR}", found annother one
+  also replace ${TICK} processing with better, using set -e, prevent abbort
+  while doing so found bug in #@if condition/line splitting, fixed
+as only fetched by senguen, no distribution, redo 2nd release
+  no dphys-config-20061013 any more, just dphys-config-20061020 as 2nd
 
 ------ project status
 

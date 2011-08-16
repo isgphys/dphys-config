@@ -11,7 +11,8 @@
 #     else that will not find its /etc/dphys-admin.list config file
 #   so we run it as rc2.d/S22dphys-config
 
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 export PATH
 
 # what we are
@@ -20,25 +21,25 @@ NAME=dphys-config
 case "$1" in
 
   start)
-    /bin/echo "Starting ${NAME} automatic config updates ..."
+    echo "Starting ${NAME} automatic config updates ..."
 
     # in case system was switched off for a while, run an upgrade
     #   this will produce output, so no -n in above echo
-    /usr/bin/dphys-config init
+    dphys-config init
 
-    /bin/echo "done."
+    echo "done."
     ;;
 
   stop)
-    /bin/echo "'Stopping' ${NAME} automatic config updates (does nothing)."
+    echo "'Stopping' ${NAME} automatic config updates (does nothing)."
     ;;
 
   restart|reload|force-reload)
-    /bin/echo "No daemon to (force-)re[start|load] in ${NAME}"
+    echo "No daemon to (force-)re[start|load] in ${NAME}"
     ;;
 
   *)
-    /bin/echo "Usage: $0 {start}"
+    echo "Usage: $0 {start}"
 
     exit 1
     ;;

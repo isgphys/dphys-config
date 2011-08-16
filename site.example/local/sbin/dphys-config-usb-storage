@@ -1,20 +1,20 @@
 #!/bin/sh
 # /usr/local/sbin/dphys-config-usb-storage - load modules for USB storage
-# author Neil Franklin, last modification 2006.09.14
+# author Neil Franklin, last modification 2006.10.13
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
 # this script is called by dphys-config, once on each script install/update
 #   no parameters or environment variables are evaluated
-# it requires in /etc/dphys-config.list 2 lines:
-#   usb-storage.dev:/etc/dev.d/block/:/bin/chmod 755 {}
-#   local/sbin/dphys-config-usb-storage:/usr/:/bin/chmod 755 {}; {}
+# it requires in /etc/dphys-config.list 1 line:
+#   local/sbin/dphys-config-usb-storage:/usr/:chmod 755 {}; {}
 
 
 set -e
 
 # get ready to work
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 export PATH
 
 
@@ -25,13 +25,12 @@ export PATH
 #   usb-storage is generic USB storage device protocol
 for MODULE in usbcore sd_mod usb-storage ; do
   # insert them into /etc/modules for after future boots
-  /bin/grep ${MODULE} /etc/modules > /dev/null || \
-    /bin/echo ${MODULE} >> /etc/modules
+  grep ${MODULE} /etc/modules > /dev/null || echo ${MODULE} >> /etc/modules
   # insert them into the running kernel for this session
-  #   use  || /bin/true  so we can try nonexisting other kernel version modules
+  #   use  || true  so we can try nonexisting other kernel version modules
   #     else  set -e  will nuke this script when we try this
-  /bin/grep '^${MODULE}' /proc/modules > /dev/null || \
-    /sbin/modprobe ${MODULE} 2> /dev/null || /bin/true
+  grep "^${MODULE}" /proc/modules > /dev/null || \
+      modprobe ${MODULE} 2> /dev/null || true
 done
 
 exit 0

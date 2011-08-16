@@ -1,6 +1,6 @@
 # http://www.phys.ethz.ch/~franklin/Projects/dphys-config/Makefile
 # author/generator Neil Franklin using makesourcepackage script,
-#   last modification/generation 2005.09.15
+#   last modification/generation 2005.10.12
 # This Makefile is copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -11,6 +11,9 @@ DIR = dphys-config
 
 
 # --- no user configurable stuff below here
+
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
 PREFIX  = $(DESTDIR)/usr
 BINDIR  = $(PREFIX)/bin
@@ -27,37 +30,37 @@ EXADIR  = $(DOCDIR)/examples
 
 all:
 	@# man pages need making and deleting of compressed versions
-	@/bin/gzip -9 -c dphys-config.1 > dphys-config.1.gz
+	@gzip -9 -c dphys-config.1 > dphys-config.1.gz
 
 clean:
-	@/bin/rm -f dphys-config.1.gz
+	@rm -f dphys-config.1.gz
 
 distclean: clean
 
 install:
 	@# programs and man pages need installing to and deleting from system
-	@/bin/mkdir -p $(BINDIR)
-	@/bin/cp -p dphys-config          $(BINDIR)
+	@mkdir -p $(BINDIR)
+	@cp -p dphys-config          $(BINDIR)
 
-	@/bin/mkdir -p $(MAN1DIR)
-	@/bin/cp -p dphys-config.1.gz     $(MAN1DIR)
+	@mkdir -p $(MAN1DIR)
+	@cp -p dphys-config.1.gz     $(MAN1DIR)
 
-	@/bin/mkdir -p $(EXADIR)
-	@/bin/cp -p  dphys-config.example  $(EXADIR)
-	@/bin/cp -pr site.example          $(EXADIR)
-	@/bin/cp -p  cron.d.example        $(EXADIR)
-	@/bin/cp -p  init.d.example        $(EXADIR)
+	@mkdir -p $(EXADIR)
+	@cp -p  dphys-config.example  $(EXADIR)
+	@cp -pr site.example          $(EXADIR)
+	@cp -p  cron.d.example        $(EXADIR)
+	@cp -p  init.d.example        $(EXADIR)
 
 uninstall:
-	@/bin/rm -f  $(EXADIR)/init.d.example
-	@/bin/rm -f  $(EXADIR)/cron.d.example
-	@/bin/rm -rf $(EXADIR)/site.example
-	@/bin/rm -f  $(EXADIR)/dphys-config.example
-	@/bin/rmdir $(EXADIR)
+	@rm -f  $(EXADIR)/init.d.example
+	@rm -f  $(EXADIR)/cron.d.example
+	@rm -rf $(EXADIR)/site.example
+	@rm -f  $(EXADIR)/dphys-config.example
+	@rmdir $(EXADIR)
 
-	@/bin/rm -f $(MAN1DIR)/dphys-config.1.gz
+	@rm -f $(MAN1DIR)/dphys-config.1.gz
 
-	@/bin/rm -f $(BINDIR)/dphys-config
+	@rm -f $(BINDIR)/dphys-config
 
 
 # --- project management stuff
@@ -66,8 +69,8 @@ uninstall:
 tar:
 
 	@# package this project into an .tar.gz for one nice download
-	@/bin/echo packaging source and doc files into an .tar.gz ...
-	@(cd ..; /bin/tar zcf $(DIR).tar.gz \
+	@echo packaging source and doc files into an .tar.gz ...
+	@(cd ..; tar zcf $(DIR).tar.gz \
 	  $(DIR)/FAQ $(DIR)/INSTALL $(DIR)/Logfile $(DIR)/Makefile \
 	  $(DIR)/README $(DIR)/cron.d.example $(DIR)/dphys-config \
 	  $(DIR)/dphys-config.1 $(DIR)/dphys-config.example \

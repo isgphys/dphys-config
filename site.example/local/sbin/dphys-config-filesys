@@ -1,6 +1,6 @@
 #!/bin/sh
 # /usr/local/sbin/dphys-config-filesys - add filesystem stuff
-# author Neil Franklin, last modification 2006.08.18
+# author Neil Franklin, last modification 2006.10.12
 #   derived from dphys-setup-extra-fs 1.0, Elmar S. Heeb <heeb@phys.ethz.ch>
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
@@ -11,7 +11,7 @@
 #     reads all input from dirnames list file /etc/dphys-config-filesys.list
 # it requires in /etc/dphys-config.list 2 lines, for config file and script:
 #   dphys-config-filesys.list:/etc/:if [ -f /usr/local/sbin/dphys-config-filesys ] ; then /usr/local/sbin/dphys-config-filesys ; fi
-#   local/sbin/dphys-config-filesys:/usr/:/bin/chmod 755 {}; {}
+#   local/sbin/dphys-config-filesys:/usr/:chmod 755 {}; {}
 
 
 ### ------ configuration for this site
@@ -46,7 +46,8 @@ set -e
 
 # sanitise this place, else some commands may fail
 #   must be before any commands are executed, incl config/input processing
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 export PATH
 
 
@@ -55,39 +56,39 @@ export PATH
 # stuff that goes wrong, not expected by user, not in data output, use >&2
 #   so also with $0 in case this script was called by an other script
 # something within the system that user does not expect, give up
-CMD_FATAL="/bin/echo $0: FATAL:"
+CMD_FATAL="echo $0: FATAL:"
 # something from users input, user will correct this and continue
-CMD_ERROR="/bin/echo $0: ERROR:"
+CMD_ERROR="echo $0: ERROR:"
 # something we can continue with, but may be wrong, and user may not suspect it
-CMD_WARNING="/bin/echo $0: WARNING:"
+CMD_WARNING="echo $0: WARNING:"
 # something most likely not wrong, but tell user for the odd case it is wrong
-CMD_NOTE="/bin/echo $0: NOTE:"
+CMD_NOTE="echo $0: NOTE:"
 
 # normal stuff users expect, so to stdout as normal output, no $0, no marking
-CMD_INFO="/bin/echo"
+CMD_INFO="echo"
 # stuff users asked for, so add to stdout as normal output, no $0, but mark it
-CMD_DEBUG="/bin/echo DEBUG:"
+CMD_DEBUG="echo DEBUG:"
 
 
-# and also put out some permanent mesaages, in case running as cron/init.d job
-BASENAME="`/usr/bin/basename $0`"
+# and also put out some permanent messages, in case running as cron/init.d job
+BASENAME="`basename $0`"
 # something within the system that user does not expect, give up
-CMD_LOG_FATAL="/usr/bin/logger -t ${BASENAME} -p user.error FATAL:"
+CMD_LOG_FATAL="logger -t ${BASENAME} -p user.error FATAL:"
 # something from users input, user can possibly correct this and continue
-CMD_LOG_ERROR="/usr/bin/logger -t ${BASENAME} -p user.error ERROR:"
+CMD_LOG_ERROR="logger -t ${BASENAME} -p user.error ERROR:"
 # something we can continue with, but may be wrong, and user may not suspect it
-CMD_LOG_WARNING="/usr/bin/logger -t ${BASENAME} -p user.warning WARNING:"
+CMD_LOG_WARNING="logger -t ${BASENAME} -p user.warning WARNING:"
 # something most likely not wrong, but tell user for the odd case it is wrong
-CMD_LOG_NOTE="/usr/bin/logger -t ${BASENAME} -p user.notice NOTE:"
+CMD_LOG_NOTE="logger -t ${BASENAME} -p user.notice NOTE:"
 
 # normal stuff users expect, so no marking
-CMD_LOG_INFO="/usr/bin/logger -t ${BASENAME} -p user.info"
+CMD_LOG_INFO="logger -t ${BASENAME} -p user.info"
 # stuff users asked for, but mark it as special
-CMD_LOG_DEBUG="/usr/bin/logger -t ${BASENAME} -p user.debug DEBUG:"
+CMD_LOG_DEBUG="logger -t ${BASENAME} -p user.debug DEBUG:"
 
 
 # other stuff we may want to use
-CMD_SLEEP="/bin/sleep 2"
+CMD_SLEEP="sleep 2"
 CMD_WAIT="read -p ---DEBUG-wait-after-step--- dummy"
 
 
@@ -114,184 +115,185 @@ fi
 if [ x${CONF_LOG_DONE} = xyes ] ; then
   CMD_LOG_IF_DONE="${CMD_LOG_INFO}"
 else
-  CMD_LOG_IF_DONE=/bin/true
+  CMD_LOG_IF_DONE=true
 fi
 
 # set debug option controllable stuff
 if [ x${DEBUG_LOG_STEP} = xyes ] ; then
   CMD_LOG_IF_DEBUG="${CMD_LOG_DEBUG}"
 else
-  CMD_LOG_IF_DEBUG=/bin/true
+  CMD_LOG_IF_DEBUG=true
 fi
 
 
 # show what config settings this debug run is using
-${CMD_LOG_IF_DEBUG} CONF_LOG_DONE=${CONF_LOG_DONE}
+${CMD_LOG_IF_DEBUG} "CONF_LOG_DONE=${CONF_LOG_DONE}"
 
 
 # --- install each directory name
 
-if [ ! -f ${SYS_CONFLIST} -o ! -s ${SYS_CONFLIST} ]; then
+if [ ! -f "${SYS_CONFLIST}" -o ! -s "${SYS_CONFLIST}" ]; then
 
   # directory name list not found, so we can not work
-  ${CMD_FATAL} no or empty directory name list ${SYS_CONFLIST} >&2
-  ${CMD_LOG_FATAL} no or empty directory name list ${SYS_CONFLIST}
+  ${CMD_FATAL} "no or empty directory name list ${SYS_CONFLIST}" >&2
+  ${CMD_LOG_FATAL} "no or empty directory name list ${SYS_CONFLIST}"
   exit 1
 
 fi
 
 # get rid of comments and empty lines (may be emptied comment lines)
-/usr/bin/cut -f 1 -d "#" ${SYS_CONFLIST} | /bin/grep -v '^ *$' | \
-    while read LINE ; do
+cut -f 1 -d '#' "${SYS_CONFLIST}" | grep -v '^ *$' | while read LINE ; do
 
-  ${CMD_LOG_IF_DEBUG} LINE="${LINE}"
+  ${CMD_LOG_IF_DEBUG} "LINE=\"${LINE}\""
 
   # extract from LINE format:  type:parameter[:parameter...]
-  if ! /bin/echo ${LINE} | /bin/grep -q ':' ; then
-    ${CMD_ERROR} config line " ${LINE} " has no ":" to split on >&2
-    ${CMD_LOG_ERROR} config line " ${LINE} " has no ":" to split on
+  if ! echo "${LINE}" | grep -q ':' ; then
+    ${CMD_ERROR} "config line \"${LINE}\" has no \":\" to split on" >&2
+    ${CMD_LOG_ERROR} "config line \"${LINE}\" has no \":\" to split on"
     exit 1
   fi
 
-  TYPE=`/bin/echo ${LINE} | /usr/bin/cut -f 1 -d ":"`
+  TYPE="`echo "${LINE}" | cut -f 1 -d ":"`"
 
-  ${CMD_LOG_IF_DEBUG} TYPE=${TYPE}
+  ${CMD_LOG_IF_DEBUG} "TYPE=${TYPE}"
 
-  case ${TYPE} in
+  case "${TYPE}" in
 
     directory)
       # line format:  directory:<dir>:<owner>:<group>:<mode>
-      DIR=`/bin/echo ${LINE} | /usr/bin/cut -f 2 -d ":"`
-      OWNER=`/bin/echo ${LINE} | /usr/bin/cut -f 3 -d ":"`
-      GROUP=`/bin/echo ${LINE} | /usr/bin/cut -f 4 -d ":"`
-      MODE=`/bin/echo ${LINE} | /usr/bin/cut -f 5 -d ":"`
+      #   example:    directory:/scratch:root:root:1777
+      DIR="`echo "${LINE}"   | cut -f 2 -d ':'`"
+      OWNER="`echo "${LINE}" | cut -f 3 -d ':'`"
+      GROUP="`echo "${LINE}" | cut -f 4 -d ':'`"
+      MODE="`echo "${LINE}"  | cut -f 5 -d ':'`"
 
-      if [ ! -e ${DIR} ] ; then
-        /bin/mkdir -p ${DIR}
-        /bin/chown ${OWNER}:${GROUP} ${DIR}
-        /bin/chmod ${MODE} ${DIR}
-        ${CMD_LOG_IF_DEBUG} DIR=${DIR} \
-            OWNER=${OWNER} GROUP=${GROUP} MODE=${MODE}
+      if [ ! -e "${DIR}" ] ; then
+        mkdir -p "${DIR}"
+        ${CMD_LOG_IF_DEBUG} "made DIR=${DIR}"
       else
-        if [ ! -d ${DIR} ] ; then
-          ${CMD_ERROR} A file ${DIR} already exists and is not a directory >&2
-          ${CMD_LOG_ERROR} A file ${DIR} already exists and is not a directory
+        if [ ! -d "${DIR}" ] ; then
+          ${CMD_ERROR} "File ${DIR} already exists and is not a directory" >&2
+          ${CMD_LOG_ERROR} "File ${DIR} already exists and is not a directory"
           exit 1
-        else
-          ${CMD_LOG_IF_DEBUG} DIR=${DIR} exists
         fi
       fi
+      chown "${OWNER}:${GROUP}" "${DIR}"
+      chmod "${MODE}" "${DIR}"
+      ${CMD_LOG_IF_DEBUG} "DIR=${DIR}" \
+          "OWNER=${OWNER} GROUP=${GROUP} MODE=${MODE}"
       ;;
 
     symlink)
       # line format:  symlink:<link>:<target>
-      LINK=`/bin/echo ${LINE} | /usr/bin/cut -f 2 -d ":"`
-      TARGET=`/bin/echo ${LINE} | /usr/bin/cut -f 3 -d ":"`
-      if [ x${LINK} = x ]; then
-        LINK=`/usr/bin/basename ${TARGET}`
+      #   example:    symlink:/pub:/net/debian/export/pub
+      LINK="`echo "${LINE}"   | cut -f 2 -d ':'`"
+      TARGET="`echo "${LINE}" | cut -f 3 -d ':'`"
+      if [ "${LINK}" = "" ]; then
+        LINK="`basename "${TARGET}"`"
       fi
 
-      if [ ! -e ${LINK} ] ; then
-        /bin/ln -sf ${TARGET} ${LINK}
-        ${CMD_LOG_IF_DEBUG} LINK=${LINK} TARGET=${TARGET}
+      if [ ! -e "${LINK}" ] ; then
+        ln -sf "${TARGET}" "${LINK}"
+        ${CMD_LOG_IF_DEBUG} "made LINK=${LINK}"
       else
-        if [ ! -L ${LINK} ] ; then
-          ${CMD_ERROR} A file ${LINK} already exists and is not a symlink >&2
-          ${CMD_LOG_ERROR} A file ${LINK} already exists and is not a symlink
+        if [ ! -L "${LINK}" ] ; then
+          ${CMD_ERROR} "File ${LINK} already exists and is not a symlink" >&2
+          ${CMD_LOG_ERROR} "File ${LINK} already exists and is not a symlink"
           exit 1
-        else
-          ${CMD_LOG_IF_DEBUG} LINK=${LINK} exists
         fi
       fi
+      ${CMD_LOG_IF_DEBUG} "LINK=${LINK} TARGET=${TARGET}"
       ;;
 
     partition)
       # line format:  partition:<mountpoint>:<device>:<fs-type>
-      MPOINT=`/bin/echo ${LINE} | /usr/bin/cut -f 2 -d ":"`
-      DEV=`/bin/echo ${LINE} | /usr/bin/cut -f 3 -d ":"`
-      FS=`/bin/echo ${LINE} | /usr/bin/cut -f 4 -d ":"`
+      #   example:    partition:/export/data1:/dev/sdb1:ext3
+      MPOINT="`echo "${LINE}" | cut -f 2 -d ':'`"
+      DEV="`echo "${LINE}"    | cut -f 3 -d ':'`"
+      FS="`echo "${LINE}"     | cut -f 4 -d ':'`"
 
-      if [ ! -e ${DEV} ]; then
-        ${CMD_ERROR} line for ${MPOINT} has non-existant \
-            device ${DEV} >&2
-        ${CMD_LOG_ERROR} line for ${MPOINT} has non-existant \
-            device ${DEV}
+      if [ ! -e "${DEV}" ]; then
+        ${CMD_ERROR} "line for ${MPOINT} has non-existant" \
+            "device ${DEV}" >&2
+        ${CMD_LOG_ERROR} "line for ${MPOINT} has non-existant" \
+            "device ${DEV}"
         exit 1
       fi
 
-      if [ ! -e ${MPOINT} ] ; then
-        /bin/echo "${DEV} ${MPOINT} ${FS} defaults 0 2" > \
-            /etc/fstab.new.$$
-        /usr/bin/awk '$2=="'${MPOINT}'"{print}' /etc/fstab > \
-            /etc/fstab.old.$$
-        if ! /usr/bin/cmp -s /etc/fstab.new.$$ /etc/fstab.old.$$ ; then
-          # differs, remove old entry (if present) ...
-          /usr/bin/awk '$2!="'${MPOINT}'"{print}' /etc/fstab > \
-              /etc/fstab.tmp.dphys-setup-extra-fs
-          # ... and add new entry
-          /bin/cat /etc/fstab.tmp.dphys-setup-extra-fs /etc/fstab.new.$$ > \
-              /etc/fstab
-          /bin/rm /etc/fstab.tmp.dphys-setup-extra-fs
-          /bin/mkdir -p ${MPOINT}
-          /bin/mount ${MPOINT} || /bin/true
-        fi
-        /bin/rm /etc/fstab.new.$$ /etc/fstab.old.$$
-        ${CMD_LOG_IF_DEBUG} MPOINT=${MPOINT} DEV=${DEV} FS=${fFS}
+      if [ ! -e "${MPOINT}" ] ; then
+        mkdir -p "${MPOINT}"
+        ${CMD_LOG_IF_DEBUG} "made MPOINT=${MPOINT}"
       else
-        if [ ! -d ${MPOINT} ] ; then
-          ${CMD_ERROR} A file ${MPOINT} already exists and is not directory >&2
-          ${CMD_LOG_ERROR} A file ${MPOINT} already exists and is not directory
+        if [ ! -d "${MPOINT}" ] ; then
+          ${CMD_ERROR} "File ${MPOINT} already exists and is not directory" >&2
+          ${CMD_LOG_ERROR} "File ${MPOINT} already exists and is not directory"
           exit 1
-        else
-          ${CMD_LOG_IF_DEBUG} MPOINT=${MPOINT} exists
         fi
       fi
+
+      # possible existing line (or empty)
+      awk '$2=="'"${MPOINT}"'"{print}' /etc/fstab > /etc/fstab.old.$$
+      # potentially new line we want
+      printf "%s\t%s\t%s\t%s\t%s\t%s\n" "${DEV}" "${MPOINT}" "${FS}" \
+          "defaults" "0" "2" > /etc/fstab.new.$$
+      if ! cmp -s /etc/fstab.new.$$ /etc/fstab.old.$$ ; then
+        # differs, remove old entry (if present) ...
+        awk '$2!="'"${MPOINT}"'"{print}' /etc/fstab > /etc/fstab.tmp.$$
+        # ... and add new entry
+        cat /etc/fstab.tmp.$$ /etc/fstab.new.$$ > /etc/fstab
+        rm /etc/fstab.tmp.$$
+      fi
+      rm /etc/fstab.new.$$ /etc/fstab.old.$$
+
+      mount "${MPOINT}" 2> /dev/null || true
+      ${CMD_LOG_IF_DEBUG} "MPOINT=${MPOINT} DEV=${DEV} FS=${fFS}"
       ;;
 
     nfsmount)
       # line format:  nfsmount:<mountpoint>:<server>:<export>:<nfs-options>
-      MPOINT=`/bin/echo ${LINE} | /usr/bin/cut -f 2 -d ":"`
-      SERVER=`/bin/echo ${LINE} | /usr/bin/cut -f 3 -d ":"`
-      EXPORT=`/bin/echo ${LINE} | /usr/bin/cut -f 4 -d ":"`
-      NFSOPT=`/bin/echo ${LINE} | /usr/bin/cut -f 5 -d ":"`
-      if [ x${NFSOPT} = x ]; then
+      #   example:    nfsmount:/var/mail:mail.phys:/var/mail:rw,soft,noac,rsize=8192,wsize=8192,retry=1
+      MPOINT="`echo "${LINE}" | cut -f 2 -d ':'`"
+      SERVER="`echo "${LINE}" | cut -f 3 -d ':'`"
+      EXPORT="`echo "${LINE}" | cut -f 4 -d ':'`"
+      NFSOPT="`echo "${LINE}" | cut -f 5 -d ':'`"
+      if [ "${NFSOPT}" = "" ]; then
         NFSOPT=defaults
       fi
 
-      if [ ! -e ${MPOINT} ] ; then
-        /bin/echo "${SERVER}:${EXPORT} ${MPOINT} nfs ${NFSOPT} 0 0" > \
-            /etc/fstab.new.$$
-        /usr/bin/awk '$2=="'${MPOINT}'"{print}' /etc/fstab > \
-            /etc/fstab.old.$$
-        if ! /usr/bin/cmp -s /etc/fstab.new.$$ /etc/fstab.old.$$ ; then
-          # differs, remove old entry (if present) ...
-          /usr/bin/awk '$2!="'${MPOINT}'"{print}' /etc/fstab > \
-              /etc/fstab.tmp.dphys-setup-extra-fs
-          # ... and add new entry
-          /bin/cat /etc/fstab.tmp.dphys-setup-extra-fs /etc/fstab.new.$$ > \
-              /etc/fstab
-          /bin/rm /etc/fstab.tmp.dphys-setup-extra-fs
-          /bin/mkdir -p ${MPOINT}
-          /bin/mount ${MPOINT} || /bin/true
-        fi
-        /bin/rm /etc/fstab.new.$$ /etc/fstab.old.$$
-        ${CMD_LOG_IF_DEBUG} MPOINT=${MPOINT} \
-            SERVER=${SERVER} EXPORT=${EXPORT} NFSOPT=${NFSOPT}
+      if [ ! -e "${MPOINT}" ] ; then
+        mkdir -p "${MPOINT}"
+        ${CMD_LOG_IF_DEBUG} "made MPOINT=${MPOINT}"
       else
-        if [ ! -d ${MPOINT} ] ; then
-          ${CMD_ERROR} A file ${MPOINT} already exists and is not directory >&2
-          ${CMD_LOG_ERROR} A file ${MPOINT} already exists and is not directory
+        if [ ! -d "${MPOINT}" ] ; then
+          ${CMD_ERROR} "File ${MPOINT} already exists and is not directory" >&2
+          ${CMD_LOG_ERROR} "File ${MPOINT} already exists and is not directory"
           exit 1
-        else
-          ${CMD_LOG_IF_DEBUG} MPOINT=${MPOINT} exists
         fi
       fi
+
+      # possible existing line (or empty)
+      awk '$2=="'"${MPOINT}"'"{print}' /etc/fstab > /etc/fstab.old.$$
+      # potentially new line we want
+      printf "%s\t%s\t%s\t%s\t%s\t%s\n" "${SERVER}:${EXPORT}" "${MPOINT}" \
+          "nfs" "${NFSOPT}" "0" "0" > /etc/fstab.new.$$
+      if ! cmp -s /etc/fstab.new.$$ /etc/fstab.old.$$ ; then
+        # differs, remove old entry (if present) ...
+        awk '$2!="'"${MPOINT}"'"{print}' /etc/fstab > /etc/fstab.tmp.$$
+        # ... and add new entry
+        cat /etc/fstab.tmp.$$ /etc/fstab.new.$$ > /etc/fstab
+        rm /etc/fstab.tmp.$$
+      fi
+      rm /etc/fstab.new.$$ /etc/fstab.old.$$
+
+      mount "${MPOINT}" 2> /dev/null || true
+      ${CMD_LOG_IF_DEBUG} "MPOINT=${MPOINT}" \
+          "SERVER=${SERVER} EXPORT=${EXPORT} NFSOPT=${NFSOPT}"
       ;;
 
     *)
 
-      ${CMD_ERROR} unknown line type: ${TYPE} >&2
-      ${CMD_LOG_ERROR} unknown line type: ${TYPE}
+      ${CMD_ERROR} "unknown line type: ${TYPE}" >&2
+      ${CMD_LOG_ERROR} "unknown line type: ${TYPE}"
       exit 1
 
   esac
@@ -301,5 +303,5 @@ done
 
 # --- finish off
 
-${CMD_LOG_IF_DONE} has updated filesystem and /etc/fstab
+${CMD_LOG_IF_DONE} "has updated filesystem and /etc/fstab"
 exit 0

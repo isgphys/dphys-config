@@ -1,6 +1,6 @@
 #!/bin/sh
 # /usr/local/sbin/dphys-config-x - generate XFree server configuration
-# author Neil Franklin, last modification 2006.09.14
+# author Neil Franklin, last modification 2006.10.13
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -10,7 +10,7 @@
 #     reads all input from config file /etc/dphys-config-x
 # it requires in /etc/dphys-config.list 2 lines, for config file and script:
 #   dphys-config-x:/etc/:if [ -f /usr/local/sbin/dphys-config-x ] ; then /usr/local/sbin/dphys-config-x ; fi
-#   local/sbin/dphys-config-x:/usr/:/bin/chmod 755 {}; {}
+#   local/sbin/dphys-config-x:/usr/:chmod 755 {}; {}
 
 
 ### ------ configuration for this site
@@ -39,6 +39,7 @@ CONF_KEYB_EXTRA3=""
 # where the PS/2 mouse is connected
 #   /dev/psaux       (standard)
 #   /dev/misc/psaux  (devfs)
+#   /dev/gmpdata     (used for gpm)
 #   none             (only USB mouse, disable PS/2 mouse, else keyboard dead)
 #   defaults to what we and most people use these days, now devfs is deprecated
 CONF_PS2_MOUSE_DEV=/dev/psaux
@@ -47,6 +48,7 @@ CONF_PS2_MOUSE_DEV=/dev/psaux
 #   imps2      (Logitech Wheel Mouse)
 #   ps2        (2 or 3-button mouse)
 #   ps2scroll  (Wheel Mouse with scrolling on button2 push)
+#   intelli    (used for gpmdata)
 #   none       (only USB mouse, disable PS/2 mouse, else keyboard dead)
 #   defaults to the most common mouse type around here
 #     fix it for old ps2, alternative ps2scroll or none
@@ -56,6 +58,7 @@ CONF_PS2_MOUSE_PROTO=imps2
 #   imps2      (Logitech Wheel Mouse)
 #   ps2        (2 or 3-button mouse)
 #   ps2scroll  (Wheel Mouse with scrolling on button2 push)
+#   intelli    (used for gpmdata)
 #   none       (only PS/2 mouse, disable USB mouse, don't load USB drivers)
 #   defaults to allow user to plug in anything, but this fails scroll wheels
 #CONF_USB_MOUSE_PROTO=auto
@@ -139,7 +142,8 @@ set -e
 
 # sanitise this place, else some commands may fail
 #   must be before any commands are executed, incl config/input processing
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
+# /usr/local added for FreeBSD, because their ports end up in there
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 export PATH
 
 
@@ -148,39 +152,40 @@ export PATH
 # stuff that goes wrong, not expected by user, not in data output, use >&2
 #   so also with $0 in case this script was called by an other script
 # something within the system that user does not expect, give up
-CMD_FATAL="/bin/echo $0: FATAL:"
+CMD_FATAL="echo $0: FATAL:"
 # something from users input, user will correct this and continue
-CMD_ERROR="/bin/echo $0: ERROR:"
+CMD_ERROR="echo $0: ERROR:"
 # something we can continue with, but may be wrong, and user may not suspect it
-CMD_WARNING="/bin/echo $0: WARNING:"
+CMD_WARNING="echo $0: WARNING:"
 # something most likely not wrong, but tell user for the odd case it is wrong
-CMD_NOTE="/bin/echo $0: NOTE:"
+CMD_NOTE="echo $0: NOTE:"
 
 # normal stuff users expect, so to stdout as normal output, no $0, no marking
-CMD_INFO="/bin/echo"
+CMD_INFO="echo"
 # stuff users asked for, so add to stdout as normal output, no $0, but mark it
-CMD_DEBUG="/bin/echo DEBUG:"
+CMD_DEBUG="echo DEBUG:"
 
 
-BASENAME="`/usr/bin/basename $0`"
+# and also put out some permanent messages, in case running as cron/init.d job
+BASENAME="`basename $0`"
 # stuff that goes wrong, not expected by user
 # something within the system that user does not expect, give up
-CMD_LOG_FATAL="/usr/bin/logger -t ${BASENAME} -p user.error FATAL:"
+CMD_LOG_FATAL="logger -t ${BASENAME} -p user.error FATAL:"
 # something from users input, user can possibly correct this and continue
-CMD_LOG_ERROR="/usr/bin/logger -t ${BASENAME} -p user.error ERROR:"
+CMD_LOG_ERROR="logger -t ${BASENAME} -p user.error ERROR:"
 # something we can continue with, but may be wrong, and user may not suspect it
-CMD_LOG_WARNING="/usr/bin/logger -t ${BASENAME} -p user.warning WARNING:"
+CMD_LOG_WARNING="logger -t ${BASENAME} -p user.warning WARNING:"
 # something most likely not wrong, but tell user for the odd case it is wrong
-CMD_LOG_NOTE="/usr/bin/logger -t ${BASENAME} -p user.notice NOTE:"
+CMD_LOG_NOTE="logger -t ${BASENAME} -p user.notice NOTE:"
 
 # normal stuff users expect, so no marking
-CMD_LOG_INFO="/usr/bin/logger -t ${BASENAME} -p user.info"
+CMD_LOG_INFO="logger -t ${BASENAME} -p user.info"
 # stuff users asked for, but mark it as special
-CMD_LOG_DEBUG="/usr/bin/logger -t ${BASENAME} -p user.debug DEBUG:"
+CMD_LOG_DEBUG="logger -t ${BASENAME} -p user.debug DEBUG:"
 
 
 # other stuff we may want to use
-CMD_SLEEP="/bin/sleep 2"
+CMD_SLEEP="sleep 2"
 CMD_WAIT="read -p ---DEBUG-wait-after-step--- dummy"
 
 
@@ -207,110 +212,112 @@ fi
 if [ x${CONF_LOG_DONE} = xyes ] ; then
   CMD_LOG_IF_DONE="${CMD_LOG_INFO}"
 else
-  CMD_LOG_IF_DONE=/bin/true
+  CMD_LOG_IF_DONE=true
 fi
 
 # set debug option controllable stuff
 if [ x${DEBUG_LOG_STEP} = xyes ] ; then
   CMD_LOG_IF_DEBUG="${CMD_LOG_DEBUG}"
 else
-  CMD_LOG_IF_DEBUG=/bin/true
+  CMD_LOG_IF_DEBUG=true
 fi
 
 
 # show what config settings this debug run is using
-${CMD_LOG_IF_DEBUG} CONF_SETUP=${CONF_SETUP} \
-    CONF_KEYB_LAYOUT=${CONF_KEYB_LAYOUT} CONF_KEYB_EXTRA3=${CONF_KEYB_EXTRA3} \
-    CONF_PS2_MOUSE_DEV=${CONF_PS2_MOUSE_DEV} \
-    CONF_PS2_MOUSE_PROTO=${CONF_PS2_MOUSE_PROTO} \
-    CONF_USB_MOUSE_PROTO=${CONF_USB_MOUSE_PROTO} CONF_HOR_MAX=${CONF_HOR_MAX} \
-    CONF_VER_MAX=${CONF_VER_MAX} CONF_DISPSIZE=${CONF_DISPSIZE} \
-    CONF_DEVICE_TYPE=${CONF_DEVICE_TYPE} CONF_BUS_ID=${CONF_BUS_ID} \
-    CONF_RESOLUTION=${CONF_RESOLUTION} CONF_DEPTH=${ONF_DEPTH} \
-    CONF_DUAL=${CONF_DUAL} CONF_LOG_DONE=${CONF_LOG_DONE}
+${CMD_LOG_IF_DEBUG} "CONF_SETUP=${CONF_SETUP}" \
+    "CONF_KEYB_LAYOUT=${CONF_KEYB_LAYOUT}" \
+    "CONF_KEYB_EXTRA3=${CONF_KEYB_EXTRA3}" \
+    "CONF_PS2_MOUSE_DEV=${CONF_PS2_MOUSE_DEV}" \
+    "CONF_PS2_MOUSE_PROTO=${CONF_PS2_MOUSE_PROTO}" \
+    "CONF_USB_MOUSE_PROTO=${CONF_USB_MOUSE_PROTO}" \
+    "CONF_HOR_MAX=${CONF_HOR_MAX}" \
+    "CONF_VER_MAX=${CONF_VER_MAX} CONF_DISPSIZE=${CONF_DISPSIZE}" \
+    "CONF_DEVICE_TYPE=${CONF_DEVICE_TYPE} CONF_BUS_ID=${CONF_BUS_ID}" \
+    "CONF_RESOLUTION=${CONF_RESOLUTION} CONF_DEPTH=${ONF_DEPTH}" \
+    "CONF_DUAL=${CONF_DUAL} CONF_LOG_DONE=${CONF_LOG_DONE}"
 
 
 # --- test if we need to generate
 
-if [ x${CONF_SETUP} = xmanual ] ; then
+if [ "${CONF_SETUP}" = manual ] ; then
 
-  ${CMD_NOTE} no automatic X configuration selected for this host, \
-    falling back to manual configuration file
-  if [ -f ${SYS_X_CONFFILE} ] ; then
+  ${CMD_NOTE} "no automatic X configuration selected for this host," \
+    "falling back to manual configuration file"
+  if [ -f "${SYS_X_CONFFILE}" ] ; then
     exit 0
   else
-    ${CMD_WARNING} no configuration file at all, \
-      continuing with making an automatic one, better than none >&2
-    ${CMD_LOG_WARNING} no configuration file at all, \
-      continuing with making an automatic one, better than none
+    ${CMD_WARNING} "no configuration file at all," \
+      "continuing with making an automatic one, better than none" >&2
+    ${CMD_LOG_WARNING} "no configuration file at all," \
+      "continuing with making an automatic one, better than none"
     CONF_SETUP=auto
   fi
 
 fi
 
 
-# +++ temp stuff for while we are testing, delete it after +++
+# +++ temp stuff for while we are testing/migrating, delete it after +++
 
 # eliminate old test file
 if [ -f /etc/X11/XF86Config-4.test-dphys-config-x ] ; then
-  /bin/rm /etc/X11/XF86Config-4.test-dphys-config-x
+  rm /etc/X11/XF86Config-4.test-dphys-config-x
 fi
 
 # backup old style working file in case new file fails to work
 if [ ! -f /etc/X11/XF86Config-4.before-dphys-config-x ] ; then
   if [ -f /etc/X11/XF86Config-4 ] ; then
-    /bin/mv /etc/X11/XF86Config-4 /etc/X11/XF86Config-4.before-dphys-config-x
+    mv /etc/X11/XF86Config-4 /etc/X11/XF86Config-4.before-dphys-config-x
   fi
 fi
 
 # prevent the old system from breaking the new file
 if [ -x /etc/init.d/dphys-local-x ] ; then
-  /bin/chmod a-x /etc/init.d/dphys-local-x
+  chmod a-x /etc/init.d/dphys-local-x
 fi
 if [ -x /etc/init.d/dphys-setup-x ] ; then
-  /bin/chmod a-x /etc/init.d/dphys-setup-x
+  chmod a-x /etc/init.d/dphys-setup-x
 fi
 if [ -x /etc/cron.daily/dphys-local-x ] ; then
-  /bin/chmod a-x /etc/cron.daily/dphys-local-x
+  chmod a-x /etc/cron.daily/dphys-local-x
 fi
 if [ -x /etc/cron.daily/dphys-setup-x ] ; then
-  /bin/chmod a-x /etc/cron.daily/dphys-setup-x
+  chmod a-x /etc/cron.daily/dphys-setup-x
 fi
 
 
 # --- look for our X installation
 
-X_PREFIX_PATH=${SYS_X_PREFIX_PATH1}
+X_PREFIX_PATH="${SYS_X_PREFIX_PATH1}"
 
-if [ ! -d ${X_PREFIX_PATH} ] ; then
-  X_PREFIX_PATH=${SYS_X_PREFIX_PATH2}
+if [ ! -d "${X_PREFIX_PATH}" ] ; then
+  X_PREFIX_PATH="${SYS_X_PREFIX_PATH2}"
 fi
 
-if [ ! -d ${X_PREFIX_PATH} ] ; then
-  ${CMD_FATAL} X installation can not be found, abborting ... >&2
-  ${CMD_LOG_FATAL} X installation can not be found, abborting ...
+if [ ! -d "${X_PREFIX_PATH}" ] ; then
+  ${CMD_FATAL} "X installation can not be found, abborting ..." >&2
+  ${CMD_LOG_FATAL} "X installation can not be found, abborting ..."
   exit 1
 fi
-${CMD_LOG_IF_DEBUG} X_PREFIX_PATH=${X_PREFIX_PATH}
+${CMD_LOG_IF_DEBUG} "X_PREFIX_PATH=${X_PREFIX_PATH}"
 
 # and while here, fix up link to X server
-if [ ! -L ${SYS_X_LINK} ] ; then
-  if [ -e ${SYS_X_LINK} ] ; then
-    ${CMD_FATAL} ${SYS_X_LINK} is already being used for something else, \
-      can not link to X server, abborting ... >&2
-    ${CMD_LOG_FATAL} ${SYS_X_LINK} is already being used for something else, \
-      can not link to X server, abborting ...
+if [ ! -L "${SYS_X_LINK}" ] ; then
+  if [ -e "${SYS_X_LINK}" ] ; then
+    ${CMD_FATAL} "${SYS_X_LINK} already being used for something else," \
+      "can not link to X server, abborting ..." >&2
+    ${CMD_LOG_FATAL} "${SYS_X_LINK} already being used for something else", \
+      "can not link to X server, abborting ..."
     exit 1
   fi
-  /bin/ln -s ${SYS_X_PREFIX_PATH2}/${SYS_X_SERVER} ${SYS_X_LINK}
+  ln -s "${SYS_X_PREFIX_PATH2}/${SYS_X_SERVER}" "${SYS_X_LINK}"
 fi
 
 
 # --- make generic beginning section
 
-/bin/cat > ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat > "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 # ${SYS_X_CONFFILE} - configure XFree X server for our hardware
-# generator /usr/local/sbin/dphys-config-x, generated `/bin/date +%Y.%m.%d`
+# generator /usr/local/sbin/dphys-config-x, generated `date +%Y.%m.%d`
 
 ### this file is automatically generated by  dphys-config-x  script
 # change /etc/${PNAME} config file to define the parameters for this script
@@ -335,14 +342,14 @@ fi
 Section "Module"
 END-CONFIG-FILE
 
-if [ x${CONF_DEVICE_TYPE} != xnvidia ] ; then
+if [ "${CONF_DEVICE_TYPE}" != nvidia ] ; then
   # binary nvidia driver can not stand having GLcore loaded, has own GL
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Load	"GLcore"
 END-CONFIG-FILE
 fi
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Load	"bitmap"
 	Load	"dbe"
 	Load	"ddc"
@@ -391,9 +398,9 @@ END-CONFIG-FILE
 
 # --- make keyboard input section
 
-if [ x${CONF_KEYB_EXTRA3} = x ] ; then
+if [ "${CONF_KEYB_EXTRA3}" = "" ] ; then
  
-  if [ x${CONF_KEYB_LAYOUT} = xus ] ; then
+  if [ "${CONF_KEYB_LAYOUT}" = us ] ; then
     KEYB_KEYS=pc101
   else
     KEYB_KEYS=pc102
@@ -401,7 +408,7 @@ if [ x${CONF_KEYB_EXTRA3} = x ] ; then
 
 else
  
-  if [ x${CONF_KEYB_LAYOUT} = xus ] ; then
+  if [ "${CONF_KEYB_LAYOUT}" = us ] ; then
     KEYB_KEYS=pc104
   else
     KEYB_KEYS=pc105
@@ -409,12 +416,12 @@ else
 
 fi
 
-${CMD_LOG_IF_DEBUG} KEYB_KEYS=${KEYB_KEYS}
+${CMD_LOG_IF_DEBUG} "KEYB_KEYS=${KEYB_KEYS}"
 
 
-/bin/echo >> ${SYS_X_CONFFILE}
+echo >> "${SYS_X_CONFFILE}"
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 Section "InputDevice"
 	Identifier	"Keyboard0"
 	Driver		"keyboard"
@@ -429,59 +436,64 @@ END-CONFIG-FILE
 
 # - PS/2 mouse, if we have one
 
-if [ x${CONF_PS2_MOUSE_DEV} != xnone -a \
-     x${CONF_PS2_MOUSE_PROTO} != xnone ] ; then
+if [ "${CONF_PS2_MOUSE_DEV}" != none -a \
+     "${CONF_PS2_MOUSE_PROTO}" != none ] ; then
 
-  if [ ! -e ${CONF_PS2_MOUSE_DEV} ] ; then
-    ${CMD_ERROR} non existant PS/2 mouse device \
-        \"${CONF_PS2_MOUSE_DEV}\", abborting ... >&2
-    ${CMD_LOG_ERROR} non existant PS/2 mouse device \
-        \"${CONF_PS2_MOUSE_DEV}\", abborting ...
+  if [ ! -e "${CONF_PS2_MOUSE_DEV}" ] ; then
+    ${CMD_ERROR} "non existant PS/2 mouse device" \
+        "\"${CONF_PS2_MOUSE_DEV}\", abborting ..." >&2
+    ${CMD_LOG_ERROR} "non existant PS/2 mouse device" \
+        "\"${CONF_PS2_MOUSE_DEV}\", abborting ..."
     exit 1
   fi
 
-  /bin/echo >> ${SYS_X_CONFFILE}
+  echo >> "${SYS_X_CONFFILE}"
 
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 Section "InputDevice"
 	Identifier	"MousePS20"
 	Driver		"mouse"
 	Option		"Device"		"${CONF_PS2_MOUSE_DEV}"
 END-CONFIG-FILE
 
-  if   [ x${CONF_PS2_MOUSE_PROTO} = ximps2 ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  if   [ "${CONF_PS2_MOUSE_PROTO}" = imps2 ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"Protocol"		"ImPS/2"
 	Option		"ZAxisMapping"		"4 5"
 END-CONFIG-FILE
-  elif [ x${CONF_PS2_MOUSE_PROTO} = xps2 ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  elif [ "${CONF_PS2_MOUSE_PROTO}" = ps2 ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"Protocol"		"PS/2"
 END-CONFIG-FILE
-  elif [ x${CONF_PS2_MOUSE_PROTO} = xps2scroll ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  elif [ "${CONF_PS2_MOUSE_PROTO}" = ps2scroll ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"Protocol"		"PS/2"
 	Option		"Emulate3Buttons"	"on"
 	Option		"Emulate3Timeout"	"50"
 	Option		"EmulateWheel"		"on"
 	Option		"EmulateWheelButton"	"2"
 END-CONFIG-FILE
+  elif [ "${CONF_PS2_MOUSE_PROTO}" = intelli ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
+	Option		"Protocol"		"IntelliMouse"
+	Option		"ZAxisMapping"		"4 5"
+END-CONFIG-FILE
   else
-    ${CMD_ERROR} unknown PS/2 mouse protocol \
-        \"${CONF_PS2_MOUSE_PROTO}\", abborting ... >&2
-    ${CMD_LOG_ERROR} unknown PS/2 mouse protocol \
-        \"${CONF_PS2_MOUSE_PROTO}\", abborting ...
+    ${CMD_ERROR} "unknown PS/2 mouse protocol" \
+        "\"${CONF_PS2_MOUSE_PROTO}\", abborting ..." >&2
+    ${CMD_LOG_ERROR} "unknown PS/2 mouse protocol" \
+        "\"${CONF_PS2_MOUSE_PROTO}\", abborting ..."
     exit 1
   fi
 
-  /bin/echo EndSection >> ${SYS_X_CONFFILE}
+  echo EndSection >> "${SYS_X_CONFFILE}"
 
 fi
 
 
 # - USB mouse, if we want to allow one
 
-if [ x${CONF_USB_MOUSE_PROTO} != xnone ] ; then
+if [ "${CONF_USB_MOUSE_PROTO}" != none ] ; then
 
   # while here, install and load kernel modules needed for USB mouse
   #   usbcore is needed for all USB stuff, should be already in, but go safe
@@ -490,48 +502,47 @@ if [ x${CONF_USB_MOUSE_PROTO} != xnone ] ; then
   #   mousedev basic input->mouse device
   for MODULE in usbcore input hid usbhid mousedev ; do
     # insert them into /etc/modules for after future boots
-    /bin/grep ${MODULE} /etc/modules > /dev/null || \
-      /bin/echo ${MODULE} >> /etc/modules
+    grep ${MODULE} /etc/modules > /dev/null || echo ${MODULE} >> /etc/modules
     # insert them into the running kernel for this session
-    #   use  || /bin/true  so we can try nonexist other kernel version modules
+    #   use  || true  so we can try nonexist other kernel version modules
     #     else  set -e  will nuke this script when we try this
-    /bin/grep '^${MODULE}' /proc/modules > /dev/null || \
-      /sbin/modprobe ${MODULE} 2> /dev/null || /bin/true
+    grep "^${MODULE}" /proc/modules > /dev/null || \
+      modprobe ${MODULE} 2> /dev/null || true
   done
 
   # and while here, fix up device node for USB mouse
   if [ ! -c /dev/input/mice ]; then
     if [ -e /dev/input/mice ]; then
-      ${CMD_FATAL} /dev/input/mice is already being used for something \
-        else, can not make node for USB mouse, abborting ... >&2
-      ${CMD_LOG_FATAL} /dev/input/mice is already being used for something \
-        else, can not make node for USB mouse, abborting ...
+      ${CMD_FATAL} "/dev/input/mice is already being used for something" \
+        "else, can not make node for USB mouse, abborting ..." >&2
+      ${CMD_LOG_FATAL} "/dev/input/mice is already being used for something" \
+        "else, can not make node for USB mouse, abborting ..."
       exit 1
     fi
-    /bin/mkdir -p /dev/input
-    /bin/mknod /dev/input/mice c 13 63
+    mkdir -p /dev/input
+    mknod /dev/input/mice c 13 63
   fi
 
-  /bin/echo >> ${SYS_X_CONFFILE}
+  echo >> "${SYS_X_CONFFILE}"
 
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 Section "InputDevice"
 	Identifier	"MouseUSB0"
 	Driver		"mouse"
 	Option		"Device"		"/dev/input/mice"
 END-CONFIG-FILE
 
-  if   [ x${CONF_USB_MOUSE_PROTO} = ximps2 ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  if   [ "${CONF_USB_MOUSE_PROTO}" = imps2 ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"Protocol"		"ImPS/2"
 	Option		"ZAxisMapping"		"4 5"
 END-CONFIG-FILE
-  elif [ x${CONF_USB_MOUSE_PROTO} = xps2 ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  elif [ "${CONF_USB_MOUSE_PROTO}" = ps2 ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"Protocol"		"PS/2"
 END-CONFIG-FILE
-  elif [ x${CONF_USB_MOUSE_PROTO} = xps2scroll ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  elif [ "${CONF_USB_MOUSE_PROTO}" = ps2scroll ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"Protocol"		"PS/2"
 	Option		"Emulate3Buttons"	"on"
 	Option		"Emulate3Timeout"	"50"
@@ -539,27 +550,27 @@ END-CONFIG-FILE
 	Option		"EmulateWheelButton"	"2"
 END-CONFIG-FILE
   else
-    ${CMD_ERROR} unknown USB mouse protocol \
-        \"${CONF_USB_MOUSE_PROTO}\", abborting ... >&2
-    ${CMD_LOG_ERROR} unknown USB mouse protocol \
-        \"${CONF_USB_MOUSE_PROTO}\", abborting ...
+    ${CMD_ERROR} "unknown USB mouse protocol" \
+        "\"${CONF_USB_MOUSE_PROTO}\", abborting ..." >&2
+    ${CMD_LOG_ERROR} "unknown USB mouse protocol" \
+        "\"${CONF_USB_MOUSE_PROTO}\", abborting ..."
     exit 1
   fi
 
-  /bin/echo EndSection >> ${SYS_X_CONFFILE}
+  echo EndSection >> "${SYS_X_CONFFILE}"
 
 fi
 
 
 # --- make monitor info section
 
-${CMD_LOG_IF_DEBUG} SYS_HOR_MIN=${SYS_HOR_MIN} CONF_HOR_MAX=${CONF_HOR_MAX} \
-    SYS_VER_MIN=${SYS_VER_MIN} CONF_VER_MAX=${CONF_VER_MAX}
+${CMD_LOG_IF_DEBUG} "SYS_HOR_MIN=${SYS_HOR_MIN} CONF_HOR_MAX=${CONF_HOR_MAX}" \
+    "SYS_VER_MIN=${SYS_VER_MIN} CONF_VER_MAX=${CONF_VER_MAX}"
 
 
-/bin/echo >> ${SYS_X_CONFFILE}
+echo >> "${SYS_X_CONFFILE}"
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 Section "Monitor"
 	Identifier	"Monitor0"
 	HorizSync	${SYS_HOR_MIN} - ${CONF_HOR_MAX}
@@ -567,35 +578,34 @@ Section "Monitor"
 	Option		"DPMS"
 END-CONFIG-FILE
 
-if [ x`/bin/echo ${CONF_DISPSIZE} | /usr/bin/tr -d ' '` != x ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+if [ "`echo "${CONF_DISPSIZE}" | tr -d ' '`" != "" ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	DisplaySize	${CONF_DISPSIZE}
 END-CONFIG-FILE
 fi
 
-/bin/echo EndSection >> ${SYS_X_CONFFILE}
+echo EndSection >> "${SYS_X_CONFFILE}"
 
 
-if [ x${CONF_DUAL} != xnone ] ; then
+if [ "${CONF_DUAL}" != none ] ; then
   # duplicate the monitor section, with 0 -> 1
-  /bin/echo >> ${SYS_X_CONFFILE}
-  /bin/sed -ne '/Section "Monitor"/,/EndSection/p' ${SYS_X_CONFFILE} | \
-      /bin/sed -e 's/Monitor0/Monitor1/' > ${SYS_X_CONFFILE}.mon1
-  /bin/cat ${SYS_X_CONFFILE}.mon1 >> ${SYS_X_CONFFILE}
-  /bin/rm ${SYS_X_CONFFILE}.mon1
+  echo >> "${SYS_X_CONFFILE}"
+  sed -ne '/Section "Monitor"/,/EndSection/p' "${SYS_X_CONFFILE}" | \
+      sed -e 's/Monitor0/Monitor1/' > "${SYS_X_CONFFILE}.mon1"
+  cat "${SYS_X_CONFFILE}.mon1" >> "${SYS_X_CONFFILE}"
+  rm "${SYS_X_CONFFILE}.mon1"
 fi
 
 
 # --- make device settings section
 
 # auto-identify what card we have, from PCI ID
-PCI_ID=`/usr/bin/lspci -n | /bin/sed 's/Class //' | \
-    /usr/bin/awk '$2=="0300:"||$2=="0380:" { print $3 }' | /usr/bin/head -1`
+PCI_ID="`lspci -n | sed 's/Class //' | \
+    awk '$2=="0300:"||$2=="0380:" { print $3 }' | head -1`"
 # translate to our internal device/card/parameter-set name
-#   never automatic select binary fglrx or nvidia, only for manual selection
 #   get rid of comments and empty lines (may be emptied comment lines)
-DEVICE_TYPE=`/usr/bin/cut -f 1 -d "#" << END-PCI_ID-LIST | \
-    /bin/grep -v '^ *$' | /bin/grep "^${PCI_ID}" | /usr/bin/awk '{ print $2 }'
+DEVICE_TYPE="`cut -f 1 -d '#' << END-PCI_ID-LIST | \
+    grep -v '^ *$' | grep "^${PCI_ID}" | awk '{ print $2 }'
 1002:4750  ati     # ATI     3D Rage Pro 215GP
 1002:4752  ati     # ATI     Rage XL
 1002:4756  ati     # ATI     3D Rage IIC 215IIC [Mach64 GT IIC]
@@ -604,8 +614,8 @@ DEVICE_TYPE=`/usr/bin/cut -f 1 -d "#" << END-PCI_ID-LIST | \
 1002:5046  ati     # ATI     Rage 128 PF/PRO AGP 4x TMDS
 1002:5159  radeon  # ATI     Radeon RV100 QY [Radeon 7000/VE]
 1002:5246  ati     # ATI     Rage 128 RF/SG AGP
-1002:5940  radeon  # ATI     RV280 [Radeon 9200 PRO] (Secondary)
-1002:5960  radeon  # ATI     RV280 [Radeon 9200 PRO]
+1002:5940  fglrx   # ATI     RV280 [Radeon 9200 PRO] (Secondary)
+1002:5960  fglrx   # ATI     RV280 [Radeon 9200 PRO]
 1014:0170  vesa    # IBM     GXT6000P Graphics Adapter
 102b:0519  mga     # Matrox  MGA 2064W [Millennium]
 102b:051b  mga     # Matrox  MGA 2164W [Millennium II]
@@ -615,56 +625,57 @@ DEVICE_TYPE=`/usr/bin/cut -f 1 -d "#" << END-PCI_ID-LIST | \
 102b:2527  mga     # Matrox  MGA G550 AGP
 104c:3d07  ti      # TI      TVP4020 [Permedia 2]
 10de:0110  nv      # nVidia  NV11 [GeForce2 MX/MX 400]
-10de:0161  nv      # nVidia  GeForce 6200 TurboCache(TM)
+10de:0161  nvidia  # nVidia  NV44 [GeForce 6200 TurboCache(TM)]
 10de:0175  nv      # nVidia  NV17 [GeForce4 420 Go] (Toshiba)
 10de:01f0  nv      # nVidia  NV18 [GeForce4 MX - nForce GPU] (Shuttle on-board)
-10de:0322  nv      # nVidia  NV34 [GeForce FX 5200]
+10de:0322  nvidia  # nVidia  NV34 [GeForce FX 5200]
+10de:0393  nvidia  # nVidia  G70  [GeForce 7300 GT]
 15ad:0405  vmware  # VMware  [VMWare SVGA II] PCI Display Adapter
 5333:8811  s3      # S3      86c764/765 [Trio32/64/64V+]
 8086:1132  i810    # Intel   82815 CGC [Chipset Graphics Controller] (i810)
 8086:2562  i810    # Intel   82845G/GL[Brookdale-G]/GE Chipset I G D (i810)
 #8086:2582  i810    # Intel   82915G Graphics Controller (rev 04)
 8086:2582  vesa    # Intel   82915G Graphics Controller (rev 04)
-END-PCI_ID-LIST`
+END-PCI_ID-LIST`"
 
-if [ x${CONF_DEVICE_TYPE} != x ] ; then
+if [ "${CONF_DEVICE_TYPE}" != "" ] ; then
   # allow config to force an device type, for unknown or exeptional cases
   #   used to manually force usage of binary drivers, never automatic
-  DEVICE_TYPE=${CONF_DEVICE_TYPE}
+  DEVICE_TYPE="${CONF_DEVICE_TYPE}"
 fi
 
-if [ x${DEVICE_TYPE} = x ] ; then
-  ${CMD_WARNING} unknown video card PCI ID ${PCI_ID}, \
-      falling back to vesa mode ... >&2
-  ${CMD_LOG_WARNING} unknown video card PCI ID ${PCI_ID}, \
-      falling back to vesa mode ...
+if [ "${DEVICE_TYPE}" = "" ] ; then
+  ${CMD_WARNING} "unknown video card PCI ID ${PCI_ID}," \
+      "falling back to vesa mode ..." >&2
+  ${CMD_LOG_WARNING} "unknown video card PCI ID ${PCI_ID}," \
+      "falling back to vesa mode ..."
   DEVICE_TYPE=vesa
 fi
 
-${CMD_LOG_IF_DEBUG} DEVICE_TYPE=${DEVICE_TYPE}
+${CMD_LOG_IF_DEBUG} "DEVICE_TYPE=${DEVICE_TYPE}"
 
 
-/bin/echo >> ${SYS_X_CONFFILE}
+echo >> "${SYS_X_CONFFILE}"
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 Section "Device"
 	Identifier	"Device0"
 END-CONFIG-FILE
 
-if   [ x${DEVICE_TYPE} = xati ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+if   [ "${DEVICE_TYPE}" = ati ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"ati"
 	VendorName	"ATI"
 	BoardName	"ATI Rage"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xfglrx ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = fglrx ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"fglrx"
 	VendorName	"ATI"
-	BoardName	"ATI Radeon Binary (manually selected)"
+	BoardName	"ATI Radeon Closed Binary"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xi810 ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = i810 ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"i810"
 	VendorName	"Intel"
 	BoardName	"OnBoard i810"
@@ -672,52 +683,52 @@ elif [ x${DEVICE_TYPE} = xi810 ] ; then
 	Option		"XvMCSurfaces"	"6"
 	Option		"AGPMode"	"1"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xmga ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = mga ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"mga"
 	VendorName	"Matrox"
 	BoardName	"MGA"
 	Option		"OverclockMem"	"true"
 	Option		"Overlay"	"true"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xnv ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = nv ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"nv"
 	VendorName	"nVidia"
 	BoardName	"nVidia Free"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xnvidia ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = nvidia ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"nvidia"
 	VendorName	"nVidia"
-	BoardName	"nVidia Binary (manually selected)"
+	BoardName	"nVidia Closed Binary"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xradeon ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = radeon ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"radeon"
 	VendorName	"ATI"
 	BoardName	"ATI Radeon Free"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xs3 ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = s3 ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"s3"
 	VendorName	"S3"
 	BoardName	"Trio32/64"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xti ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = ti ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"glint"
 	VendorName	"Texas Instruments"
 	BoardName	"Permedia 2"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xvesa ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = vesa ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"vesa"
 	VendorName	"Unknown"
 	BoardName	"Unknown using VESA"
 END-CONFIG-FILE
-elif [ x${DEVICE_TYPE} = xvmware ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+elif [ "${DEVICE_TYPE}" = vmware ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Driver		"vmware"
 	VendorName	"VMware"
 	BoardName	"VMware"
@@ -726,14 +737,14 @@ elif [ x${DEVICE_TYPE} = xvmware ] ; then
 	#Option		"NoAccel"	"false"
 END-CONFIG-FILE
 else
-  ${CMD_FATAL} unknown device type \"${DEVICE_TYPE}\", abborting ... >&2
-  ${CMD_LOG_FATAL} unknown device type \"${DEVICE_TYPE}\", abborting ...
+  ${CMD_FATAL} "unknown device type \"${DEVICE_TYPE}\", abborting ..." >&2
+  ${CMD_LOG_FATAL} "unknown device type \"${DEVICE_TYPE}\", abborting ..."
   exit 1
 fi
 
 for TEST_DEVICE in ati fglrx i810 mga nv nvidia nvidia-free radeon s3 ti ; do
-  if [ x${DEVICE_TYPE} = x${TEST_DEVICE} ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  if [ "${DEVICE_TYPE}" = ${TEST_DEVICE} ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"SWcursor"	"true"
 	Option		"HWcursor"	"false"
 	Option		"DPMS"		"true"
@@ -741,61 +752,61 @@ END-CONFIG-FILE
   fi
 done
 
-if [ x${CONF_BUS_ID} != x ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+if [ "${CONF_BUS_ID}" != "" ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	BusID		"${CONF_BUS_ID}"
 END-CONFIG-FILE
 fi
 
-if [ x${CONF_DUAL} != xnone ] ; then
-  if [ x${CONF_BUS_ID} = x ] ; then
-    ${CMD_ERROR} dualhead display selected but no CONF_BusID given, \
-        abborting ... >&2
-    ${CMD_LOG_ERROR} dualhead display selected but no CONF_BusID given, \
-        abborting ...
+if [ "${CONF_DUAL}" != none ] ; then
+  if [ "${CONF_BUS_ID}" = "" ] ; then
+    ${CMD_ERROR} "dualhead display selected but no CONF_BusID given," \
+        "abborting ..." >&2
+    ${CMD_LOG_ERROR} "dualhead display selected but no CONF_BusID given," \
+        "abborting ..."
     exit 1
   fi
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Screen		0
 END-CONFIG-FILE
 fi
 
-/bin/echo EndSection >> ${SYS_X_CONFFILE}
+echo EndSection >> "${SYS_X_CONFFILE}"
 
 
-if [ x${CONF_DUAL} != xnone ] ; then
+if [ "${CONF_DUAL}" != none ] ; then
   # duplicate the device section, with 0 -> 1
-  /bin/echo >> ${SYS_X_CONFFILE}
-  /bin/sed -ne '/Section "Device"/,/EndSection/p' ${SYS_X_CONFFILE} | \
-      /bin/sed -e 's/Device0/Device1/' | \
-      /bin/sed -e '/Screen/s/0/1/'     > ${SYS_X_CONFFILE}.dev1
-  /bin/cat ${SYS_X_CONFFILE}.dev1 >> ${SYS_X_CONFFILE}
-  /bin/rm ${SYS_X_CONFFILE}.dev1
+  echo >> "${SYS_X_CONFFILE}"
+  sed -ne '/Section "Device"/,/EndSection/p' "${SYS_X_CONFFILE}" | \
+      sed -e 's/Device0/Device1/' | \
+      sed -e '/Screen/s/0/1/'     > "${SYS_X_CONFFILE}.dev1"
+  cat "${SYS_X_CONFFILE}.dev1" >> "${SYS_X_CONFFILE}"
+  rm "${SYS_X_CONFFILE}.dev1"
 fi
 
 
 # --- make screen settings section
 
-if [ x${CONF_RESOLUTION} = x ] ; then
+if [ "${CONF_RESOLUTION}" = "" ] ; then
   CONF_RESOLUTION=1024x768
 fi
-if [ x${CONF_DEPTH} = x ] ; then
+if [ "${CONF_DEPTH}" = "" ] ; then
   CONF_DEPTH=24
 fi
 
 for TEST_DEVICE in fglrx mga nv nvidia radeon s3 ti ; do
-  if [ x${DEVICE_TYPE} = x${TEST_DEVICE} ] ; then
+  if [ "${DEVICE_TYPE}" = ${TEST_DEVICE} ] ; then
     NEED_FB32=true
   fi
 done
 
-${CMD_LOG_IF_DEBUG} CONF_RESOLUTION=${CONF_RESOLUTION} \
-    CONF_DEPTH=${CONF_DEPTH} NEED_FB32=${NEED_FB32}
+${CMD_LOG_IF_DEBUG} "CONF_RESOLUTION=${CONF_RESOLUTION}" \
+    "CONF_DEPTH=${CONF_DEPTH} NEED_FB32=${NEED_FB32}"
 
 
-/bin/echo >> ${SYS_X_CONFFILE}
+echo >> "${SYS_X_CONFFILE}"
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 Section "Screen"
 	Identifier	"Screen0"
 	Device		"Device0"
@@ -803,13 +814,13 @@ Section "Screen"
 	DefaultDepth	${CONF_DEPTH}
 END-CONFIG-FILE
 
-if [ x${NEED_FB32} != x ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+if [ "${NEED_FB32}" != "" ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	DefaultFbBpp	32
 END-CONFIG-FILE
 fi
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	SubSection	"Display"
 		Depth		${CONF_DEPTH}
 		Modes		"${CONF_RESOLUTION}"
@@ -818,73 +829,73 @@ EndSection
 END-CONFIG-FILE
 
 
-if [ x${CONF_DUAL} != xnone ] ; then
+if [ "${CONF_DUAL}" != none ] ; then
   # duplicate the screen section, with 0 -> 1
-  /bin/echo >> ${SYS_X_CONFFILE}
-  /bin/sed -ne '/Section "Screen"/,/EndSection/p' ${SYS_X_CONFFILE} | \
-      /bin/sed -e 's/Screen0/Screen1/'   | \
-      /bin/sed -e 's/Device0/Device1/'   | \
-      /bin/sed -e 's/Monitor0/Monitor1/' > ${SYS_X_CONFFILE}.dev1
-  /bin/cat ${SYS_X_CONFFILE}.dev1 >> ${SYS_X_CONFFILE}
-  /bin/rm ${SYS_X_CONFFILE}.dev1
+  echo >> "${SYS_X_CONFFILE}"
+  sed -ne '/Section "Screen"/,/EndSection/p' "${SYS_X_CONFFILE}" | \
+      sed -e 's/Screen0/Screen1/'   | \
+      sed -e 's/Device0/Device1/'   | \
+      sed -e 's/Monitor0/Monitor1/' > "${SYS_X_CONFFILE}.dev1"
+  cat "${SYS_X_CONFFILE}.dev1" >> "${SYS_X_CONFFILE}"
+  rm "${SYS_X_CONFFILE}.dev1"
 fi
 
 
 # --- make ending section
 
-/bin/echo >> ${SYS_X_CONFFILE}
+echo >> "${SYS_X_CONFFILE}"
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 Section "ServerLayout"
 	Identifier	"XFree86 by dphys-config-x"
 	Screen	0	"Screen0"	0 0
 END-CONFIG-FILE
 
-if [ x${CONF_DUAL} != xnone ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+if [ "${CONF_DUAL}" != none ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Screen	1	"Screen1"	RightOf "Screen0"
 END-CONFIG-FILE
 fi
 
-/bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	InputDevice	"Keyboard0"	"CoreKeyboard"
 END-CONFIG-FILE
 
 # on some systems enabling PS/2 mouse with only an USB mouse connected
 #   crashes the PS/2 controller, so losing PS/2 keyboard access
-if [ x${CONF_PS2_MOUSE_DEV} != xnone -a \
-     x${CONF_PS2_MOUSE_PROTO} != xnone ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+if [ "${CONF_PS2_MOUSE_DEV}" != none -a \
+     "${CONF_PS2_MOUSE_PROTO}" != none ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	InputDevice	"MousePS20"	"CorePointer"
 END-CONFIG-FILE
   # max be no USB mouse, that is allowed if PS/2
-  if [ x${CONF_USB_MOUSE_PROTO} != xnone ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  if [ "${CONF_USB_MOUSE_PROTO}" != none ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	InputDevice	"MouseUSB0"	"SendCoreEvents"
 END-CONFIG-FILE
   fi
 else
   # if no PS/2 then no USB is most likely wrong, complain but continue
-  if [ x${CONF_USB_MOUSE_PROTO} != xnone ] ; then
-    /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+  if [ "${CONF_USB_MOUSE_PROTO}" != none ] ; then
+    cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	InputDevice	"MouseUSB0"	"CorePointer"
 END-CONFIG-FILE
   else
-    ${CMD_WARNING} no mouse chosen at all, both PS/2 and USB set to none >&2
-    ${CMD_LOG_WARNING} no mouse chosen at all, both PS/2 and USB set to none
+    ${CMD_WARNING} "no mouse chosen at all, both PS/2 and USB set to none" >&2
+    ${CMD_LOG_WARNING} "no mouse chosen at all, both PS/2 and USB set to none"
   fi
 fi
 
-if [ x${CONF_DUAL} = xxine ] ; then
-  /bin/cat >> ${SYS_X_CONFFILE} << END-CONFIG-FILE
+if [ "${CONF_DUAL}" = xine ] ; then
+  cat >> "${SYS_X_CONFFILE}" << END-CONFIG-FILE
 	Option		"Xinerama"	"on"
 END-CONFIG-FILE
 fi
 
-/bin/echo EndSection >> ${SYS_X_CONFFILE}
+echo EndSection >> "${SYS_X_CONFFILE}"
 
 
 # --- finish off
 
-${CMD_LOG_IF_DONE} has generated/replaced ${SYS_X_CONFFILE}
+${CMD_LOG_IF_DONE} "has generated/replaced ${SYS_X_CONFFILE}"
 exit 0

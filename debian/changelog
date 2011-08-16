@@ -5,6 +5,8 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
   * debian/copyright:
     + Remove obsolete copyright of findcdroms.c (no more included upstream
       since 20090926)
+    + Refer to /usr/share/common-licenses/GPL-2 instead of the symbolic
+      link at /usr/share/common-licenses/GPL
 
  -- Axel Beckert <abe@debian.org>  Tue, 16 Aug 2011 22:50:36 +0200
 

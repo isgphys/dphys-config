@@ -24,6 +24,7 @@ install: build
 	dh_prep
 	dh_installdirs
 	$(MAKE) install DESTDIR=$(DESTDIR)
+	install -D -m 755 debian/reverse-dphys-config $(DESTDIR)/usr/bin/
 	# Install example config file as default config file
 	mkdir -pv $(CURDIR)/debian/dphys-config/etc/
 	cp -av dphys-config.example $(DESTDIR)/etc/dphys-config

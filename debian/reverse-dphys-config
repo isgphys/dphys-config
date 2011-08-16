@@ -1,0 +1,31 @@
+#!/bin/sh
+
+LIST="$1"
+HOST="$2"
+DIR="$3"
+
+if [ -z "$LIST" -o -z "$HOST" -o -z "$DIR" ]; then
+    echo "Usage: $0 <some-dphys-admin.list> [<user>@]<source-host> <output-directory>" 1>&2
+    if [ "$LIST" = "-h" -o "$LIST" = "--help" ]; then
+	exit 0;
+    else
+	exit 1;
+    fi
+fi
+
+if echo "$LIST" | grep dphys-admin.list >/dev/null; then
+    echo WARNING: dphys-config.list alike file name expected, but got dphys-admin.list alike file name. 1>&2
+fi
+
+egrep -v '^\s*$|^#' "$LIST" | \
+    awk -F: '{print $2" "$1}' | \
+    sed -e 's://:/:' | \
+  while read dpath file; do
+    if ssh "$HOST" "test -d '$dpath'" < /dev/null; then
+	scp -p "$HOST:$dpath/$file" "$DIR/$file"
+    else
+	scp -p "$HOST:$dpath" "$DIR/$file"
+    fi
+done
+
+

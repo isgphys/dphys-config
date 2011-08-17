@@ -1,0 +1,83 @@
+Enables dphys-config to report to hobbit servers
+
+Index: dphys-config/dphys-config
+===================================================================
+--- dphys-config.orig/dphys-config	2011-08-17 00:15:22.000000000 +0200
++++ dphys-config/dphys-config	2011-08-17 01:55:40.000000000 +0200
+@@ -169,6 +169,76 @@
+   . ~/."${PNAME}"
+ fi
+ 
++# Setup hobbit support
++if [ -e /etc/default/hobbit-client ] ; then
++  . /etc/default/hobbit-client
++fi
++if [ -n "${HOBBITSERVERS}" -a -x '/usr/lib/hobbit/client/bin/bb' ] ; then
++    HOBBITCOLOR=green
++    HOBBITMESSAGE=""
++
++    color_line() {
++	LOCALCOLOR="$1"
++	shift
++	SYSLOGLEVEL="$1"
++	shift
++	HOBBITMESSAGE="${HOBBITMESSAGE}&${LOCALCOLOR} $*
++"
++	if [ "${HOBBITCOLOR}" = 'green' ]; then
++	    ${CMD_INFO_PRINT} "Setting color to ${LOCALCOLOR}"
++	    HOBBITCOLOR="${LOCALCOLOR}"
++	elif [ "${HOBBITCOLOR}" = 'yellow' -a "${LOCALCOLOR}" = 'red' ]; then
++	    ${CMD_INFO_PRINT} "Setting color to ${LOCALCOLOR}"
++	    HOBBITCOLOR="${LOCALCOLOR}"
++	fi
++	${CMD_INFO_PRINT} "HOBBITCOLOR is ${HOBBITCOLOR}"
++	logger -t "${BASENAME}" -p user."${SYSLOGLEVEL}" "$*"
++    }
++
++    hobbit_line() {
++	HOBBITMESSAGE="${HOBBITMESSAGE}$*
++"
++	${CMD_INFO_PRINT} "HOBBITCOLOR is ${HOBBITCOLOR}"
++	logger -t "${BASENAME}" -p user.info "$*"
++    }
++
++    get_hobbit_color() {
++	echo "${HOBBITCOLOR}"
++    }
++
++    hobbit_send() {
++	HOBBITCOLOR=`get_hobbit_color`
++	${CMD_INFO_PRINT} "Sending the following status report (${HOBBITCOLOR}) to ${HOBBITSERVERS}:"
++	${CMD_DEBUG_SLEEP}
++	if [ "${HOBBITCOLOR}" = 'green' ]; then
++	    HOBBITOK="OK"
++	else
++	    HOBBITOK="NOT OK"
++	fi
++	DATE=`date`
++	HOBBITSTATUS="status+${HOBBITVALIDITY:-2160} ${CLIENTHOSTNAME:-${CONF_CONFNAME}}.${HOBBIT_TESTNAME:-dpc} ${HOBBITCOLOR} ${DATE} dphys-config ${HOBBITOK}
++
++${HOBBITMESSAGE}"
++	${CMD_INFO_PRINT} "${HOBBITSTATUS}"
++	for hobbitserver in ${HOBBITSERVERS}; do
++	    /usr/lib/hobbit/client/bin/bb $hobbitserver "${HOBBITSTATUS}"
++	done
++    }
++
++    # something within the system that user does not expect, give up
++    CMD_LOG_FATAL="color_line red error $0: FATAL:"
++    # something from users input, user will correct this and continue
++    CMD_LOG_ERROR="color_line red error $0: ERROR:"
++    # something we can continue with, but may be wrong, and user may not suspect it
++    CMD_LOG_WARNING="color_line yellow warning $0: WARNING:"
++    # something most likely not wrong, but tell user for the odd case it is wrong
++    CMD_LOG_NOTE="color_line green notice $0: NOTE:"
++    # normal stuff users expect, so no marking
++    CMD_LOG_INFO="hobbit_line"
++
++    # Send hobbit report on exit or error
++    trap hobbit_send 0
++fi
+ 
+ # --- control variable output
+ 

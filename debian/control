@@ -2,7 +2,7 @@ Source: dphys-config
 Section: admin
 Priority: optional
 Maintainer: Axel Beckert <abe@debian.org>
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7), quilt
 Standards-Version: 3.9.2
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 Vcs-Browser: http://git.phys.ethz.ch/?p=dphys-config-debian.git
@@ -12,6 +12,7 @@ Package: dphys-config
 Architecture: all
 Depends: wget, ${misc:Depends}
 Suggests: pciutils
+Enhances: xymon-client, hobbit-client
 Description: Tool to distribute config files
  This project is aimed at automatically installing (and keeping
  update) site specific config files on many hosts, after preprocessing
@@ -20,3 +21,6 @@ Description: Tool to distribute config files
  file has been changed. It can also remove config files, including
  running an preremove script before doing so. All this is driven by an
  simple config file list.
+ .
+ dphys-config is capable of reporting update failure or success to a
+ Xymon (formerly Hobbit) monitoring server.

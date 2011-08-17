@@ -24,25 +24,25 @@ Index: dphys-config/dphys-config
 +	HOBBITMESSAGE="${HOBBITMESSAGE}&${LOCALCOLOR} $*
 +"
 +	if [ "${HOBBITCOLOR}" = 'green' ]; then
-+	    ${CMD_INFO_PRINT} "Setting color to ${LOCALCOLOR}"
++	    ${CMD_DEBUG_PRINT} "Setting color to ${LOCALCOLOR}"
 +	    HOBBITCOLOR="${LOCALCOLOR}"
 +	elif [ "${HOBBITCOLOR}" = 'yellow' -a "${LOCALCOLOR}" = 'red' ]; then
-+	    ${CMD_INFO_PRINT} "Setting color to ${LOCALCOLOR}"
++	    ${CMD_DEBUG_PRINT} "Setting color to ${LOCALCOLOR}"
 +	    HOBBITCOLOR="${LOCALCOLOR}"
 +	fi
-+	${CMD_INFO_PRINT} "HOBBITCOLOR is ${HOBBITCOLOR}"
++	${CMD_DEBUG_PRINT} "color_line: HOBBITCOLOR is ${HOBBITCOLOR}"
 +	logger -t "${BASENAME}" -p user."${SYSLOGLEVEL}" "$*"
 +    }
 +
 +    hobbit_line() {
 +	HOBBITMESSAGE="${HOBBITMESSAGE}$*
 +"
-+	${CMD_INFO_PRINT} "HOBBITCOLOR is ${HOBBITCOLOR}"
++	${CMD_DEBUG_PRINT} "hobbit_line: HOBBITCOLOR is ${HOBBITCOLOR}"
 +	logger -t "${BASENAME}" -p user.info "$*"
 +    }
 +
 +    hobbit_send() {
-+	${CMD_INFO_PRINT} "Sending the following status report (${HOBBITCOLOR}) to ${HOBBITSERVERS}:"
++	${CMD_DEBUG_PRINT} "Sending the following status report (${HOBBITCOLOR}) to ${HOBBITSERVERS}:"
 +	${CMD_DEBUG_SLEEP}
 +	if [ "${HOBBITCOLOR}" = 'green' ]; then
 +	    HOBBITOK="OK"
@@ -53,7 +53,7 @@ Index: dphys-config/dphys-config
 +	HOBBITSTATUS="status+${HOBBITVALIDITY:-2160} ${CLIENTHOSTNAME:-${CONF_CONFNAME}}.${HOBBIT_TESTNAME:-dpc} ${HOBBITCOLOR} ${DATE} dphys-config ${HOBBITOK}
 +
 +${HOBBITMESSAGE}"
-+	${CMD_INFO_PRINT} "${HOBBITSTATUS}"
++	${CMD_DEBUG_PRINT} "${HOBBITSTATUS}"
 +	for hobbitserver in ${HOBBITSERVERS}; do
 +	    /usr/lib/hobbit/client/bin/bb $hobbitserver "${HOBBITSTATUS}"
 +	done

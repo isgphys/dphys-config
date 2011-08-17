@@ -1,5 +1,5 @@
 [NAME]
-imports files from dphys-config managed remote host
+reverse-dphys-config \- imports files from dphys-config managed remote host
 
 [SEE ALSO]
 dphys-config(1)

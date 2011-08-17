@@ -2,9 +2,9 @@ Enables dphys-config to report to hobbit servers
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2011-08-17 00:15:22.000000000 +0200
-+++ dphys-config/dphys-config	2011-08-17 01:55:40.000000000 +0200
-@@ -169,6 +169,76 @@
+--- dphys-config.orig/dphys-config	2011-08-17 15:18:10.000000000 +0200
++++ dphys-config/dphys-config	2011-08-17 15:54:15.000000000 +0200
+@@ -169,6 +169,71 @@
    . ~/."${PNAME}"
  fi
  
@@ -76,3 +76,18 @@ Index: dphys-config/dphys-config
  
  # --- control variable output
  
+@@ -722,6 +787,8 @@
+ cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
+     grep "${CONF_LINEFILTER}" | while IFS= read -r LINE ; do
+ 
++    trap hobbit_send 0
++
+   ${CMD_DEBUG_PRINT} "LINE=${LINE}"
+   ${CMD_DEBUG_WAIT}
+ 
+@@ -944,4 +1011,5 @@
+ fi
+ 
+ ${CMD_LOG_IF_DONE} "has updated/installed/removed config files"
++trap - 0
+ exit 0

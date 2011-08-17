@@ -2,9 +2,9 @@ Enables dphys-config to report to hobbit servers
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2011-08-17 15:18:10.000000000 +0200
-+++ dphys-config/dphys-config	2011-08-17 15:54:15.000000000 +0200
-@@ -169,6 +169,71 @@
+--- dphys-config.orig/dphys-config	2011-08-17 16:09:33.000000000 +0200
++++ dphys-config/dphys-config	2011-08-17 16:10:23.000000000 +0200
+@@ -169,6 +169,79 @@
    . ~/."${PNAME}"
  fi
  
@@ -41,6 +41,13 @@ Index: dphys-config/dphys-config
 +	logger -t "${BASENAME}" -p user.info "$*"
 +    }
 +
++    hobbit_printonly_line() {
++	HOBBITMESSAGE="${HOBBITMESSAGE}$*
++"
++	${CMD_DEBUG_PRINT} "hobbit_printonly_line: HOBBITCOLOR is ${HOBBITCOLOR}"
++	"${CMD_INFO}" "$*"
++    }
++
 +    hobbit_send() {
 +	${CMD_DEBUG_PRINT} "Sending the following status report (${HOBBITCOLOR}) to ${HOBBITSERVERS}:"
 +	${CMD_DEBUG_SLEEP}
@@ -69,6 +76,7 @@ Index: dphys-config/dphys-config
 +    CMD_LOG_NOTE="color_line green notice $0: NOTE:"
 +    # normal stuff users expect, so no marking
 +    CMD_LOG_INFO="hobbit_line"
++    CMD_INFO_PRINT="hobbit_printonly_line"
 +
 +    # Send hobbit report on exit or error
 +    trap hobbit_send 0
@@ -76,7 +84,7 @@ Index: dphys-config/dphys-config
  
  # --- control variable output
  
-@@ -722,6 +787,8 @@
+@@ -722,6 +795,8 @@
  cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
      grep "${CONF_LINEFILTER}" | while IFS= read -r LINE ; do
  
@@ -85,7 +93,7 @@ Index: dphys-config/dphys-config
    ${CMD_DEBUG_PRINT} "LINE=${LINE}"
    ${CMD_DEBUG_WAIT}
  
-@@ -944,4 +1011,5 @@
+@@ -944,4 +1019,5 @@
  fi
  
  ${CMD_LOG_IF_DONE} "has updated/installed/removed config files"

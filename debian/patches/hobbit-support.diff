@@ -41,12 +41,7 @@ Index: dphys-config/dphys-config
 +	logger -t "${BASENAME}" -p user.info "$*"
 +    }
 +
-+    get_hobbit_color() {
-+	echo "${HOBBITCOLOR}"
-+    }
-+
 +    hobbit_send() {
-+	HOBBITCOLOR=`get_hobbit_color`
 +	${CMD_INFO_PRINT} "Sending the following status report (${HOBBITCOLOR}) to ${HOBBITSERVERS}:"
 +	${CMD_DEBUG_SLEEP}
 +	if [ "${HOBBITCOLOR}" = 'green' ]; then

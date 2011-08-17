@@ -11,7 +11,7 @@ Vcs-Git: http://git.phys.ethz.ch/git/dphys-config-debian.git
 Package: dphys-config
 Architecture: all
 Depends: wget, ${misc:Depends}
-Suggests: pciutils
+Suggests: pciutils, openssh-client | ssh-client
 Enhances: xymon-client, hobbit-client
 Description: Tool to distribute config files
  This project is aimed at automatically installing (and keeping

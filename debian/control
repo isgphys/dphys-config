@@ -2,7 +2,7 @@ Source: dphys-config
 Section: admin
 Priority: optional
 Maintainer: Axel Beckert <abe@debian.org>
-Build-Depends: debhelper (>= 7), quilt
+Build-Depends: debhelper (>= 7), quilt, help2man
 Standards-Version: 3.9.2
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 Vcs-Browser: http://git.phys.ethz.ch/?p=dphys-config-debian.git

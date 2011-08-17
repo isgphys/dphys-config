@@ -17,7 +17,7 @@ build-stamp: patch
 clean: unpatch
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
+	rm -f build-stamp debian/reverse-dphys-config.1
 	$(MAKE) clean
 	dh_clean 
 
@@ -30,6 +30,8 @@ install: build
 	install -D -m 755 debian/reverse-dphys-config $(DESTDIR)/usr/bin/
 	# Install example config file as default config file
 	install -D -m 644 dphys-config.example $(DESTDIR)/etc/dphys-config
+	help2man -N --no-discard-stderr -i debian/reverse-dphys-config.h2m \
+	    debian/reverse-dphys-config > debian/reverse-dphys-config.1
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -39,6 +41,7 @@ binary-indep: build install
 	dh_installdocs
 	dh_installinit -- defaults 21
 	dh_installcron
+	dh_installman
 	dh_lintian
 	dh_compress
 	dh_fixperms

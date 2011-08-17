@@ -15,6 +15,7 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
     + debian-rules-missing-recommended-target
     + no-upstream-changelog
   * Add support for hobbit reporting
+    + Use quilt patch management
 
  -- Axel Beckert <abe@debian.org>  Tue, 16 Aug 2011 22:50:36 +0200
 

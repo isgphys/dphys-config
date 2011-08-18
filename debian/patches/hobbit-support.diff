@@ -2,8 +2,14 @@ Enables dphys-config to report to hobbit servers
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2011-08-17 16:09:33.000000000 +0200
-+++ dphys-config/dphys-config	2011-08-17 16:10:23.000000000 +0200
+--- dphys-config.orig/dphys-config	2011-08-18 17:06:07.000000000 +0200
++++ dphys-config/dphys-config	2011-08-18 17:09:03.000000000 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/dash
+ # /usr/bin/dphys-config - install/update config files and trigger commands
+ # author Neil Franklin, last modification 2010.01.21
+ # copyright ETH Zuerich Physics Departement,
 @@ -169,6 +169,79 @@
    . ~/."${PNAME}"
  fi
@@ -84,7 +90,16 @@ Index: dphys-config/dphys-config
  
  # --- control variable output
  
-@@ -722,6 +795,8 @@
+@@ -715,6 +788,8 @@
+ ${CMD_INFO_PRINT} "processing individual config files from the list ..."
+ ${CMD_DEBUG_SLEEP}
+ 
++trap - 0
++
+ # cut get rid of comments and grep empty lines (may be emptied comment lines)
+ #   and allow user to select/filter subset of lines to be processed
+ #   IFS= to avoid read doing separator processing (mangles spaces)
+@@ -722,6 +797,8 @@
  cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
      grep "${CONF_LINEFILTER}" | while IFS= read -r LINE ; do
  
@@ -93,9 +108,3 @@ Index: dphys-config/dphys-config
    ${CMD_DEBUG_PRINT} "LINE=${LINE}"
    ${CMD_DEBUG_WAIT}
  
-@@ -944,4 +1019,5 @@
- fi
- 
- ${CMD_LOG_IF_DONE} "has updated/installed/removed config files"
-+trap - 0
- exit 0

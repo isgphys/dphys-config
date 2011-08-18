@@ -21,7 +21,7 @@
 # USA
 #
 
-VERSION=0.1
+VERSION=0.2
 
 LIST="$1"
 HOST="$2"
@@ -50,9 +50,9 @@ egrep -v '^\s*$|^#' "$LIST" | \
     sed -e 's://:/:' | \
   while read dpath file; do
     if ssh "$HOST" "test -d '$dpath'" < /dev/null; then
-	scp -p "$HOST:$dpath/$file" "$DIR/$file"
+	scp "$HOST:$dpath/$file" "$DIR/$file"
     else
-	scp -p "$HOST:$dpath" "$DIR/$file"
+	scp "$HOST:$dpath" "$DIR/$file"
     fi
 done
 

@@ -1,5 +1,9 @@
 dphys-config (20100216-2) UNRELEASED; urgency=low
 
+  * Add two feature patches:
+    + Support for hobbit reporting
+    + Interactive and Diff mode by Claude Becker.
+    Use quilt patch management
   * Add new script reverse-dphys-config
     + build-depend on help2man for its manpage
     + suggest openssh-client | ssh-client
@@ -21,10 +25,8 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
     + debian-rules-missing-recommended-target
     + no-upstream-changelog
     + missing-debian-source-format (now explicitly "1.0" format)
-  * Add support for hobbit reporting
-    + Use quilt patch management
 
- -- Axel Beckert <abe@debian.org>  Tue, 16 Aug 2011 22:50:36 +0200
+ -- Axel Beckert <abe@debian.org>  Fri, 10 Aug 2012 15:06:37 +0200
 
 dphys-config (20100216-1) unstable; urgency=low
 

@@ -24,3 +24,6 @@ Description: Tool to distribute config files
  .
  dphys-config is capable of reporting update failure or success to a
  Xymon (formerly Hobbit) monitoring server.
+ .
+ dphys-config features an interactive mode and a non-interactive diff
+ mode to check what would be updated.

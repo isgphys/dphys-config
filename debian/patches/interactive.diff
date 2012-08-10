@@ -1,3 +1,6 @@
+Author: Claude Becker <becker@phys.ethz.ch>
+Description: Adds options -i and -d for interctive and diff mode.
+
 Index: dphys-config/dphys-config
 ===================================================================
 --- dphys-config.orig/dphys-config	2012-08-10 17:15:00.704900361 +0200

@@ -1,0 +1,309 @@
+Index: dphys-config/dphys-config
+===================================================================
+--- dphys-config.orig/dphys-config	2012-08-10 14:53:09.040450862 +0200
++++ dphys-config/dphys-config	2012-08-10 14:53:34.308983581 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ # /usr/bin/dphys-config - install/update config files and trigger commands
+ # author Neil Franklin, last modification 2010.01.21
+ # copyright ETH Zuerich Physics Departement,
+@@ -136,6 +136,12 @@
+ CMD_INFO_PRINT="${CMD_INFO}"
+ CMD_VERBOSE_PRINT=true
+ 
++# command to use for viewing diffs in interactive mode
++if [ -x /usr/bin/colordiff ] ; then
++  CMD_DIFF='colordiff -w -u'
++else
++  CMD_DIFF='diff -w -u'
++fi
+ 
+ # set debug option controllable stuff
+ if [ "${DEBUG_SLEEP}" = yes ] ; then
+@@ -284,6 +217,16 @@
+         shift 1
+         ;;
+ 
++      i)
++        # interactive mode: prompt for action before updating file
++        INTERACTIVE_MODE=true
++        ;;
++
++      d)
++        # diff mode: show diff of changed files before installing them
++        DIFF_MODE=true
++        ;;
++
+       q)
+         # quiet: don't inform user what we are doing
+         CMD_INFO_PRINT=true
+@@ -317,6 +260,8 @@
+ options:
+   -c         configname: use this set of config files instead of hostname set
+   -f filter  filter: only process lines matching this grep regexp
++  -i         interactive mode: prompt for action before updating file
++  -d         diff mode: show diff of changed files before installing them
+   -q         quiet: don't give user an running report of what we are doing
+   -v         verbose: give user detailed running report
+   -D         Debug: activate an debug option, see source for operation
+@@ -726,6 +671,90 @@
+ 
+ }
+ 
++# --- install new config file
++
++install_config_file () {
++  ${CMD_INFO_PRINT} "updating old or installing new config" \
++      "${CONFFILE_NAME} as ${CONFFILE_PLACE} ..."
++  ${CMD_DEBUG_SLEEP}
++
++  cp -pf "${CONFFILE}" "${CONFFILE_PLACE}"
++
++  ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
++  ${CMD_DEBUG_WAIT}
++
++
++  # run the facultative postinstall command trigger stuff
++  if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
++
++    ${CMD_INFO_PRINT} "triggering postinstall command \"${CMDTRIG}\" ..."
++    ${CMD_DEBUG_SLEEP}
++
++    # prevent non zero return from user given command from killing us
++    set +e
++    sh -c "${CMDTRIG}"
++    RETVAL="$?"
++    set -e
++    if [ "${RETVAL}" != 0 ] ; then
++      ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
++      ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
++    fi
++
++    ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
++    ${CMD_DEBUG_WAIT}
++
++  fi
++
++  return 0
++}
++
++# --- remove existing config file
++
++remove_config_file () {
++  ${CMD_INFO_PRINT} "removing old config file ${CONFFILE_PLACE} ..."
++  ${CMD_DEBUG_SLEEP}
++
++  # test for only directory name (ends in /), possibly dangerous leftover
++  if [ "`echo "${CONFFILE_PLACE}" | rev | cut -c 1`" = "/" ] ; then
++
++    ${CMD_WARNING} "would remove entire directory ${CONFFILE_PLACE}," \
++        "may be partially edited list file entry, DANGEROUS, leaving it," \
++        "add the files name after the / to delete an single file," \
++        "remove / after dir name to really delete entire directory" >&2
++    ${CMD_LOG_WARNING} "would remove entire directory ${CONFFILE_PLACE}," \
++        "may be partially edited list file entry, DANGEROUS, leaving it," \
++        "add the files name after the / to delete an single file," \
++        "remove / after dir name to really delete entire directory"
++
++  else
++
++    # run the facultative preremove command trigger stuff
++    if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
++
++      ${CMD_INFO_PRINT} "triggering preremove command \"${CMDTRIG}\" ..."
++      ${CMD_DEBUG_SLEEP}
++
++      set +e
++      sh -c "${CMDTRIG}"
++      RETVAL="$?"
++      set -e
++      if [ "${RETVAL}" != 0 ] ; then
++        ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
++        ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
++      fi
++
++    fi
++
++    ${CMD_INFO_PRINT} "removing config file ${CONFFILE_PLACE} ..."
++    ${CMD_DEBUG_SLEEP}
++
++    ${CMD_DEBUG_PRINT} "`ls -ald "${CONFFILE_PLACE}"`"
++    ${CMD_DEBUG_WAIT}
++
++    rm -rf "${CONFFILE_PLACE}"
++
++  fi
++}
+ 
+ # --- download config file list
+ 
+@@ -795,8 +824,6 @@
+ cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
+     grep "${CONF_LINEFILTER}" | while IFS= read -r LINE ; do
+ 
+-    trap hobbit_send 0
+-
+   ${CMD_DEBUG_PRINT} "LINE=${LINE}"
+   ${CMD_DEBUG_WAIT}
+ 
+@@ -908,36 +935,46 @@
+     # only if file has changed do we do anything, as for config list
+     if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
+ 
+-      ${CMD_INFO_PRINT} "updating old or installing new config" \
+-          "${CONFFILE_NAME} as ${CONFFILE_PLACE} ..."
+-      ${CMD_DEBUG_SLEEP}
+-
+-      cp -pf "${CONFFILE}" "${CONFFILE_PLACE}"
+-
+-      ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
+-      ${CMD_DEBUG_WAIT}
+-
+-
+-      # run the facultative postinstall command trigger stuff
+-      if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
++      ACTION_EXECUTED=false
+ 
+-        ${CMD_INFO_PRINT} "triggering postinstall command \"${CMDTRIG}\" ..."
+-        ${CMD_DEBUG_SLEEP}
+-
+-        # prevent non zero return from user given command from killing us
+-        set +e
+-        sh -c "${CMDTRIG}"
+-        RETVAL="$?"
+-        set -e
+-        if [ "${RETVAL}" != 0 ] ; then
+-          ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
+-          ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
+-        fi
+-
+-        ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
+-        ${CMD_DEBUG_WAIT}
++      while [[ $ACTION_EXECUTED != true ]] ; do
++          if [ $INTERACTIVE_MODE ] ; then
++              # prompt user for action
++              echo ""
++              printf "Found new version for ${CONFFILE_PLACE}\n"
++              printf "[i]nstall [d]iff [s]kip "
++              read -n 1 ACTION < /dev/tty
++              echo ""
++          elif [ $DIFF_MODE ] ; then
++              # default action is to diff+install
++              ACTION='D'
++          else
++              # default action is to install
++              ACTION='i'
++          fi
+ 
+-      fi
++          case $ACTION in
++              s)  # skip file
++                  ACTION_EXECUTED=true
++                  echo "Skipping this file and keeping currently installed version."
++                  ;;
++              i)  # install file
++                  ACTION_EXECUTED=true
++                  install_config_file
++                  ;;
++              d)  # diff file
++                  ${CMD_DIFF} ${CONFFILE_PLACE} ${CONFFILE} || true
++                  ;;
++              D)  # diff + install file
++                  ACTION_EXECUTED=true
++                  ${CMD_DIFF} ${CONFFILE_PLACE} ${CONFFILE} || true
++                  install_config_file
++                  ;;
++              *)
++                  echo "Unknown action '$ACTION'."
++                  ;;
++          esac
++      done
+ 
+     fi
+ 
+@@ -948,49 +985,39 @@
+     # only if file still exists do we do anything
+     if [ -e "${CONFFILE_PLACE}" ] ; then
+ 
+-      ${CMD_INFO_PRINT} "removing old config file ${CONFFILE_PLACE} ..."
+-      ${CMD_DEBUG_SLEEP}
+-
+-      # test for only directory name (ends in /), possibly dangerous leftover
+-      if [ "`echo "${CONFFILE_PLACE}" | rev | cut -c 1`" = "/" ] ; then
+-
+-        ${CMD_WARNING} "would remove entire directory ${CONFFILE_PLACE}," \
+-            "may be partially edited list file entry, DANGEROUS, leaving it," \
+-            "add the files name after the / to delete an single file," \
+-            "remove / after dir name to really delete entire directory" >&2
+-        ${CMD_LOG_WARNING} "would remove entire directory ${CONFFILE_PLACE}," \
+-            "may be partially edited list file entry, DANGEROUS, leaving it," \
+-            "add the files name after the / to delete an single file," \
+-            "remove / after dir name to really delete entire directory"
+-
+-      else
++      ACTION_EXECUTED=false
+ 
+-        # run the facultative preremove command trigger stuff
+-        if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
+-
+-          ${CMD_INFO_PRINT} "triggering preremove command \"${CMDTRIG}\" ..."
+-          ${CMD_DEBUG_SLEEP}
+-
+-          set +e
+-          sh -c "${CMDTRIG}"
+-          RETVAL="$?"
+-          set -e
+-          if [ "${RETVAL}" != 0 ] ; then
+-            ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
+-            ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
++      while [[ $ACTION_EXECUTED != true ]] ; do
++          if [ $INTERACTIVE_MODE ] ; then
++              # prompt user for action
++              echo ""
++              printf "Found config file ${CONFFILE_PLACE} to be deleted\n"
++              printf "[r]emove [v]iew [s]kip "
++              read -n 1 ACTION < /dev/tty
++              echo ""
++          else
++              # default action is to remove
++              ACTION='r'
+           fi
+ 
+-        fi
+-
+-        ${CMD_INFO_PRINT} "removing config file ${CONFFILE_PLACE} ..."
+-        ${CMD_DEBUG_SLEEP}
+-
+-        ${CMD_DEBUG_PRINT} "`ls -ald "${CONFFILE_PLACE}"`"
+-        ${CMD_DEBUG_WAIT}
++          case $ACTION in
++              s)  # skip file
++                  ACTION_EXECUTED=true
++                  echo "Skipping this file and keeping currently installed version."
++                  ;;
++              r)  # remove file
++                  ACTION_EXECUTED=true
++                  remove_config_file
++                  ;;
++              v)  # view file
++                  ${CMD_DIFF} ${CONFFILE_PLACE} /dev/null || true
++                  ;;
++              *)
++                  echo "Unknown action '$ACTION'."
++                  ;;
++          esac
++      done
+ 
+-        rm -rf "${CONFFILE_PLACE}"
+-
+-      fi
+ 
+     fi
+ 
+@@ -1019,5 +1046,4 @@
+ fi
+ 
+ ${CMD_LOG_IF_DONE} "has updated/installed/removed config files"
+-trap - 0
+ exit 0

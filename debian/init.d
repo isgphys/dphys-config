@@ -103,8 +103,8 @@ case "$1" in
     /bin/echo "'Stopping' ${NAME} automatic config updates (does nothing)."
     ;;
 
-  restart|reload|force-reload)
-    /bin/echo "No daemon to (force-)re[start|load] in ${NAME}"
+  restart|reload|force-reload|status)
+    /bin/echo "No daemon to (force-)re[start|load] or check in ${NAME}"
     ;;
 
   *)

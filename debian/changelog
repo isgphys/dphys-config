@@ -24,6 +24,7 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
   * Fix some lintian warnings:
     + debian-rules-missing-recommended-target
     + no-upstream-changelog
+    + init.d-script-does-not-implement-optional-option status
     + missing-debian-source-format (now explicitly "1.0" format)
 
  -- Axel Beckert <abe@debian.org>  Fri, 10 Aug 2012 15:06:37 +0200

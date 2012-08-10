@@ -1,13 +1,7 @@
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2012-08-10 14:53:09.040450862 +0200
-+++ dphys-config/dphys-config	2012-08-10 14:53:34.308983581 +0200
-@@ -1,4 +1,4 @@
--#!/bin/sh
-+#!/bin/bash
- # /usr/bin/dphys-config - install/update config files and trigger commands
- # author Neil Franklin, last modification 2010.01.21
- # copyright ETH Zuerich Physics Departement,
+--- dphys-config.orig/dphys-config	2012-08-10 17:15:00.704900361 +0200
++++ dphys-config/dphys-config	2012-08-10 17:15:00.724900396 +0200
 @@ -136,6 +136,12 @@
  CMD_INFO_PRINT="${CMD_INFO}"
  CMD_VERBOSE_PRINT=true
@@ -21,7 +15,7 @@ Index: dphys-config/dphys-config
  
  # set debug option controllable stuff
  if [ "${DEBUG_SLEEP}" = yes ] ; then
-@@ -284,6 +217,16 @@
+@@ -284,6 +290,16 @@
          shift 1
          ;;
  
@@ -38,7 +32,7 @@ Index: dphys-config/dphys-config
        q)
          # quiet: don't inform user what we are doing
          CMD_INFO_PRINT=true
-@@ -317,6 +260,8 @@
+@@ -317,6 +333,8 @@
  options:
    -c         configname: use this set of config files instead of hostname set
    -f filter  filter: only process lines matching this grep regexp
@@ -47,7 +41,7 @@ Index: dphys-config/dphys-config
    -q         quiet: don't give user an running report of what we are doing
    -v         verbose: give user detailed running report
    -D         Debug: activate an debug option, see source for operation
-@@ -726,6 +671,90 @@
+@@ -726,6 +744,90 @@
  
  }
  
@@ -138,7 +132,7 @@ Index: dphys-config/dphys-config
  
  # --- download config file list
  
-@@ -908,36 +935,46 @@
+@@ -910,36 +1012,46 @@
      # only if file has changed do we do anything, as for config list
      if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
  
@@ -171,13 +165,13 @@ Index: dphys-config/dphys-config
 -
 -        ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
 -        ${CMD_DEBUG_WAIT}
-+      while [[ $ACTION_EXECUTED != true ]] ; do
++      while [ $ACTION_EXECUTED != true ] ; do
 +          if [ $INTERACTIVE_MODE ] ; then
 +              # prompt user for action
 +              echo ""
 +              printf "Found new version for ${CONFFILE_PLACE}\n"
 +              printf "[i]nstall [d]iff [s]kip "
-+              read -n 1 ACTION < /dev/tty
++              ACTION=$(bash --noprofile --norc -c 'read -n 1 ACTION < /dev/tty; echo $ACTION')
 +              echo ""
 +          elif [ $DIFF_MODE ] ; then
 +              # default action is to diff+install
@@ -213,7 +207,7 @@ Index: dphys-config/dphys-config
  
      fi
  
-@@ -948,49 +985,39 @@
+@@ -950,49 +1062,39 @@
      # only if file still exists do we do anything
      if [ -e "${CONFFILE_PLACE}" ] ; then
  
@@ -248,13 +242,13 @@ Index: dphys-config/dphys-config
 -          if [ "${RETVAL}" != 0 ] ; then
 -            ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
 -            ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
-+      while [[ $ACTION_EXECUTED != true ]] ; do
++      while [ $ACTION_EXECUTED != true ] ; do
 +          if [ $INTERACTIVE_MODE ] ; then
 +              # prompt user for action
 +              echo ""
 +              printf "Found config file ${CONFFILE_PLACE} to be deleted\n"
 +              printf "[r]emove [v]iew [s]kip "
-+              read -n 1 ACTION < /dev/tty
++              ACTION=$(bash --noprofile --norc -c 'read -n 1 ACTION < /dev/tty; echo $ACTION')
 +              echo ""
 +          else
 +              # default action is to remove

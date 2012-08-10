@@ -3,10 +3,12 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
   * Add two feature patches:
     + Support for hobbit reporting
     + Interactive and Diff mode by Claude Becker.
-    Use quilt patch management and add the features to the long description
+    Add the features to the long description
   * Add new script reverse-dphys-config
     + build-depend on help2man for its manpage
     + suggest openssh-client | ssh-client
+  * Switch to source format "3.0 (quilt)"
+    + Remove quilt build-dependency as well as patch and unpatch targets
   * debian/rules: replace mkdir + cp by install -D
   * debian/copyright:
     + Remove obsolete copyright of findcdroms.c (no more included upstream
@@ -25,7 +27,6 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
     + debian-rules-missing-recommended-target
     + no-upstream-changelog
     + init.d-script-does-not-implement-optional-option status
-    + missing-debian-source-format (now explicitly "1.0" format)
 
  -- Axel Beckert <abe@debian.org>  Fri, 10 Aug 2012 15:06:37 +0200
 

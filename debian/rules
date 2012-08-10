@@ -2,19 +2,17 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-include /usr/share/quilt/quilt.make
-
 DESTDIR=$(CURDIR)/debian/dphys-config
 
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
-build-stamp: patch
+build-stamp:
 	dh_testdir
 	$(MAKE)
 	touch $@
 
-clean: unpatch
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp debian/reverse-dphys-config.1

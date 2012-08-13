@@ -1,11 +1,12 @@
 Author: Claude Becker <becker@phys.ethz.ch>
+Author: Axel Beckert <beckert@phys.ethz.ch>
 Description: Adds options -i and -d for interctive and diff mode.
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2012-08-13 14:01:57.000000000 +0200
-+++ dphys-config/dphys-config	2012-08-13 14:03:33.000000000 +0200
-@@ -136,6 +136,12 @@
+--- dphys-config.orig/dphys-config	2012-08-13 20:07:47.000000000 +0200
++++ dphys-config/dphys-config	2012-08-13 14:57:52.000000000 +0200
+@@ -136,6 +136,18 @@
  CMD_INFO_PRINT="${CMD_INFO}"
  CMD_VERBOSE_PRINT=true
  
@@ -15,10 +16,16 @@ Index: dphys-config/dphys-config
 +else
 +  CMD_DIFF='diff -w -u'
 +fi
++
++if [ -x /usr/bin/dwdiff ] ; then
++  CMD_WDIFF='dwdiff -c'
++else
++  CMD_WDIFF='wdiff'
++fi
  
  # set debug option controllable stuff
  if [ "${DEBUG_SLEEP}" = yes ] ; then
-@@ -284,6 +290,21 @@
+@@ -284,6 +296,33 @@
          shift 1
          ;;
  
@@ -37,20 +44,34 @@ Index: dphys-config/dphys-config
 +        DIFF_INSTALL_MODE=true
 +        ;;
 +
++      w)
++        # diff+install mode: show diff of changed files before installing them
++        DIFF_ONLY_MODE=true
++        WDIFF_MODE=true
++        ;;
++
++      W)
++        # diff+install mode: show diff of changed files before installing them
++        DIFF_INSTALL_MODE=true
++        WDIFF_MODE=true
++        ;;
++
        q)
          # quiet: don't inform user what we are doing
          CMD_INFO_PRINT=true
-@@ -317,6 +339,9 @@
+@@ -317,6 +356,11 @@
  options:
    -c         configname: use this set of config files instead of hostname set
    -f filter  filter: only process lines matching this grep regexp
 +  -i         interactive mode: prompt for action before updating file
 +  -d         diff-only mode: show diff of changed file but don't install them
 +  -D         diff+install mode: show diff of changed files before installing them
++  -w         wdiff-only mode: show word-diff of changed file but don't install them
++  -W         wdiff+install mode: show word-diff of changed files before installing them
    -q         quiet: don't give user an running report of what we are doing
    -v         verbose: give user detailed running report
    -D         Debug: activate an debug option, see source for operation
-@@ -726,6 +751,90 @@
+@@ -726,6 +770,90 @@
  
  }
  
@@ -141,7 +162,7 @@ Index: dphys-config/dphys-config
  
  # --- download config file list
  
-@@ -910,36 +1019,52 @@
+@@ -910,36 +1038,75 @@
      # only if file has changed do we do anything, as for config list
      if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
  
@@ -179,15 +200,23 @@ Index: dphys-config/dphys-config
 +              # prompt user for action
 +              echo ""
 +              printf "Found new version for ${CONFFILE_PLACE}\n"
-+              printf "[i]nstall [d]iff [D]iff+install [s]kip "
++              printf "[i]nstall [d]iff [D]iff+install [w]diff [W]diff+install [s]kip "
 +              ACTION=$(bash --noprofile --norc -c 'read -n 1 ACTION < /dev/tty; echo $ACTION')
 +              echo ""
 +          elif [ $DIFF_ONLY_MODE ] ; then
 +              # default action is to diff-only
-+              ACTION='d'
++	       if [ $WDIFF_MODE ]; then
++	           ACTION='w'
++	       else
++                  ACTION='d'
++	       fi
 +          elif [ $DIFF_INSTALL_MODE ] ; then
 +              # default action is to diff+install
-+              ACTION='D'
++	       if [ $WDIFF_MODE ]; then
++	           ACTION='W'
++	       else
++                  ACTION='D'
++	       fi
 +          else
 +              # default action is to install
 +              ACTION='i'
@@ -214,6 +243,21 @@ Index: dphys-config/dphys-config
 +                  ${CMD_DIFF} ${CONFFILE_PLACE} ${CONFFILE} || true
 +                  install_config_file
 +                  ;;
++              w)  # wdiff file
++		  if [ $DIFF_ONLY_MODE ]; then
++		      ACTION_EXECUTED=true
++		  fi
++                  ${CMD_WDIFF} ${CONFFILE_PLACE} ${CONFFILE} || true
++                  ;;
++              W)  # wdiff + install file
++                  ACTION_EXECUTED=true
++                  ${CMD_WDIFF} ${CONFFILE_PLACE} ${CONFFILE} || true
++                  install_config_file
++                  ;;
++              q)  # quit
++	       	   echo "Skipping this and all other pending files."
++                  exit 42
++                  ;;
 +              *)
 +                  echo "Unknown action '$ACTION'."
 +                  ;;
@@ -222,7 +266,7 @@ Index: dphys-config/dphys-config
  
      fi
  
-@@ -950,49 +1075,39 @@
+@@ -950,49 +1117,39 @@
      # only if file still exists do we do anything
      if [ -e "${CONFFILE_PLACE}" ] ; then
  

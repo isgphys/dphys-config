@@ -196,11 +196,11 @@ Index: dphys-config/dphys-config
  
 -      fi
 +          case $ACTION in
-+              s)  # skip file
++              s|n)  # skip file
 +                  ACTION_EXECUTED=true
 +                  echo "Skipping this file and keeping currently installed version."
 +                  ;;
-+              i)  # install file
++              i|y)  # install file
 +                  ACTION_EXECUTED=true
 +                  install_config_file
 +                  ;;
@@ -279,11 +279,11 @@ Index: dphys-config/dphys-config
 -        ${CMD_DEBUG_PRINT} "`ls -ald "${CONFFILE_PLACE}"`"
 -        ${CMD_DEBUG_WAIT}
 +          case $ACTION in
-+              s)  # skip file
++              s|n)  # skip file
 +                  ACTION_EXECUTED=true
 +                  echo "Skipping this file and keeping currently installed version."
 +                  ;;
-+              r)  # remove file
++              r|y)  # remove file
 +                  ACTION_EXECUTED=true
 +                  remove_config_file
 +                  ;;

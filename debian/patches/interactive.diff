@@ -18,7 +18,7 @@ Index: dphys-config/dphys-config
  
  # set debug option controllable stuff
  if [ "${DEBUG_SLEEP}" = yes ] ; then
-@@ -284,6 +290,22 @@
+@@ -284,6 +290,21 @@
          shift 1
          ;;
  
@@ -31,7 +31,6 @@ Index: dphys-config/dphys-config
 +        # diff-only mode: show diff of changed files before installing them
 +        DIFF_ONLY_MODE=true
 +        ;;
-+
 +
 +      D)
 +        # diff+install mode: show diff of changed files before installing them

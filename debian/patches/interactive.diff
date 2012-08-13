@@ -32,6 +32,7 @@ Index: dphys-config/dphys-config
 +        DIFF_ONLY_MODE=true
 +        ;;
 +
++
 +      D)
 +        # diff+install mode: show diff of changed files before installing them
 +        DIFF_INSTALL_MODE=true

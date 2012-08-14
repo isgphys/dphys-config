@@ -2,19 +2,27 @@ Enables dphys-config to report to hobbit servers
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2011-08-18 17:06:07.000000000 +0200
-+++ dphys-config/dphys-config	2011-08-18 17:09:03.000000000 +0200
+--- dphys-config.orig/dphys-config	2012-08-13 20:21:55.000000000 +0200
++++ dphys-config/dphys-config	2012-08-14 14:11:34.000000000 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/sh
 +#!/bin/dash
  # /usr/bin/dphys-config - install/update config files and trigger commands
  # author Neil Franklin, last modification 2010.01.21
  # copyright ETH Zuerich Physics Departement,
-@@ -169,6 +169,79 @@
+@@ -169,7 +169,6 @@
    . ~/."${PNAME}"
  fi
  
 +# Setup hobbit support
+-
+ # --- control variable output
+ 
+ # set config option controllable stuff
+@@ -287,6 +286,80 @@
+ ${CMD_DEBUG_WAIT}
+ 
+ 
 +if [ -e /etc/default/hobbit-client ] ; then
 +  . /etc/default/hobbit-client
 +fi
@@ -87,9 +95,10 @@ Index: dphys-config/dphys-config
 +    # Send hobbit report on exit or error
 +    trap hobbit_send 0
 +fi
++
+ # --- spread config file server load
  
- # --- control variable output
- 
+ # avoid load peak on the file server from over 100 machines at same time
 @@ -715,6 +788,8 @@
  ${CMD_INFO_PRINT} "processing individual config files from the list ..."
  ${CMD_DEBUG_SLEEP}

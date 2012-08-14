@@ -4,8 +4,8 @@ Description: Adds options -i and -d for interctive and diff mode.
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2012-08-13 20:07:47.000000000 +0200
-+++ dphys-config/dphys-config	2012-08-13 14:57:52.000000000 +0200
+--- dphys-config.orig/dphys-config	2012-08-14 14:11:34.000000000 +0200
++++ dphys-config/dphys-config	2012-08-14 14:11:51.000000000 +0200
 @@ -136,6 +136,18 @@
  CMD_INFO_PRINT="${CMD_INFO}"
  CMD_VERBOSE_PRINT=true
@@ -25,7 +25,7 @@ Index: dphys-config/dphys-config
  
  # set debug option controllable stuff
  if [ "${DEBUG_SLEEP}" = yes ] ; then
-@@ -284,6 +296,33 @@
+@@ -210,6 +222,33 @@
          shift 1
          ;;
  
@@ -59,7 +59,7 @@ Index: dphys-config/dphys-config
        q)
          # quiet: don't inform user what we are doing
          CMD_INFO_PRINT=true
-@@ -317,6 +356,11 @@
+@@ -243,6 +282,11 @@
  options:
    -c         configname: use this set of config files instead of hostname set
    -f filter  filter: only process lines matching this grep regexp
@@ -178,8 +178,7 @@ Index: dphys-config/dphys-config
 -
 -      # run the facultative postinstall command trigger stuff
 -      if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
-+      ACTION_EXECUTED=false
- 
+-
 -        ${CMD_INFO_PRINT} "triggering postinstall command \"${CMDTRIG}\" ..."
 -        ${CMD_DEBUG_SLEEP}
 -
@@ -192,7 +191,8 @@ Index: dphys-config/dphys-config
 -          ${CMD_WARNING} "command returned non zero: ${RETVAL}" >&2
 -          ${CMD_LOG_WARNING} "command returned non zero: ${RETVAL}"
 -        fi
--
++      ACTION_EXECUTED=false
+ 
 -        ${CMD_DEBUG_PRINT} "`ls -al "${CONFFILE_PLACE}"`"
 -        ${CMD_DEBUG_WAIT}
 +      while [ $ACTION_EXECUTED != true ] ; do
@@ -284,10 +284,10 @@ Index: dphys-config/dphys-config
 -            "may be partially edited list file entry, DANGEROUS, leaving it," \
 -            "add the files name after the / to delete an single file," \
 -            "remove / after dir name to really delete entire directory"
--
--      else
 +      ACTION_EXECUTED=false
  
+-      else
+-
 -        # run the facultative preremove command trigger stuff
 -        if [ "`echo "${CMDTRIG}" | tr -d ' '`" != "" ] ; then
 -
@@ -315,12 +315,6 @@ Index: dphys-config/dphys-config
            fi
  
 -        fi
--
--        ${CMD_INFO_PRINT} "removing config file ${CONFFILE_PLACE} ..."
--        ${CMD_DEBUG_SLEEP}
--
--        ${CMD_DEBUG_PRINT} "`ls -ald "${CONFFILE_PLACE}"`"
--        ${CMD_DEBUG_WAIT}
 +          case $ACTION in
 +              s|n)  # skip file
 +                  ACTION_EXECUTED=true
@@ -339,6 +333,12 @@ Index: dphys-config/dphys-config
 +          esac
 +      done
  
+-        ${CMD_INFO_PRINT} "removing config file ${CONFFILE_PLACE} ..."
+-        ${CMD_DEBUG_SLEEP}
+-
+-        ${CMD_DEBUG_PRINT} "`ls -ald "${CONFFILE_PLACE}"`"
+-        ${CMD_DEBUG_WAIT}
+-
 -        rm -rf "${CONFFILE_PLACE}"
 -
 -      fi

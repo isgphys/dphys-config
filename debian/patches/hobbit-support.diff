@@ -14,21 +14,26 @@ Index: dphys-config/dphys-config
    . ~/."${PNAME}"
  fi
  
-+# Setup hobbit support
 -
  # --- control variable output
  
  # set config option controllable stuff
-@@ -287,6 +286,80 @@
+@@ -287,6 +286,85 @@
  ${CMD_DEBUG_WAIT}
  
  
++# Setup hobbit/xymon support
 +if [ -e /etc/default/hobbit-client ] ; then
 +  . /etc/default/hobbit-client
 +fi
-+if [ -n "${HOBBITSERVERS}" -a -x '/usr/lib/hobbit/client/bin/bb' ] ; then
++if [ -n "${HOBBITSERVERS}" -a '(' -x '/usr/lib/hobbit/client/bin/bb' -o -x '/usr/lib/xymon/client/bin/xymon' ')' ] ; then
 +    HOBBITCOLOR=green
 +    HOBBITMESSAGE=""
++    if [ -x '/usr/lib/hobbit/client/bin/bb' ]; then
++    	HOBBITBBCMD=/usr/lib/hobbit/client/bin/bb
++    elif [ -x '/usr/lib/xymon/client/bin/xymon' ]; then
++    	HOBBITBBCMD=/usr/lib/xymon/client/bin/xymon
++    fi
 +
 +    color_line() {
 +	LOCALCOLOR="$1"
@@ -76,7 +81,7 @@ Index: dphys-config/dphys-config
 +${HOBBITMESSAGE}"
 +	${CMD_DEBUG_PRINT} "${HOBBITSTATUS}"
 +	for hobbitserver in ${HOBBITSERVERS}; do
-+	    /usr/lib/hobbit/client/bin/bb $hobbitserver "${HOBBITSTATUS}"
++	    ${HOBBITBBCMD} $hobbitserver "${HOBBITSTATUS}"
 +	done
 +    }
 +

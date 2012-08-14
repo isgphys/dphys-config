@@ -1,7 +1,7 @@
 dphys-config (20100216-2) UNRELEASED; urgency=low
 
   * Add two feature patches:
-    + Support for hobbit reporting
+    + Support for Hobbit/Xymon reporting
     + Interactive and Diff mode by Claude Becker.
     Add the features to the long description
   * Add new script reverse-dphys-config
@@ -28,7 +28,7 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
     + no-upstream-changelog
     + init.d-script-does-not-implement-optional-option status
 
- -- Axel Beckert <abe@debian.org>  Fri, 10 Aug 2012 15:06:37 +0200
+ -- Axel Beckert <abe@debian.org>  Tue, 14 Aug 2012 14:27:40 +0200
 
 dphys-config (20100216-1) unstable; urgency=low
 

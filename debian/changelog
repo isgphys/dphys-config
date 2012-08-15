@@ -1,14 +1,22 @@
+dphys-config (20100216-3) experimental; urgency=low
+
+  * Add feature patch for Interactive and Diff mode by Claude Becker.
+    + Mention Hobbit/Xymon reporting and Interactive mode in the long
+      description.
+  * Fix Hobbit/Xymon reporting to not send "green" reports on --help.
+  * Switch to source format "3.0 (quilt)"
+    + Remove quilt build-dependency as well as patch and unpatch targets
+  * Fix lintian warning "init.d-script-does-not-implement-optional-option
+    status"
+  * Bump Standards-Version to 3.9.3 (no changes)
+
+ -- Axel Beckert <abe@debian.org>  Wed, 15 Aug 2012 20:37:53 +0200
+
 dphys-config (20100216-2) UNRELEASED; urgency=low
 
-  * Add two feature patches:
-    + Support for Hobbit/Xymon reporting
-    + Interactive and Diff mode by Claude Becker.
-    Add the features to the long description
   * Add new script reverse-dphys-config
     + build-depend on help2man for its manpage
     + suggest openssh-client | ssh-client
-  * Switch to source format "3.0 (quilt)"
-    + Remove quilt build-dependency as well as patch and unpatch targets
   * debian/rules: replace mkdir + cp by install -D
   * debian/copyright:
     + Remove obsolete copyright of findcdroms.c (no more included upstream
@@ -22,13 +30,15 @@ dphys-config (20100216-2) UNRELEASED; urgency=low
       version 2 or newer of the GPL.
     + Always use dash, does not work with bash anymore. Depend on dash
       (for pre-Squeeze systems)
-  * Bump Standards-Version to 3.9.3 (no changes)
+  * Bump Standards-Version to 3.9.2 (no changes)
   * Fix some lintian warnings:
     + debian-rules-missing-recommended-target
     + no-upstream-changelog
-    + init.d-script-does-not-implement-optional-option status
+    + missing-debian-source-format (now explicitly "1.0" format)
+  * Add support for hobbit reporting
+    + Use quilt patch management
 
- -- Axel Beckert <abe@debian.org>  Tue, 14 Aug 2012 14:27:40 +0200
+ -- Axel Beckert <abe@debian.org>  Tue, 16 Aug 2011 22:50:36 +0200
 
 dphys-config (20100216-1) unstable; urgency=low
 

@@ -1,3 +1,9 @@
+dphys-config (20100216-6) unstable; urgency=low
+
+  * fix backtick preprocessing to allow commands with arguments
+
+ -- Elmar S. Heeb <elmar@heebs.ch>  Thu, 10 Jan 2013 15:49:52 +0100
+
 dphys-config (20100216-5) unstable; urgency=low
 
   * added default stop runlevels in init.d

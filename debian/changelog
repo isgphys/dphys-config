@@ -1,3 +1,10 @@
+dphys-config (20100216-4) unstable; urgency=low
+
+  * downgrade download warnings from WARNING to INFO
+  * added Elmar S. Heeb <elmar@heebs.ch> to uploaders
+
+ -- Elmar S. Heeb <elmar@heebs.ch>  Thu, 10 Jan 2013 12:43:55 +0100
+
 dphys-config (20100216-3) experimental; urgency=low
 
   * Add feature patch for Interactive and Diff mode by Claude Becker.

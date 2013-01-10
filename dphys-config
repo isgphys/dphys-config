@@ -380,15 +380,15 @@ broken_net_wget_or_die () {
 
     # 2 similar "elif" as some shells built-in [ command fail on -o operator
     if [ "${DNS_STAT}" != "" ] ; then
-      ${CMD_WARNING} "failed try ${TRY} to resolve server for URL ${URL}" >&2
-      ${CMD_LOG_WARNING} "failed try ${TRY} to resolve server for URL ${URL}"
+      ${CMD_NOTE} "failed try ${TRY} to resolve server for URL ${URL}" >&2
+      ${CMD_LOG_NOTE} "failed try ${TRY} to resolve server for URL ${URL}"
     elif ( [ "${HTTP_STAT}" = 200 ] || [ "${HTTP_STAT}" = 404 ] ) ; then
       # we managed to get a file, or there is no file, both are OK for us
       return 0
     else
-      ${CMD_WARNING} "failed try ${TRY} to retrieve file from" \
+      ${CMD_NOTE} "failed try ${TRY} to retrieve file from" \
           "URL ${URL}, with HTTP status ${HTTP_STAT}" >&2
-      ${CMD_LOG_WARNING} "failed try ${TRY} to retrieve file from" \
+      ${CMD_LOG_NOTE} "failed try ${TRY} to retrieve file from" \
           "URL ${URL}, with HTTP status ${HTTP_STAT}"
     fi
  

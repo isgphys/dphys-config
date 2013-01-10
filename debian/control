@@ -2,6 +2,7 @@ Source: dphys-config
 Section: admin
 Priority: optional
 Maintainer: Axel Beckert <abe@debian.org>
+Uploaders: Elmar S. Heeb <elmar@heebs.ch>
 Build-Depends: debhelper (>= 7), help2man
 Standards-Version: 3.9.3
 Homepage: http://neil.franklin.ch/Projects/dphys-config/

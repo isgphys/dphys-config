@@ -18,7 +18,7 @@
 # Should-Start:      $local_fs
 # Should-Stop:       $local_fs
 # Default-Start:     2 3 4 5
-# Default-Stop:      
+# Default-Stop:      0 1 6
 # Short-Description: Fetch and merge config files, run scripts when they change
 # Description:       Tool to get a list of config files, and for each file
 #                    in that list retrieve it from same server and install

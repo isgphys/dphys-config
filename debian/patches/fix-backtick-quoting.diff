@@ -1,0 +1,13 @@
+Index: dphys-config-20100216/dphys-config
+===================================================================
+--- dphys-config-20100216.orig/dphys-config	2013-01-10 15:47:06.000000000 +0100
++++ dphys-config-20100216/dphys-config	2013-01-10 15:47:28.000000000 +0100
+@@ -668,7 +668,7 @@
+               # prevent non zero return from user given command from killing us
+               set +e
+               local SUBST
+-              SUBST="`"${TICK}"`"
++              SUBST="`${TICK}`"
+               RETVAL="$?"
+               set -e
+               if [ "${RETVAL}" != 0 ] ; then

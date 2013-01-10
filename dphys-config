@@ -546,7 +546,7 @@ fetch_and_preprocess_config_file () {
               # prevent non zero return from user given command from killing us
               set +e
               local SUBST
-              SUBST="`"${TICK}"`"
+              SUBST="`${TICK}`"
               RETVAL="$?"
               set -e
               if [ "${RETVAL}" != 0 ] ; then

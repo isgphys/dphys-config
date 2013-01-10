@@ -1,0 +1,47 @@
+Description: Upstream changes introduced in version 20100216-4
+ This patch has been created by dpkg-source during the package build.
+ Here's the last changelog entry, hopefully it gives details on why
+ those changes were made:
+ .
+ dphys-config (20100216-4) unstable; urgency=low
+ .
+   * downgrade download warnings from WARNING to INFO
+ .
+ The person named in the Author field signed this changelog entry.
+Author: Elmar S. Heeb <elmar@heebs.ch>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: http://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: <YYYY-MM-DD>
+
+--- dphys-config-20100216.orig/dphys-config
++++ dphys-config-20100216/dphys-config
+@@ -502,15 +502,15 @@ broken_net_wget_or_die () {
+ 
+     # 2 similar "elif" as some shells built-in [ command fail on -o operator
+     if [ "${DNS_STAT}" != "" ] ; then
+-      ${CMD_WARNING} "failed try ${TRY} to resolve server for URL ${URL}" >&2
+-      ${CMD_LOG_WARNING} "failed try ${TRY} to resolve server for URL ${URL}"
++      ${CMD_NOTE} "failed try ${TRY} to resolve server for URL ${URL}" >&2
++      ${CMD_LOG_NOTE} "failed try ${TRY} to resolve server for URL ${URL}"
+     elif ( [ "${HTTP_STAT}" = 200 ] || [ "${HTTP_STAT}" = 404 ] ) ; then
+       # we managed to get a file, or there is no file, both are OK for us
+       return 0
+     else
+-      ${CMD_WARNING} "failed try ${TRY} to retrieve file from" \
++      ${CMD_NOTE} "failed try ${TRY} to retrieve file from" \
+           "URL ${URL}, with HTTP status ${HTTP_STAT}" >&2
+-      ${CMD_LOG_WARNING} "failed try ${TRY} to retrieve file from" \
++      ${CMD_LOG_NOTE} "failed try ${TRY} to retrieve file from" \
+           "URL ${URL}, with HTTP status ${HTTP_STAT}"
+     fi
+  

@@ -2,7 +2,7 @@ dphys-config (20100216-7) UNRELEASED; urgency=low
 
   * Clean up debian/rules, use dh style rules.
   * Use dh-exec to be able to rename files and hence drop the
-    override_dh_install target.
+    override_dh_install and override_dh_installchangelogs targets.
     + Build-depend on dh-exec.
     + Rename debian/install to debian/dphys-config.install (see #698017),
       add a #!dh-exec shebang line and make it executable.

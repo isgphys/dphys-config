@@ -12,7 +12,3 @@ override_dh_installman:
 
 override_dh_installchangelogs:
 	dh_installchangelogs Logfile
-
-override_dh_install:
-	install -D -m 644 dphys-config.example debian/dphys-config/etc/dphys-config
-	dh_install

@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Axel Beckert <abe@debian.org>
 Uploaders: Elmar S. Heeb <elmar@heebs.ch>
-Build-Depends: debhelper (>= 7), help2man
+Build-Depends: debhelper (>= 9), help2man, dh-exec
 Standards-Version: 3.9.3
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 Vcs-Browser: http://git.phys.ethz.ch/?p=dphys-config-debian.git

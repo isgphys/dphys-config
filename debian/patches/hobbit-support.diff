@@ -10,14 +10,6 @@ Index: dphys-config/dphys-config
  # /usr/bin/dphys-config - install/update config files and trigger commands
  # author Neil Franklin, last modification 2010.01.21
  # copyright ETH Zuerich Physics Departement,
-@@ -169,7 +169,6 @@
-   . ~/."${PNAME}"
- fi
- 
--
- # --- control variable output
- 
- # set config option controllable stuff
 @@ -287,6 +286,85 @@
  ${CMD_DEBUG_WAIT}
  

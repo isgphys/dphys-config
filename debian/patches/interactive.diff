@@ -4,8 +4,8 @@ Description: Adds options -i and -d for interctive and diff mode.
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2012-08-14 14:32:20.000000000 +0200
-+++ dphys-config/dphys-config	2012-08-14 14:32:20.000000000 +0200
+--- dphys-config.orig/dphys-config	2013-02-11 19:33:06.000000000 +0100
++++ dphys-config/dphys-config	2013-02-11 19:33:43.000000000 +0100
 @@ -136,6 +136,18 @@
  CMD_INFO_PRINT="${CMD_INFO}"
  CMD_VERBOSE_PRINT=true
@@ -25,7 +25,7 @@ Index: dphys-config/dphys-config
  
  # set debug option controllable stuff
  if [ "${DEBUG_SLEEP}" = yes ] ; then
-@@ -210,6 +222,33 @@
+@@ -211,6 +223,33 @@
          shift 1
          ;;
  
@@ -59,7 +59,7 @@ Index: dphys-config/dphys-config
        q)
          # quiet: don't inform user what we are doing
          CMD_INFO_PRINT=true
-@@ -243,6 +282,11 @@
+@@ -244,6 +283,11 @@
  options:
    -c         configname: use this set of config files instead of hostname set
    -f filter  filter: only process lines matching this grep regexp
@@ -71,7 +71,7 @@ Index: dphys-config/dphys-config
    -q         quiet: don't give user an running report of what we are doing
    -v         verbose: give user detailed running report
    -D         Debug: activate an debug option, see source for operation
-@@ -731,6 +775,90 @@
+@@ -734,6 +778,90 @@
  
  }
  
@@ -162,7 +162,7 @@ Index: dphys-config/dphys-config
  
  # --- download config file list
  
-@@ -915,36 +1043,75 @@
+@@ -918,36 +1046,75 @@
      # only if file has changed do we do anything, as for config list
      if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
  
@@ -266,7 +266,7 @@ Index: dphys-config/dphys-config
  
      fi
  
-@@ -955,49 +1122,39 @@
+@@ -958,49 +1125,39 @@
      # only if file still exists do we do anything
      if [ -e "${CONFFILE_PLACE}" ] ; then
  

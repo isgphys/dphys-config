@@ -1,6 +1,6 @@
 #!/bin/sh
 # /usr/bin/dphys-config - install/update config files and trigger commands
-# author Neil Franklin, last modification 2010.01.21
+# author Neil Franklin, last modification 2012.01.10
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -380,15 +380,19 @@ broken_net_wget_or_die () {
 
     # 2 similar "elif" as some shells built-in [ command fail on -o operator
     if [ "${DNS_STAT}" != "" ] ; then
-      ${CMD_WARNING} "failed try ${TRY} to resolve server for URL ${URL}" >&2
-      ${CMD_LOG_WARNING} "failed try ${TRY} to resolve server for URL ${URL}"
+      # having these as WARNING triggers one users hobbit system monitor
+      #   is unnecessary for what are just transient network errors, use NOTE
+      #   especially as all 3 attemps failing will fall into below FATAL
+      ${CMD_NOTE} "failed try ${TRY} to resolve server for URL ${URL}" >&2
+      ${CMD_LOG_NOTE} "failed try ${TRY} to resolve server for URL ${URL}"
     elif ( [ "${HTTP_STAT}" = 200 ] || [ "${HTTP_STAT}" = 404 ] ) ; then
       # we managed to get a file, or there is no file, both are OK for us
       return 0
     else
-      ${CMD_WARNING} "failed try ${TRY} to retrieve file from" \
+      # same downgrade from WARNING to NOTE as above
+      ${CMD_NOTE} "failed try ${TRY} to retrieve file from" \
           "URL ${URL}, with HTTP status ${HTTP_STAT}" >&2
-      ${CMD_LOG_WARNING} "failed try ${TRY} to retrieve file from" \
+      ${CMD_LOG_NOTE} "failed try ${TRY} to retrieve file from" \
           "URL ${URL}, with HTTP status ${HTTP_STAT}"
     fi
  
@@ -546,7 +550,7 @@ fetch_and_preprocess_config_file () {
               # prevent non zero return from user given command from killing us
               set +e
               local SUBST
-              SUBST="`"${TICK}"`"
+              SUBST="`${TICK}`"
               RETVAL="$?"
               set -e
               if [ "${RETVAL}" != 0 ] ; then

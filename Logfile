@@ -609,6 +609,30 @@ after all bugfixes and changes, and my holiday gone
   testing "current" 3.5 weeks showed no problems, no new bug reports
   updated FAQ, INSTALL, index.html.en (incl fixing some awkward HTML syntax)
   copy to ../dphys-config-20100216, change that Makefile, made tar file of that
+  remade ../dphys-config.tar.gz archive for current state
+
+2012.01.10 Thu
+Axel Beckert reports Bug in backtick preprocessing, Quoted once too many times
+  as result spaces and options are considered part of command name, fails
+also reports that wget faillure warning keeps triggering hobbit system monitor
+  would prefer it to just be an informational output
+also questions whether it is still maintained, or if he should take it over
+  is still in productive use by me, so it is still maintained, stays here
+
+2012.01.11 Fri
+Axel Beckert mails all the details and 4 diffs he used to fix it
+  backtick preprocessing changed from SUBST="`"${TICK}"`" to SUBST="`${TICK}`"
+  after-wget WARNINGs downgraded to NOTEs, as only transient net failures
+    and if all 3 rounds fail it is will give an full FATAL error anyway
+  also information about his interactive testing extension, sounds usefull
+    mail discussion, what/howmuch of this to use, or what else instead
+  also information about his hobbit direct calling stuff, rejected
+    can not be added in my version, as no possibility of me testing it
+  also discussion of adding testing suite, I have at present no time for such
+    this would have to be something external, come from him as contribution
+    possibly as separate programm/script, with its docs, all in subdirectory
+  also reports potential interest of future rewrite in perl
+    that would have to be an separate fork/replacement, as 100% new code
 
 
 ------ project status

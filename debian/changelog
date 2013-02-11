@@ -11,6 +11,7 @@ dphys-config (20130111~current-1) UNRELEASED; urgency=low
     + Add a #!dh-exec shebang line to debian/install, make it executable.
     + Bump debhelper compatibility and build-dependency to 9.
   * Fix traps in hobbit-support.diff if $HOBBITSERVERS is not defined.
+  * Switch Vcs-* headers to GitHub.
   * Remove superfluous whitespace change in hobbit-support.diff
 
  -- Axel Beckert <abe@debian.org>  Mon, 11 Feb 2013 19:44:50 +0100

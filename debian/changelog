@@ -6,6 +6,7 @@ dphys-config (20100216-7) UNRELEASED; urgency=low
     + Add a versioned build-dependency on dh-exec >= 0.6 (due to #698017).
     + Add a #!dh-exec shebang line to debian/install, make it executable.
     + Bump debhelper compatibility and build-dependency to 9.
+  * Fix traps in hobbit-support.diff if $HOBBITSERVERS is not defined.
   * Remove superfluous whitespace change in hobbit-support.diff
 
  -- Axel Beckert <abe@debian.org>  Fri, 11 Jan 2013 15:50:28 +0100

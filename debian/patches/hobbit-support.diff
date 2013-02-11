@@ -10,7 +10,7 @@ Index: dphys-config/dphys-config
  # /usr/bin/dphys-config - install/update config files and trigger commands
  # author Neil Franklin, last modification 2010.01.21
  # copyright ETH Zuerich Physics Departement,
-@@ -287,6 +286,85 @@
+@@ -287,6 +286,87 @@
  ${CMD_DEBUG_WAIT}
  
  
@@ -91,6 +91,8 @@ Index: dphys-config/dphys-config
 +
 +    # Send hobbit report on exit or error
 +    trap hobbit_send 0
++else
++    hobbit_send() (:)
 +fi
 +
  # --- spread config file server load

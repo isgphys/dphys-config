@@ -4,8 +4,8 @@ Description: Adds options -i and -d for interctive and diff mode.
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2013-02-11 19:33:06.000000000 +0100
-+++ dphys-config/dphys-config	2013-02-11 19:33:43.000000000 +0100
+--- dphys-config.orig/dphys-config	2013-02-11 19:46:13.000000000 +0100
++++ dphys-config/dphys-config	2013-02-11 19:46:13.000000000 +0100
 @@ -136,6 +136,18 @@
  CMD_INFO_PRINT="${CMD_INFO}"
  CMD_VERBOSE_PRINT=true
@@ -71,7 +71,7 @@ Index: dphys-config/dphys-config
    -q         quiet: don't give user an running report of what we are doing
    -v         verbose: give user detailed running report
    -D         Debug: activate an debug option, see source for operation
-@@ -734,6 +778,90 @@
+@@ -738,6 +782,90 @@
  
  }
  
@@ -162,7 +162,7 @@ Index: dphys-config/dphys-config
  
  # --- download config file list
  
-@@ -918,36 +1046,75 @@
+@@ -922,36 +1050,75 @@
      # only if file has changed do we do anything, as for config list
      if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
  
@@ -266,7 +266,7 @@ Index: dphys-config/dphys-config
  
      fi
  
-@@ -958,49 +1125,39 @@
+@@ -962,49 +1129,39 @@
      # only if file still exists do we do anything
      if [ -e "${CONFFILE_PLACE}" ] ; then
  

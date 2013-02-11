@@ -1,5 +1,9 @@
-dphys-config (20100216-7) UNRELEASED; urgency=low
+dphys-config (20130111~current-1) UNRELEASED; urgency=low
 
+  * New upstream snapshot
+    + Remove patches downgrade-download-warning.diff and
+      fix-backtick-quoting.diff, applied upstream.
+    + Refresh the remaining patches.
   * Clean up debian/rules, use dh style rules.
   * Use dh-exec to be able to rename files and hence drop the
     override_dh_install and override_dh_installchangelogs targets.
@@ -9,7 +13,7 @@ dphys-config (20100216-7) UNRELEASED; urgency=low
   * Fix traps in hobbit-support.diff if $HOBBITSERVERS is not defined.
   * Remove superfluous whitespace change in hobbit-support.diff
 
- -- Axel Beckert <abe@debian.org>  Fri, 11 Jan 2013 15:50:28 +0100
+ -- Axel Beckert <abe@debian.org>  Mon, 11 Feb 2013 19:44:50 +0100
 
 dphys-config (20100216-6) unstable; urgency=low
 

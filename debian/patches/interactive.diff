@@ -25,7 +25,7 @@ Index: dphys-config/dphys-config
  
  # set debug option controllable stuff
  if [ "${DEBUG_SLEEP}" = yes ] ; then
-@@ -211,6 +223,33 @@
+@@ -211,6 +223,22 @@
          shift 1
          ;;
  
@@ -39,35 +39,22 @@ Index: dphys-config/dphys-config
 +        DIFF_ONLY_MODE=true
 +        ;;
 +
-+      D)
-+        # diff+install mode: show diff of changed files before installing them
-+        DIFF_INSTALL_MODE=true
-+        ;;
-+
 +      w)
 +        # diff+install mode: show diff of changed files before installing them
 +        DIFF_ONLY_MODE=true
 +        WDIFF_MODE=true
 +        ;;
 +
-+      W)
-+        # diff+install mode: show diff of changed files before installing them
-+        DIFF_INSTALL_MODE=true
-+        WDIFF_MODE=true
-+        ;;
-+
        q)
          # quiet: don't inform user what we are doing
          CMD_INFO_PRINT=true
-@@ -244,6 +283,11 @@
+@@ -244,6 +283,9 @@
  options:
    -c         configname: use this set of config files instead of hostname set
    -f filter  filter: only process lines matching this grep regexp
 +  -i         interactive mode: prompt for action before updating file
 +  -d         diff-only mode: show diff of changed file but don't install them
-+  -D         diff+install mode: show diff of changed files before installing them
 +  -w         wdiff-only mode: show word-diff of changed file but don't install them
-+  -W         wdiff+install mode: show word-diff of changed files before installing them
    -q         quiet: don't give user an running report of what we are doing
    -v         verbose: give user detailed running report
    -D         Debug: activate an debug option, see source for operation
@@ -162,7 +149,7 @@ Index: dphys-config/dphys-config
  
  # --- download config file list
  
-@@ -922,36 +1050,75 @@
+@@ -922,36 +1050,68 @@
      # only if file has changed do we do anything, as for config list
      if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
  
@@ -209,13 +196,6 @@ Index: dphys-config/dphys-config
 +	           ACTION='w'
 +	       else
 +                  ACTION='d'
-+	       fi
-+          elif [ $DIFF_INSTALL_MODE ] ; then
-+              # default action is to diff+install
-+	       if [ $WDIFF_MODE ]; then
-+	           ACTION='W'
-+	       else
-+                  ACTION='D'
 +	       fi
 +          else
 +              # default action is to install

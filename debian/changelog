@@ -1,4 +1,4 @@
-dphys-config (20130111~current-1) UNRELEASED; urgency=low
+dphys-config (20130111~current-1) experimental; urgency=low
 
   * New upstream snapshot
     + Remove patches downgrade-download-warning.diff and
@@ -15,7 +15,7 @@ dphys-config (20130111~current-1) UNRELEASED; urgency=low
   * Switch Vcs-* headers to GitHub.
   * Remove superfluous whitespace change in hobbit-support.diff
 
- -- Axel Beckert <abe@debian.org>  Mon, 11 Feb 2013 19:44:50 +0100
+ -- Axel Beckert <abe@debian.org>  Mon, 11 Feb 2013 20:01:01 +0100
 
 dphys-config (20100216-6) unstable; urgency=low
 

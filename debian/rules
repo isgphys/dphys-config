@@ -9,3 +9,6 @@ override_dh_installman:
 	help2man -N --no-discard-stderr -i debian/reverse-dphys-config.h2m \
 	    debian/reverse-dphys-config > debian/reverse-dphys-config.1
 	dh_installman
+
+override_dh_installinit:
+	dh_installinit --no-start

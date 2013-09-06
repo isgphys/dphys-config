@@ -1,0 +1,56 @@
+Index: dphys-config/dphys-config
+===================================================================
+--- dphys-config.orig/dphys-config	2013-09-06 17:01:19.000000000 +0200
++++ dphys-config/dphys-config	2013-09-06 17:05:25.000000000 +0200
+@@ -90,24 +90,27 @@
+ LANG=C
+ export LANG
+ 
++# Overwrite the builtin echo with the one from GNU coreutils as the
++# builtin one parses escape sequences unconditionally. Meh.
++alias echo=/bin/echo
+ 
+ # --- tidy up some commands, make systematic
+ 
+ # stuff that goes wrong, not expected by user, not in data output, use >&2
+ #   so also with $0 in case this script was called by an other script
+ # something within the system that user does not expect, give up
+-CMD_FATAL="echo $0: FATAL:"
++CMD_FATAL="/bin/echo $0: FATAL:"
+ # something from users input, user will correct this and continue
+-CMD_ERROR="echo $0: ERROR:"
++CMD_ERROR="/bin/echo $0: ERROR:"
+ # something we can continue with, but may be wrong, and user may not suspect it
+-CMD_WARNING="echo $0: WARNING:"
++CMD_WARNING="/bin/echo $0: WARNING:"
+ # something most likely not wrong, but tell user for the odd case it is wrong
+-CMD_NOTE="echo $0: NOTE:"
++CMD_NOTE="/bin/echo $0: NOTE:"
+ 
+ # normal stuff users expect, so to stdout as normal output, no $0, no marking
+-CMD_INFO="echo"
++CMD_INFO="/bin/echo"
+ # stuff users asked for, so add to stdout as normal output, no $0, but mark it
+-CMD_DEBUG="echo DEBUG:"
++CMD_DEBUG="/bin/echo DEBUG:"
+ 
+ 
+ # and also put out some permanent messages, in case running as cron/init.d job
+@@ -947,7 +950,7 @@
+   fi
+ 
+   # place-on-target: put result here
+-  CONFFILE_PLACE="`echo "${LINE}" | cut -f 2 -d ':'`"
++  CONFFILE_PLACE="`echo "${LINE}" | sed 's/\\\\:/\x00/g;s/[\\]n/\\x6e/g' | cut -f 2 -d ':' | sed -e 's/\x00/:/g'`"
+   # needs to be set, but may be unset if mothing between the first 2 :
+   if [ "`echo "${CONFFILE_PLACE}" | tr -d ' '`" = "" ] ; then
+     ${CMD_ERROR} "config line \"${LINE}\" has no config place" \
+@@ -961,7 +964,7 @@
+   #   run post installing (or pre removing) an config file
+   #   if no second : on line or nothing after it this is automatically blank
+   #   if more than 2 : on line include the rest of them into this with 3-
+-  CMDTRIG="`echo "${LINE}" | cut -f 3- -d ':'`"
++  CMDTRIG="`echo "${LINE}" | sed 's/\\\\:/\x00/g;s/[\\]n/\\x6e/g' | cut -f 3- -d ':' | sed -e 's/\x00/:/g'`"
+ 
+   ${CMD_DEBUG_PRINT} "CONFFILE_NAME=${CONFFILE_NAME}" \
+       "CONFFILE_PLACE=${CONFFILE_PLACE} CMDTRIG=${CMDTRIG}"

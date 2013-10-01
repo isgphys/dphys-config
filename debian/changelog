@@ -1,11 +1,14 @@
 dphys-config (20130111~current-2) UNRELEASED; urgency=low
 
+  [ Elmar S. Heeb ]
   * do not start init script on install/upgrade
+
+  [ Axel Beckert ]
   * Add patch to be able to escape colons in file names.
   * Fix lintian warning init.d-script-does-not-source-init-functions
   * Bump Standards-Version to 3.9.4 (no changes)
 
- -- Elmar S. Heeb <elmar@heebs.ch>  Fri, 24 May 2013 13:16:27 +0200
+ -- Axel Beckert <abe@debian.org>  Tue, 01 Oct 2013 18:24:13 +0200
 
 dphys-config (20130111~current-1) experimental; urgency=low
 

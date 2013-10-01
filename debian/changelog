@@ -10,6 +10,10 @@ dphys-config (20130301~current-1) UNRELEASED; urgency=low
   * Add patch to be able to escape colons in file names.
   * Fix lintian warning init.d-script-does-not-source-init-functions
   * Bump Standards-Version to 3.9.4 (no changes)
+  * Remove reverse-dphys-config again. The interactive patch by Claude
+    suits the purpose far better, hence reverse-dphys-config is no more
+    supported.
+    + Drop build-dependency on help2man and no more suggest SSH clients
 
  -- Axel Beckert <abe@debian.org>  Tue, 01 Oct 2013 18:24:13 +0200
 

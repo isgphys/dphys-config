@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Axel Beckert <abe@debian.org>
 Uploaders: Elmar S. Heeb <elmar@heebs.ch>
-Build-Depends: debhelper (>= 9), help2man, dh-exec (>= 0.6)
+Build-Depends: debhelper (>= 9), dh-exec (>= 0.6)
 Standards-Version: 3.9.4
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 Vcs-Browser: https://github.com/isgphys/dphys-config
@@ -12,7 +12,7 @@ Vcs-Git: git://github.com/isgphys/dphys-config.git
 Package: dphys-config
 Architecture: all
 Depends: wget, ${misc:Depends}, dash
-Suggests: pciutils, openssh-client | ssh-client
+Suggests: pciutils
 Enhances: xymon-client, hobbit-client
 Description: Tool to distribute config files
  This project is aimed at automatically installing (and keeping

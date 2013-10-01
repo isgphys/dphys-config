@@ -1,4 +1,3 @@
 #!/usr/bin/dh-exec
 dphys-config.example => etc/dphys-config
 Logfile => usr/share/doc/dphys-config/changelog
-debian/reverse-dphys-config usr/bin

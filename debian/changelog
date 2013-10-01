@@ -18,6 +18,8 @@ dphys-config (20130301~current-1) UNRELEASED; urgency=low
   * Set the distribution of some previous changelog entries (20100216-3 to
     -6) to "UNRELEASED" to clarify that these releases haven't been
     uploaded to Debian.
+  * Rename debian/dphys-config.lintian-overrides to
+    debian/lintian-overrides for consistency.
 
  -- Axel Beckert <abe@debian.org>  Tue, 01 Oct 2013 18:24:13 +0200
 

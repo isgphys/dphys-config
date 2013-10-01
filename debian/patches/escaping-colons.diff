@@ -1,3 +1,6 @@
+Description: Support file names that contain colon, backslash or \n
+Author: Axel Beckert <abe@debian.org>
+
 Index: dphys-config/dphys-config
 ===================================================================
 --- dphys-config.orig/dphys-config	2013-09-06 17:01:19.000000000 +0200

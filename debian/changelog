@@ -15,6 +15,9 @@ dphys-config (20130301~current-1) UNRELEASED; urgency=low
     supported.
     + Drop build-dependency on help2man and no more suggest SSH clients
   * Apply wrap-and-sort
+  * Set the distribution of some previous changelog entries (20100216-3 to
+    -6) to "UNRELEASED" to clarify that these releases haven't been
+    uploaded to Debian.
 
  -- Axel Beckert <abe@debian.org>  Tue, 01 Oct 2013 18:24:13 +0200
 
@@ -37,26 +40,26 @@ dphys-config (20130111~current-1) experimental; urgency=low
 
  -- Axel Beckert <abe@debian.org>  Mon, 11 Feb 2013 20:01:01 +0100
 
-dphys-config (20100216-6) unstable; urgency=low
+dphys-config (20100216-6) UNRELEASED; urgency=low
 
   * fix backtick preprocessing to allow commands with arguments
 
  -- Elmar S. Heeb <elmar@heebs.ch>  Thu, 10 Jan 2013 15:49:52 +0100
 
-dphys-config (20100216-5) unstable; urgency=low
+dphys-config (20100216-5) UNRELEASED; urgency=low
 
   * added default stop runlevels in init.d
 
  -- Elmar S. Heeb <elmar@heebs.ch>  Thu, 10 Jan 2013 14:28:30 +0100
 
-dphys-config (20100216-4) unstable; urgency=low
+dphys-config (20100216-4) UNRELEASED; urgency=low
 
   * downgrade download warnings from WARNING to INFO
   * added Elmar S. Heeb <elmar@heebs.ch> to uploaders
 
  -- Elmar S. Heeb <elmar@heebs.ch>  Thu, 10 Jan 2013 12:43:55 +0100
 
-dphys-config (20100216-3) experimental; urgency=low
+dphys-config (20100216-3) UNRELEASED; urgency=low
 
   * Add feature patch for Interactive and Diff mode by Claude Becker.
     + Mention Hobbit/Xymon reporting and Interactive mode in the long

@@ -2,13 +2,13 @@ Enables dphys-config to report to hobbit servers
 
 Index: dphys-config/dphys-config
 ===================================================================
---- dphys-config.orig/dphys-config	2013-02-11 19:45:54.000000000 +0100
-+++ dphys-config/dphys-config	2013-02-11 19:45:54.000000000 +0100
+--- dphys-config.orig/dphys-config	2013-10-01 18:31:05.000000000 +0200
++++ dphys-config/dphys-config	2013-10-01 18:31:05.000000000 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/sh
 +#!/bin/dash
  # /usr/bin/dphys-config - install/update config files and trigger commands
- # author Neil Franklin, last modification 2012.01.10
+ # author Neil Franklin, last modification 2013.03.01
  # copyright ETH Zuerich Physics Departement,
 @@ -287,6 +287,87 @@
  ${CMD_DEBUG_WAIT}

@@ -153,7 +153,7 @@ Index: dphys-config/dphys-config
      # only if file has changed do we do anything, as for config list
      if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
  
--      ${CMD_INFO_PRINT} "updating old or installing new config" \
+-      ${CMD_INFO_PRINT} "updating old or installing new file" \
 -          "${CONFFILE_NAME} as ${CONFFILE_PLACE} ..."
 -      ${CMD_DEBUG_SLEEP}
 -

@@ -1,4 +1,7 @@
-dphys-config (20130111~current-2) UNRELEASED; urgency=low
+dphys-config (20130301~current-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot
+    + Refresh patches hobbit-support and interactive.
 
   [ Elmar S. Heeb ]
   * do not start init script on install/upgrade

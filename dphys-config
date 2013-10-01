@@ -1,6 +1,6 @@
 #!/bin/sh
 # /usr/bin/dphys-config - install/update config files and trigger commands
-# author Neil Franklin, last modification 2012.01.10
+# author Neil Franklin, last modification 2013.03.01
 # copyright ETH Zuerich Physics Departement,
 #   use under either modified/non-advertising BSD or GPL license
 
@@ -683,11 +683,11 @@ else
 fi
 
 
-# if file nonexistant generate, empty, hopefully that will not break something
-#   need to prevent diff below from complaining about missing previous file
+# need to prevent diff below from complaining about missing previous file
+#   if file nonexistant generate, empty, hopefully this will not break anything
 if [ ! -e "${CONFLIST_PLACE}" ] ; then
 
-  ${CMD_INFO_PRINT} "will be installing new config list at ${CONFLIST_PLACE}"
+  ${CMD_INFO_PRINT} "will be installing new list at ${CONFLIST_PLACE}"
   ${CMD_DEBUG_SLEEP}
 
   # empty file ensures it is different (new one from server is not empty)
@@ -702,7 +702,7 @@ fi
 #   so ! in here despite wanting to do the if stuff in case of difference
 if ! diff "${CONFLIST_PLACE}" "${CONFLIST}" > /dev/null ; then
 
-  ${CMD_INFO_PRINT} "updating old or installing new config" \
+  ${CMD_INFO_PRINT} "updating old or installing new list" \
       "${SYS_CONFLIST_NAME} as ${CONFLIST_PLACE} ..."
   ${CMD_DEBUG_SLEEP}
 
@@ -824,7 +824,7 @@ cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
     # prevent diff complaining fix, as for config list
     if [ ! -e "${CONFFILE_PLACE}" ] ; then
 
-      ${CMD_INFO_PRINT} "will be installing new config file list at" \
+      ${CMD_INFO_PRINT} "will be installing new file at" \
           "${CONFFILE_PLACE}"
       ${CMD_DEBUG_SLEEP}
 
@@ -837,7 +837,7 @@ cut -f 1 -d '#' "${CONFLIST_PLACE}" | grep -v '^ *$' | \
     # only if file has changed do we do anything, as for config list
     if ! diff "${CONFFILE_PLACE}" "${CONFFILE}" > /dev/null ; then
 
-      ${CMD_INFO_PRINT} "updating old or installing new config" \
+      ${CMD_INFO_PRINT} "updating old or installing new file" \
           "${CONFFILE_NAME} as ${CONFFILE_PLACE} ..."
       ${CMD_DEBUG_SLEEP}
 

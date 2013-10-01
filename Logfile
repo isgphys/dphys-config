@@ -611,7 +611,7 @@ after all bugfixes and changes, and my holiday gone
   copy to ../dphys-config-20100216, change that Makefile, made tar file of that
   remade ../dphys-config.tar.gz archive for current state
 
-2012.01.10 Thu
+2013.01.10 Thu
 Axel Beckert reports Bug in backtick preprocessing, Quoted once too many times
   as result spaces and options are considered part of command name, fails
 also reports that wget faillure warning keeps triggering hobbit system monitor
@@ -619,7 +619,7 @@ also reports that wget faillure warning keeps triggering hobbit system monitor
 also questions whether it is still maintained, or if he should take it over
   is still in productive use by me, so it is still maintained, stays here
 
-2012.01.11 Fri
+2013.01.11 Fri
 Axel Beckert mails all the details and 4 diffs he used to fix it
   backtick preprocessing changed from SUBST="`"${TICK}"`" to SUBST="`${TICK}`"
   after-wget WARNINGs downgraded to NOTEs, as only transient net failures
@@ -633,6 +633,11 @@ Axel Beckert mails all the details and 4 diffs he used to fix it
     possibly as separate programm/script, with its docs, all in subdirectory
   also reports potential interest of future rewrite in perl
     that would have to be an separate fork/replacement, as 100% new code
+
+2013.03.01 Fri
+slightly improved 2 messages "config" to "list" and "config" to "file"
+  and also 2 from "config list" to "list" and "config file list" to "file"
+    the later of these actually is false output, as it is not the list
 
 
 ------ project status

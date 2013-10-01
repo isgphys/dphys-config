@@ -25,6 +25,8 @@
 #                    it if not yet there.
 ### END INIT INFO
 
+. /lib/lsb/init-functions
+
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH
 

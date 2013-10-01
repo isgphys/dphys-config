@@ -2,6 +2,7 @@ dphys-config (20130111~current-2) UNRELEASED; urgency=low
 
   * do not start init script on install/upgrade
   * Add patch to be able to escape colons in file names.
+  * Fix lintian warning init.d-script-does-not-source-init-functions
 
  -- Elmar S. Heeb <elmar@heebs.ch>  Fri, 24 May 2013 13:16:27 +0200
 

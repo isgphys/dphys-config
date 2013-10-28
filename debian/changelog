@@ -20,6 +20,7 @@ dphys-config (20130301~current-1) UNRELEASED; urgency=low
     uploaded to Debian.
   * Rename debian/dphys-config.lintian-overrides to
     debian/lintian-overrides for consistency.
+  * Bump Standards-Version to 3.9.5 (no changes).
 
  -- Axel Beckert <abe@debian.org>  Tue, 01 Oct 2013 18:24:13 +0200
 

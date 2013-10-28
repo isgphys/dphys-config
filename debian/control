@@ -5,7 +5,7 @@ Maintainer: Axel Beckert <abe@debian.org>
 Uploaders: Elmar S. Heeb <elmar@heebs.ch>
 Build-Depends: debhelper (>= 9),
                dh-exec (>= 0.6)
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Homepage: http://neil.franklin.ch/Projects/dphys-config/
 Vcs-Browser: https://github.com/isgphys/dphys-config
 Vcs-Git: git://github.com/isgphys/dphys-config.git

@@ -3,6 +3,7 @@ dphys-config (20130301~current-2) UNRELEASED; urgency=medium
   * Add missing optional dependencies introduced by
     debian/patches/interactive.diff.
   * Declare compliance with Debian Policy 3.9.6 (no changes needed)
+  * Remove reverse-dphys-config paragraph from debian/copyright.
 
  -- Axel Beckert <abe@debian.org>  Thu, 29 Jan 2015 19:56:56 +0100
 

@@ -15,7 +15,10 @@ Architecture: all
 Depends: dash,
          wget,
          ${misc:Depends}
-Suggests: pciutils
+Suggests: colordiff,
+          dwdiff,
+          pciutils,
+          wdiff
 Enhances: hobbit-client,
           xymon-client
 Description: Tool to distribute config files

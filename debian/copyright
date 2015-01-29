@@ -15,8 +15,8 @@ License: GPL-2+
 Files: site.example/*
 Copyright: Has no copyright holder
 License: public-domain
- The examples are in the public domain, written by Gürkan Sengün and
- were downloaded from http://debian.ethz.ch/pub/debian-local/share/kernel/.
+ Written by Gürkan Sengün <gurkan@phys.ethz.ch> and placed in the
+ public domain.
 
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify

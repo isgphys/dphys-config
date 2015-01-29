@@ -1,7 +1,9 @@
-*.debhelper.log
-*.debhelper
-*.substvars
-dphys-config
-files
-stamp-patched
+/debian/*.debhelper.log
+/debian/*.debhelper
+/debian/*.substvars
+/debian/dphys-config
+/debian/tmp
+/debian/files
+/stamp-patched
 /.pc
+/dphys-config.1.gz

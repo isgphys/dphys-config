@@ -4,12 +4,12 @@ Upstream-Contact: Neil Franklin <neil@franklin.ch>
 Source: http://neil.franklin.ch/Projects/dphys-config/
 
 Files: *
-Copyright: 2005-2006, Neil Franklin <neil@franklin.ch>
+Copyright: 2005-2013, Neil Franklin <neil@franklin.ch>
 License: GPL-2+ or BSD-3-clause
 
 Files: debian/*
-Copyright: 2006, Gürkan Sengün <gurkan@linuks.mine.nu>,
-           2009-2011, Axel Beckert <abe@debian.org>
+Copyright: 2006-2007, Gürkan Sengün <gurkan@phys.ethz.ch>,
+           2009-2015, Axel Beckert <abe@debian.org>
 License: GPL-2+
 
 Files: site.example/*

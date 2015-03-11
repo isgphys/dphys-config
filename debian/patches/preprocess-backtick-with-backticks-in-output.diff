@@ -1,0 +1,48 @@
+Description: Properly handle backticks in the output of a command executed via the backtick preprocessor
+Author: Axel Beckert <abe@debian.org>
+Bug-Debian: https://bugs.debian.org/780273
+
+--- /usr/bin/dphys-config	2013-12-05 01:55:37.000000000 +0100
++++ ../dphys-config	2015-03-11 14:39:38.149909422 +0100
+@@ -647,20 +647,24 @@
+           ${CMD_VERBOSE_PRINT} "preprocessing for backtick ..."
+           ${CMD_DEBUG_SLEEP}
+           local LINE
++          local REMAINDER
++          local ALREADYPARSED
+           # IFS= to avoid read doing separator processing (mangles spaces)
+           #   and -r to prevent \ interpretation (mangles line contents)
+           cat "${WORK}" | while IFS= read -r LINE ; do
+-
++            ALREADYPARSED=''
++            REMAINDER="${LINE}"
++                              
+             # syntax taken from the shell backtick, which is also used here
+             #   may have multiple substitutions on one line, so use while loop
+-            while echo "${LINE}" | grep -q '`' ; do
++            while echo "${REMAINDER}" | grep -q '`' ; do
+               # the '\` here need the \ because of the `` subshell
+               local FRONT
+-              FRONT="`echo "${LINE}" | cut -f 1  -d '\`' `"
++              FRONT="`echo "${REMAINDER}" | cut -f 1  -d '\`' `"
+               local TICK
+-              TICK="`echo "${LINE}"  | cut -f 2  -d '\`' `"
++              TICK="`echo "${REMAINDER}"  | cut -f 2  -d '\`' `"
+               local REST
+-              REST="`echo "${LINE}"  | cut -f 3- -d '\`' `"
++              REST="`echo "${REMAINDER}"  | cut -f 3- -d '\`' `"
+ 
+               # prevent non zero return from user given command from killing us
+               set +e
+@@ -673,8 +677,10 @@
+                 ${CMD_LOG_WARNING} "backtick returned non zero: ${RETVAL}"
+               fi
+ 
+-              LINE="${FRONT}${SUBST}${REST}"
++              REMAINDER="${REST}"
++              ALREADYPARSED="${ALREADYPARSED}${FRONT}${SUBST}"
+             done
++            LINE="${ALREADYPARSED}${REMAINDER}"
+             echo "${LINE}" >> "${WORK}.temp"
+ 
+           done

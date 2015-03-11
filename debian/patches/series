@@ -1,3 +1,4 @@
 hobbit-support.diff
 interactive.diff
 escaping-colons.diff
+preprocess-backtick-with-backticks-in-output.diff

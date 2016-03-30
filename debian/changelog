@@ -12,6 +12,7 @@ dphys-config (20130301~current-2) UNRELEASED; urgency=medium
     executed via the backtick preprocessor. (Closes: #780273)
   * Add patch to support wget 1.17 when being used with -N/--timestamping
     option. (Closes: #819557)
+  * Switch Vcs-Git header from git:// to https://.
 
  -- Axel Beckert <abe@debian.org>  Thu, 29 Jan 2015 19:56:56 +0100
 

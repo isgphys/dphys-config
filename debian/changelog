@@ -1,4 +1,4 @@
-dphys-config (20130301~current-2) UNRELEASED; urgency=medium
+dphys-config (20130301~current-2) unstable; urgency=low
 
   * Add missing optional dependencies introduced by
     debian/patches/interactive.diff.
@@ -15,7 +15,7 @@ dphys-config (20130301~current-2) UNRELEASED; urgency=medium
   * Switch Vcs-Git header from git:// to https://.
   * Add lintian-override for accused misspelling "allways".
 
- -- Axel Beckert <abe@debian.org>  Thu, 29 Jan 2015 19:56:56 +0100
+ -- Axel Beckert <abe@debian.org>  Wed, 30 Mar 2016 15:47:47 +0200
 
 dphys-config (20130301~current-1) unstable; urgency=low
 

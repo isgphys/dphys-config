@@ -9,7 +9,7 @@ License: GPL-2+ or BSD-3-clause
 
 Files: debian/*
 Copyright: 2006-2007, Gürkan Sengün <gurkan@phys.ethz.ch>,
-           2009-2015, Axel Beckert <abe@debian.org>
+           2009-2016, Axel Beckert <abe@debian.org>
 License: GPL-2+
 
 Files: site.example/*

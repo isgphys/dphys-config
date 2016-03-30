@@ -14,6 +14,7 @@ dphys-config (20130301~current-2) UNRELEASED; urgency=medium
     option. (Closes: #819557)
   * Switch Vcs-Git header from git:// to https://.
   * Declare compliance with Debian Policy 3.9.7. (No changes needed.)
+  * Add lintian-override for accused misspelling "allways".
 
  -- Axel Beckert <abe@debian.org>  Thu, 29 Jan 2015 19:56:56 +0100
 

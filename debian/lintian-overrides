@@ -1,3 +1,5 @@
 # According to the upstream author, "authenti*fi*cation" is commonly
 # used English and therefore English, even if it's not in the OED.
 dphys-config binary: spelling-error-in-manpage usr/share/man/man1/dphys-config.1.gz authentification authentication
+# "allways" is even in the OED: http://www.oed.com/view/Entry/5941
+dphys-config: spelling-error-in-manpage usr/share/man/man1/dphys-config.1.gz allways always

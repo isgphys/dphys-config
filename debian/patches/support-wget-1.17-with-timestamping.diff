@@ -1,0 +1,36 @@
+Subject: Support wget 1.17's usage of If-Modified-Since with -N/--timestamping
+Bug-Debian: https://bugs.debian.org/819557
+Author: Axel Beckert <abe@debian.org>
+
+Consider a dphys-config.list file like this:
+
+foo.conf:/etc/foo-23/
+foo.conf:/etc/foo-42/
+
+dphys-config tries twice to download the file "foo.conf" from the
+configuration files repository with wget. In the past, "wget -N" noticed
+that the file is already there ("Server file no newer than local file
+`foo.conf' -- not retrieving"), but still logged a "200 OK" response
+code ("HTTP request sent, awaiting response... 200 OK"). So dphys-config
+saw the "200" and was happy with it.
+
+But since version 1.17, wget uses If-Modified-Since headers with the
+"-N" respectively "--timestamping" option and reports a "304 Not
+Modified" instead of the previous "Server file no newer than local
+file `foo.conf' -- not retrieving" message. The HTTP code "304"
+confuses dphys-config as of now and it considers it an error and
+aborts.
+
+Index: dphys-config/dphys-config
+===================================================================
+--- dphys-config.orig/dphys-config	2016-03-30 15:24:58.000000000 +0200
++++ dphys-config/dphys-config	2016-03-30 15:25:43.000000000 +0200
+@@ -500,7 +500,7 @@
+       #   especially as all 3 attemps failing will fall into below FATAL
+       ${CMD_NOTE} "failed try ${TRY} to resolve server for URL ${URL}" >&2
+       ${CMD_LOG_NOTE} "failed try ${TRY} to resolve server for URL ${URL}"
+-    elif ( [ "${HTTP_STAT}" = 200 ] || [ "${HTTP_STAT}" = 404 ] ) ; then
++    elif ( [ "${HTTP_STAT}" = 200 ] || [ "${HTTP_STAT}" = 304 ] || [ "${HTTP_STAT}" = 404 ] ) ; then
+       # we managed to get a file, or there is no file, both are OK for us
+       return 0
+     else

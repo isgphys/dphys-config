@@ -2,3 +2,4 @@ hobbit-support.diff
 interactive.diff
 escaping-colons.diff
 preprocess-backtick-with-backticks-in-output.diff
+support-wget-1.17-with-timestamping.diff

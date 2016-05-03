@@ -1,3 +1,10 @@
+dphys-config (20130301~current-3) unstable; urgency=medium
+
+  * debian/patches/hobbit-support.diff: Also check for existence of
+    /etc/default/xymon-client.
+
+ -- Axel Beckert <abe@debian.org>  Tue, 03 May 2016 16:08:48 +0200
+
 dphys-config (20130301~current-2) unstable; urgency=low
 
   * Add missing optional dependencies introduced by

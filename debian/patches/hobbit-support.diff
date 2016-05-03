@@ -1,4 +1,4 @@
-Enables dphys-config to report to hobbit servers
+Enables dphys-config to report to xymon (formerly hobbit) servers
 
 Index: dphys-config/dphys-config
 ===================================================================
@@ -10,12 +10,14 @@ Index: dphys-config/dphys-config
  # /usr/bin/dphys-config - install/update config files and trigger commands
  # author Neil Franklin, last modification 2013.03.01
  # copyright ETH Zuerich Physics Departement,
-@@ -287,6 +287,87 @@
+@@ -287,6 +287,89 @@
  ${CMD_DEBUG_WAIT}
  
  
 +# Setup hobbit/xymon support
-+if [ -e /etc/default/hobbit-client ] ; then
++if [ -e /etc/default/xymon-client ] ; then
++  . /etc/default/xymon-client
++elif [ -e /etc/default/hobbit-client ] ; then
 +  . /etc/default/hobbit-client
 +fi
 +if [ -n "${HOBBITSERVERS}" -a '(' -x '/usr/lib/hobbit/client/bin/bb' -o -x '/usr/lib/xymon/client/bin/xymon' ')' ] ; then

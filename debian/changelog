@@ -3,7 +3,7 @@ dphys-config (20130301~current-3) unstable; urgency=medium
   * debian/patches/hobbit-support.diff: Also check for existence of
     /etc/default/xymon-client.
   * Move packaging git repository from GitHub to Alioth.
-  * Declare compliance with Debian Policy 3.9.7. (No changes needed.)
+  * Declare compliance with Debian Policy 3.9.8. (No changes needed.)
 
  -- Axel Beckert <abe@debian.org>  Tue, 03 May 2016 16:08:48 +0200
 

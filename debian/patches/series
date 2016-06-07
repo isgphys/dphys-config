@@ -3,3 +3,4 @@ interactive.diff
 escaping-colons.diff
 preprocess-backtick-with-backticks-in-output.diff
 support-wget-1.17-with-timestamping.diff
+fix-include-preprocessing-in-case-of-empty-results.diff
